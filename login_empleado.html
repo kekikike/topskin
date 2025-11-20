@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | TopSkin Laneige</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.75)), 
+                  url('https://img.freepik.com/fotos-premium/dos-pinceles-maquillaje-sombras-maquillaje-azul-movimiento-sobre-fondo-negro_73492-267.jpg');
+      background-size: cover;
+      background-position: center;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .login-container {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 22px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 3rem 2.2rem;
+      width: 390px;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+
+    .logo {
+      width: 150px;
+      margin-bottom: 1.2rem;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+    }
+
+    .profile-img {
+      width: 105px;
+      height: 105px;
+      border-radius: 50%;
+      border: 5px solid rgba(255,255,255,0.35);
+      margin: 1rem 0 1.8rem;
+      object-fit: cover;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+
+    h2 {
+      font-size: 1.9rem;
+      margin-bottom: 2.2rem;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    .input-group {
+      margin-bottom: 1.4rem;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.6rem;
+      font-weight: 500;
+      font-size: 1rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.95rem 1.3rem;
+      border: none;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.22);
+      color: white;
+      font-size: 1.02rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    input:focus {
+      background: rgba(255, 255, 255, 0.32);
+      box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.5);
+      transform: scale(1.02);
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #14b8a6, #0d9488);
+      color: white;
+      border: none;
+      padding: 1rem;
+      width: 100%;
+      border-radius: 14px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 1.2rem 0 1rem;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.4);
+    }
+
+    .btn-regresar {
+      background: rgba(255,255,255,0.18);
+      color: white;
+      padding: 0.75rem 1.6rem;
+      border-radius: 12px;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 0.98rem;
+      font-weight: 500;
+      transition: 0.3s;
+      backdrop-filter: blur(5px);
+    }
+
+    .btn-regresar:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateY(-2px);
+    }
+
+    .error {
+      color: #ff6b6b;
+      font-size: 0.95rem;
+      margin-top: 1rem;
+      min-height: 1.4rem;
+      font-weight: 500;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <div class="login-container">
+    <img src="media/logo_1.png" alt="TopSkin Logo" class="logo">
+    
+    <img src="media/perfil.png" alt="Usuario" class="profile-img">
+    
+    <h2>Iniciar Sesión</h2>
+
+    <form @submit.prevent="login">
+      <div class="input-group">
+        <label>Correo</label>
+        <input type="email" v-model="correo" placeholder="tu@correo.com" required autocomplete="email">
+      </div>
+
+      <div class="input-group">
+        <label>Contraseña</label>
+        <input type="password" v-model="contrasena" placeholder="••••••••" required autocomplete="current-password">
+      </div>
+
+      <p class="error">{{ mensajeError }}</p>
+
+      <button type="submit" class="btn">Ingresar</button>
+    </form>
+
+    <a href="#" class="btn-regresar">Regresar al Menú</a>
+  </div>
+</div>
+
+<script>
+const { createApp, ref } = Vue;
+
+createApp({
+  setup() {
+    const correo = ref('');
+    const contrasena = ref('');
+    const mensajeError = ref('');
+
+    const login = async () => {
+      mensajeError.value = '';
+
+      try {
+        const res = await fetch('backend/login_empleado.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            correo: correo.value.trim(),
+            contrasena: contrasena.value
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          // Guardar TODA la información del usuario
+          localStorage.setItem('usuario', JSON.stringify(data.usuario));
+          localStorage.setItem('ciEmpleado', data.usuario.ciEmpleado);  // ← Aquí guardamos el CI
+          localStorage.setItem('idRol', data.usuario.idRol);
+          localStorage.setItem('nombreCompleto', data.usuario.nombre);
+
+          // Redirección según rol
+          if (data.usuario.idRol === 'ADM') {
+            window.location.href = 'src/menu_admin.html';
+          } else if (data.usuario.idRol === 'VND') {
+            window.location.href = 'src/menu_vendedor.html';
+          } else {
+            mensajeError.value = 'Rol no autorizado';
+          }
+        } else {
+          mensajeError.value = data.message || 'Correo o contraseña incorrectos';
+        }
+      } catch (err) {
+        mensajeError.value = 'Error de conexión. Verifica el servidor.';
+        console.error('Error login:', err);
+      }
+    };
+
+    return { correo, contrasena, mensajeError, login };
+  }
+}).mount('#app');
+</script>
+
+</body>
+</html>
