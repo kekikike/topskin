@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menú Admin - TopSkin</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#fdf8f0; font-family:'Segoe UI',Arial,sans-serif; }
+    header { background:linear-gradient(90deg,#0d9488,#14b8a6); padding:1.2rem 2.5rem; color:white; display:flex; align-items:center; justify-content:space-between; box-shadow:0 6px 25px rgba(0,0,0,0.15); position:relative; z-index:100; }
+    .header-left { display:flex; align-items:center; gap:1.8rem; }
+    .logo-img { height:56px; }
+    .profile-link img { width:56px; height:56px; border-radius:50%; object-fit:cover; border:4px solid rgba(255,255,255,0.3); transition:all 0.3s ease; }
+    .profile-link:hover img { transform:scale(1.12); border-color:white; box-shadow:0 8px 20px rgba(0,0,0,0.3); }
+    nav { display:flex; gap:1.2rem; }
+    nav a { background:rgba(255,255,255,0.25); padding:0.7rem 1.4rem; border-radius:2rem; text-decoration:none; color:white; font-weight:500; transition:0.3s; }
+    nav a:hover { background:rgba(255,255,255,0.38); }
+    .container { max-width:1500px; margin:3rem auto; padding:0 2rem; }
+    h1 { font-size:2.4rem; text-align:center; color:#1f2937; margin-bottom:2.5rem; }
+    .empleados-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:2.2rem; padding:1rem; }
+    .empleado-card { background:white; border-radius:18px; overflow:visible; box-shadow:0 8px 25px rgba(0,0,0,0.1); height:150px; position:relative; transition:all 0.4s ease; }
+    .compact-info { position:absolute; bottom:0; left:0; right:0; background:white; padding:1rem 0.8rem; text-align:center; border-radius:0 0 18px 18px; }
+    .nombre { font-weight:700; font-size:1.05rem; color:#1f2937; }
+    .apellido { font-size:0.94rem; color:#4b5563; margin-top:0.4rem; }
+    .expanded-info { position:absolute; top:-10px; left:50%; width:220px; height:260px; background:white; border-radius:18px; box-shadow:0 18px 40px rgba(0,0,0,0.22); overflow:hidden; z-index:999; opacity:0; visibility:hidden; transform:translateX(-50%) scale(0.8); transition:all 0.42s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .empleado-card:hover .expanded-info { opacity:1; visibility:visible; transform:translateX(-50%) scale(1); top:-125px; }
+    .fondo-foto { height:25%; background:linear-gradient(to bottom,#bae6fd,#e0f2fe); position:relative; }
+    .fondo-foto::after { content:""; position:absolute; bottom:0; left:0; right:0; height:28px; background:linear-gradient(to bottom,#86efac,#bbf7d0); }
+    .info-expandida { padding:1.3rem 1rem; background:white; text-align:center; height:75%; display:flex; flex-direction:column; justify-content:center; }
+    .nombre-full { font-size:1.15rem; font-weight:700; color:#1f2937; margin-bottom:0.6rem; line-height:1.3; }
+    .cargo { color:#6b7280; font-size:0.96rem; margin:0.8rem 0 1rem; font-weight:500; }
+    .btn-horario { background:#10b981; color:white; border:none; padding:0.62rem 1.6rem; border-radius:2rem; cursor:pointer; font-weight:600; font-size:0.96rem; transition:all 0.3s; }
+    .btn-horario:hover { background:#059669; transform:scale(1.07); }
+    .horarios-section { margin-top:5rem; background:#f0fdfa; padding:3rem 2.5rem; border-radius:22px; box-shadow:0 12px 35px rgba(0,0,0,0.1); }
+    .horarios-title { font-size:2.2rem; color:#134e4a; text-align:center; margin-bottom:1.5rem; font-weight:700; }
+    .resumen-empleado { text-align:center; margin-bottom:2rem; padding:1.2rem; background:white; border-radius:16px; box-shadow:0 4px 15px rgba(0,0,0,0.08); font-size:1.1rem; color:#134e4a; font-weight:600; }
+    .btn-editar-horarios, .btn-guardar-horarios, .btn-cancelar { display: inline-block; margin: 1.5rem 0.5rem 0; padding: 0.85rem 2.2rem; font-size: 1.05rem; font-weight: 600; border: none; border-radius: 2rem; cursor: pointer; transition: all 0.3s; }
+    .btn-editar-horarios { background:#0d9488; color:white; }
+    .btn-editar-horarios:hover { background:#0f766e; transform:translateY(-3px); }
+    .btn-guardar-horarios { background:#10b981; color:white; }
+    .btn-guardar-horarios:hover { background:#059669; }
+    .btn-cancelar { background:#ef4444; color:white; }
+    .btn-cancelar:hover { background:#dc2626; }
+    table { width:100%; border-collapse:collapse; background:white; border-radius:16px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.12); margin-top:1rem; }
+    th { background:#0d9488; color:white; padding:1.3rem; font-size:1.1rem; font-weight:600; }
+    td { padding:1rem; text-align:center; background:#ecfdf5; font-size:1.02rem; border-bottom:1px solid #bbf7d0; vertical-align:middle; }
+    tr:last-child td { border:none; }
+    select { padding:0.6rem; border-radius:10px; border:1px solid #94a3b8; background:white; width:100%; font-size:1rem; }
+    .turnos-lista { font-weight:600; }
+    .turno-tag { display:inline-block; margin:0 4px; padding:2px 8px; border-radius:8px; background:#dbeafe; color:#1e40af; font-size:0.9rem; }
+    .turno-tag.mediodia { background:#fed7aa; color:#9a3412; }
+    .turno-tag.tarde { background:#fbcfe8; color:#831843; }
+  </style>
+</head>
+<body>
+
+<div id="app" class="container">
+  <header>
+    <div class="header-left">
+      <a href="administrador/perfil.html" class="profile-link">
+        <img src="../media/perfil.png" alt="Mi perfil">
+      </a>
+      <img src="../media/logo_1.png" alt="TopSkin Laneige" class="logo-img">
+    </div>
+    <nav>
+      <a href="administrador/nuevo_personal.html">Gestión de nuevo personal</a>      
+      <a href="administrador/reportes.html">Reportes</a>
+      <a href="administrador/inventario.html">Inventario</a>
+      <a href="administrador/marcas.html">Añadir Marcas</a>
+    </nav>
+  </header>
+
+  <h1>Empleados</h1>
+  <div class="empleados-grid">
+    <div v-for="emp in empleados" :key="emp.ciEmpleado" class="empleado-card">
+      <div class="compact-info">
+        <div class="nombre">{{ emp.nombre1 }} {{ emp.nombre2 || '' }}</div>
+        <div class="apellido">{{ emp.apellidoP }} {{ emp.apellidoM || '' }}</div>
+      </div>
+      <div class="expanded-info">
+        <div class="fondo-foto"></div>
+        <div class="info-expandida">
+          <div class="nombre-full">
+            {{ emp.nombre1 }} {{ emp.nombre2 || '' }}<br>
+            {{ emp.apellidoP }} {{ emp.apellidoM || '' }}
+          </div>
+          <div class="cargo">{{ emp.cargo || 'Sin cargo' }}</div>
+          <button class="btn-horario" @click.stop="cargarHorarios(emp.ciEmpleado)">
+            Ver Horario
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN DE TURNOS -->
+  <div v-if="horariosSeleccionados.length" class="horarios-section">
+    <h2 class="horarios-title">Horario Actual del Empleado</h2>
+
+    <!-- RESUMEN GENERAL (opcional, queda bonito) -->
+    <div class="resumen-empleado">
+      {{ resumenGeneralEmpleado() }}
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Día</th>
+          <th>Turnos Asignados</th>
+          <th v-if="editando">Editar turnos</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="dia in horariosSeleccionados" :key="dia.dia">
+          <td><strong>{{ dia.dia }}</strong></td>
+          <td>
+            <template v-if="!editando">
+              <div v-if="dia.turnos.length === 0" style="color:#6b7280;">Libre</div>
+              <div v-else class="turnos-lista">
+                <span 
+                  v-for="t in dia.turnos" 
+                  :key="t.nombre"
+                  :class="['turno-tag', t.clase]"
+                >
+                  {{ t.nombre }}
+                </span>
+                <strong style="margin-left:8px;">
+                  ({{ dia.horaInicio }} - {{ dia.horaFin }})
+                </strong>
+              </div>
+            </template>
+          </td>
+          <td v-if="editando">
+            <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center;">
+              <label><input type="checkbox" v-model="dia.manana" @change="actualizarDia(dia)"> Mañana</label>
+              <label><input type="checkbox" v-model="dia.mediodia" @change="actualizarDia(dia)"> Mediodía</label>
+              <label><input type="checkbox" v-model="dia.tarde" @change="actualizarDia(dia)"> Tarde</label>
+            </div>
+            <small style="color:#6b7280; display:block; margin-top:6px;">
+              {{ dia.horaInicio }} - {{ dia.horaFin }}
+            </small>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="text-align:center; margin-top:2rem;">
+      <button v-if="!editando" class="btn-editar-horarios" @click="iniciarEdicion">Editar Turnos</button>
+      <div v-else>
+        <button class="btn-cancelar" @click="cancelarEdicion">Cancelar</button>
+        <button class="btn-guardar-horarios" @click="guardarHorarios">Guardar Cambios</button>
+      </div>
+    </div>
+
+    <div v-if="mensaje" style="text-align:center; margin-top:1rem; font-weight:600; color:#0d9488;">
+      {{ mensaje }}
+    </div>
+  </div>
+</div>
+
+<script>
+const { createApp, ref, onMounted } = Vue;
+
+createApp({
+  setup() {
+    const empleados = ref([]);
+    const horariosSeleccionados = ref([]);
+    const editando = ref(false);
+    const ciEmpleadoActual = ref('');
+    const mensaje = ref('');
+    const horaApertura = ref('08:00');
+    const horaCierre = ref('20:00');
+    const idSucursal = localStorage.getItem('idSucursal');
+
+    if (!idSucursal || !localStorage.getItem('ciEmpleado')) {
+      alert("Sesión expirada");
+      window.location.href = '../login.html';
+    }
+
+    const cargarHorarioSucursal = async () => {
+      const res = await fetch(`../backend/editar_horario.php?accion=horario_sucursal&idSucursal=${idSucursal}`);
+      const data = await res.json();
+      if (data.success) {
+        horaApertura.value = data.apertura || '08:00';
+        horaCierre.value = data.cierre || '20:00';
+      }
+    };
+
+    const cargarEmpleados = async () => {
+      const res = await fetch(`../backend/menu_admin.php?accion=listar_empleados&idSucursal=${idSucursal}`);
+      const data = await res.json();
+      if (data.success) empleados.value = data.empleados;
+    };
+
+    const cargarHorarios = async (ci) => {
+      ciEmpleadoActual.value = ci;
+      editando.value = false;
+      mensaje.value = '';
+      await cargarHorarioSucursal();
+      await cargarDatosEmpleado(ci);
+    };
+
+    const cargarDatosEmpleado = async (ci) => {
+      const res = await fetch(`../backend/menu_admin.php?accion=cargar_horarios&ciEmpleado=${ci}`);
+      const data = await res.json();
+
+      const dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+      const rangos = calcularRangosTurnos();
+
+      horariosSeleccionados.value = dias.map(dia => {
+        const reg = data.success ? data.horarios.find(h => h.dia === dia) : null;
+        const inicio = reg && reg.inicio !== '-' ? reg.inicio : null;
+        const fin = reg && reg.fin !== '-' ? reg.fin : null;
+
+        // Detectar qué turnos tiene según las horas
+        const turnos = [];
+        if (inicio && fin) {
+          const inicioMin = horaAMinutos(inicio);
+          const finMin = horaAMinutos(fin);
+
+          if (inicioMin >= rangos.manana.inicio && inicioMin < rangos.manana.fin) turnos.push({ nombre: 'Mañana', clase: '' });
+          if (inicioMin >= rangos.mediodia.inicio && inicioMin < rangos.mediodia.fin) turnos.push({ nombre: 'Mediodía', clase: 'mediodia' });
+          if (inicioMin >= rangos.tarde.inicio && inicioMin < rangos.tarde.fin) turnos.push({ nombre: 'Tarde', clase: 'tarde' });
+        }
+
+        return {
+          dia,
+          turnos,
+          horaInicio: inicio || '-',
+          horaFin: fin || '-',
+          manana: turnos.some(t => t.nombre === 'Mañana'),
+          mediodia: turnos.some(t => t.nombre === 'Mediodía'),
+          tarde: turnos.some(t => t.nombre === 'Tarde'),
+          inicioOriginal: inicio,
+          finOriginal: fin
+        };
+      });
+    };
+
+    const horaAMinutos = (hora) => {
+      const [h, m] = hora.split(':').map(Number);
+      return h * 60 + m;
+    };
+
+    const calcularRangosTurnos = () => {
+      const [hi, mi] = horaApertura.value.split(':').map(Number);
+      const [hf, mf] = horaCierre.value.split(':').map(Number);
+      const inicio = hi * 60 + mi;
+      const fin = hf * 60 + mf;
+      const tercio = Math.floor((fin - inicio) / 3);
+
+      return {
+        manana:   { inicio, fin: inicio + tercio },
+        mediodia: { inicio: inicio + tercio, fin: inicio + tercio * 2 },
+        tarde:    { inicio: inicio + tercio * 2, fin }
+      };
+    };
+
+    const actualizarDia = (diaObj) => {
+      const seleccionados = [];
+      if (diaObj.manana) seleccionados.push('manana');
+      if (diaObj.mediodia) seleccionados.push('mediodia');
+      if (diaObj.tarde) seleccionados.push('tarde');
+
+      const rangos = calcularRangosTurnos();
+      let inicioMin = null;
+      let finMin = null;
+
+      if (seleccionados.length > 0) {
+        inicioMin = rangos[seleccionados[0]].inicio;
+        finMin = rangos[seleccionados[seleccionados.length - 1]].fin;
+      }
+
+      diaObj.horaInicio = inicioMin !== null ? minutosAHora(inicioMin) : '-';
+      diaObj.horaFin = finMin !== null ? minutosAHora(finMin) : '-';
+
+      // Actualizar turnos visuales
+      diaObj.turnos = seleccionados.map(t => ({
+        nombre: t === 'manana' ? 'Mañana' : t === 'mediodia' ? 'Mediodía' : 'Tarde',
+        clase: t === 'mediodia' ? 'mediodia' : t === 'tarde' ? 'tarde' : ''
+      }));
+    };
+
+    const minutosAHora = (min) => {
+      const h = Math.floor(min / 60).toString().padStart(2, '0');
+      const m = (min % 60).toString().padStart(2, '0');
+      return `${h}:${m}`;
+    };
+
+    const resumenGeneralEmpleado = () => {
+      const diasConTurno = horariosSeleccionados.value.filter(d => d.turnos.length > 0);
+      if (diasConTurno.length === 0) return 'El empleado no tiene turnos asignados esta semana.';
+      return `Trabaja ${diasConTurno.length} días: ${diasConTurno.map(d => d.dia).join(', ')}.`;
+    };
+
+    const iniciarEdicion = () => editando.value = true;
+    const cancelarEdicion = () => { editando.value = false; cargarHorarios(ciEmpleadoActual.value); };
+
+    const guardarHorarios = async () => {
+      const horariosParaGuardar = horariosSeleccionados.value.map(d => ({
+        dia: d.dia,
+        inicio: d.horaInicio !== '-' ? d.horaInicio : null,
+        fin: d.horaFin !== '-' ? d.horaFin : null
+      }));
+
+      const res = await fetch('../backend/editar_horario.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          accion: 'guardar',
+          ciEmpleado: ciEmpleadoActual.value,
+          horarios: horariosParaGuardar
+        })
+      });
+
+      const data = await res.json();
+      mensaje.value = data.success ? 'Turnos guardados correctamente' : (data.message || 'Error');
+      if (data.success) {
+        editando.value = false;
+        cargarHorarios(ciEmpleadoActual.value);
+      }
+    };
+
+    onMounted(cargarEmpleados);
+
+    return {
+      empleados, horariosSeleccionados, editando, mensaje,
+      cargarHorarios, iniciarEdicion, cancelarEdicion, guardarHorarios,
+      resumenGeneralEmpleado, actualizarDia
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
