@@ -16,7 +16,6 @@ try {
     die(json_encode(['success' => false, 'message' => 'Error de base de datos: ' . $e->getMessage()]));
 }
 
-// Leer JSON del frontend
 $raw = file_get_contents('php://input');
 $data = json_decode($raw, true);
 
@@ -26,48 +25,35 @@ if (!$data || !isset($data['action'])) {
 
 $action = $data['action'];
 
-// ==================================================================
-// 1. INIT → Cargar roles + horario de sucursal
-// ==================================================================
 if ($action === 'init') {
     $idSucursal = $data['idSucursal'] ?? null;
 
-    try {
-        // Roles activos
-        $stmt = $pdo->query("SELECT idRol, nombreRol FROM troles WHERE estado = 1 ORDER BY nombreRol");
-        $roles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $pdo->query("SELECT idRol, nombreRol FROM troles WHERE estado = 1 ORDER BY nombreRol");
+    $roles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Horario por defecto
-        $horaIni = '08:00';
-        $horaFin = '20:00';
+    $horaIni = '08:00';
+    $horaFin = '20:00';
 
-        // Obtener horario real de la sucursal
-        if ($idSucursal && preg_match('/^\d+$/', $idSucursal)) {
-            $stmt = $pdo->prepare("SELECT horaIni, horaFin FROM tsucursales WHERE idSucursal = ? AND estado = 1");
-            $stmt->execute([$idSucursal]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($idSucursal && preg_match('/^\d+$/', $idSucursal)) {
+        $stmt = $pdo->prepare("SELECT horaIni, horaFin FROM tsucursales WHERE idSucursal = ? AND estado = 1");
+        $stmt->execute([$idSucursal]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($row && $row['horaIni'] && $row['horaFin']) {
-                $horaIni = (new DateTime($row['horaIni']))->format('H:i');
-                $horaFin = (new DateTime($row['horaFin']))->format('H:i');
-            }
+        if ($row && $row['horaIni'] && $row['horaFin']) {
+            $horaIni = (new DateTime($row['horaIni']))->format('H:i');
+            $horaFin = (new DateTime($row['horaFin']))->format('H:i');
         }
-
-        echo json_encode([
-            'success' => true,
-            'roles'   => $roles,
-            'horaIni' => $horaIni,
-            'horaFin' => $horaFin
-        ]);
-    } catch (Exception $e) {
-        echo json_encode(['success' => false, 'message' => 'Error al cargar datos: ' . $e->getMessage()]);
     }
+
+    echo json_encode([
+        'success' => true,
+        'roles'   => $roles,
+        'horaIni' => $horaIni,
+        'horaFin' => $horaFin
+    ]);
     exit;
 }
 
-// ==================================================================
-// 2. REGISTRAR EMPLEADO
-// ==================================================================
 if ($action === 'registrar') {
     $f = $data['form'] ?? [];
     $idSucursal = $data['idSucursal'] ?? null;
@@ -77,7 +63,6 @@ if ($action === 'registrar') {
         exit;
     }
 
-    // Validaciones
     if (!preg_match('/^\d{9}$/', $f['ciEmpleado'] ?? '')) {
         echo json_encode(['success' => false, 'message' => 'CI debe tener 9 dígitos']);
         exit;
@@ -99,55 +84,46 @@ if ($action === 'registrar') {
         exit;
     }
 
-    try {
-        // Verificar CI duplicado
-        $stmt = $pdo->prepare("SELECT ciEmpleado FROM templeados WHERE ciEmpleado = ?");
-        $stmt->execute([$f['ciEmpleado']]);
-        if ($stmt->rowCount() > 0) {
-            echo json_encode(['success' => false, 'message' => 'Este CI ya está registrado']);
-            exit;
-        }
-
-        $hash = password_hash($f['contrasena'], PASSWORD_DEFAULT);
-        $usuarioA = $_SESSION['ciEmpleado'] ?? 'SYSTEM';
-
-        $sql = "INSERT INTO templeados (
-                    ciEmpleado, nombre1, nombre2, apellidoP, apellidoM, direccion, correo, sexo,
-                    telefono, fechaNacimiento, idSucursal, idRol, contrasena, usuarioA, estado
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
-
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            $f['ciEmpleado'],
-            $f['nombre1'],
-            $f['nombre2'] ?? null,
-            $f['apellidoP'],
-            $f['apellidoM'] ?? null,
-            $f['direccion'],
-            $f['correo'],
-            (int)($f['sexo'] ?? 1),
-            $f['telefono'],
-            $f['fechaNacimiento'],
-            $idSucursal,
-            $f['idRol'],
-            $hash,
-            $usuarioA
-        ]);
-
-        echo json_encode([
-            'success'    => true,
-            'ciEmpleado' => $f['ciEmpleado'],
-            'nombre'     => trim($f['nombre1'] . ' ' . ($f['apellidoP'] ?? ''))
-        ]);
-    } catch (Exception $e) {
-        echo json_encode(['success' => false, 'message' => 'Error al registrar empleado: ' . $e->getMessage()]);
+    $stmt = $pdo->prepare("SELECT ciEmpleado FROM templeados WHERE ciEmpleado = ?");
+    $stmt->execute([$f['ciEmpleado']]);
+    if ($stmt->rowCount() > 0) {
+        echo json_encode(['success' => false, 'message' => 'Este CI ya está registrado']);
+        exit;
     }
+
+    $usuarioA = $_SESSION['ciEmpleado'] ?? '1';
+
+    $sql = "INSERT INTO templeados (
+                ciEmpleado, nombre1, nombre2, apellidoP, apellidoM, direccion, correo, sexo,
+                telefono, fechaNacimiento, idSucursal, idRol, contrasena, usuarioA, estado
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        $f['ciEmpleado'],
+        $f['nombre1'],
+        $f['nombre2'] ?? null,
+        $f['apellidoP'],
+        $f['apellidoM'] ?? null,
+        $f['direccion'],
+        $f['correo'],
+        (int)($f['sexo'] ?? 1),
+        $f['telefono'],
+        $f['fechaNacimiento'],
+        $idSucursal,
+        $f['idRol'],
+        $f['contrasena'],
+        $usuarioA
+    ]);
+
+    echo json_encode([
+        'success'    => true,
+        'ciEmpleado' => $f['ciEmpleado'],
+        'nombre'     => trim($f['nombre1'] . ' ' . ($f['apellidoP'] ?? ''))
+    ]);
     exit;
 }
 
-// ==================================================================
-// 3. GUARDAR HORARIOS (ARREGLADO 100%)
-// ==================================================================
 if ($action === 'horarios') {
     $ciEmpleado = $data['ciEmpleado'] ?? null;
     $horarios   = $data['horarios'] ?? [];
@@ -162,42 +138,35 @@ if ($action === 'horarios') {
         exit;
     }
 
-    try {
-        $pdo->beginTransaction();
+    $pdo->beginTransaction();
 
-        // Obtener el mayor número para H1, H2, H3...
-        $stmt = $pdo->query("SELECT MAX(CAST(SUBSTRING(idHorarioPersonal, 2) AS UNSIGNED)) AS max_id 
-                             FROM thorarioPersonal 
-                             WHERE idHorarioPersonal REGEXP '^H[0-9]+$'");
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        $siguiente = ($row && $row['max_id']) ? (int)$row['max_id'] + 1 : 1;
+    $stmt = $pdo->query("SELECT MAX(CAST(SUBSTRING(idHorarioPersonal, 2) AS UNSIGNED)) AS max_id 
+                         FROM thorarioPersonal 
+                         WHERE idHorarioPersonal REGEXP '^H[0-9]+$'");
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $siguiente = ($row && $row['max_id']) ? (int)$row['max_id'] + 1 : 1;
 
-        $insert = $pdo->prepare("INSERT INTO thorarioPersonal 
-            (idHorarioPersonal, inicio, fin, dia, idEmpleado, usuarioA, estado) 
-            VALUES (?, ?, ?, ?, ?, '1', 1)");
+    $insert = $pdo->prepare("INSERT INTO thorarioPersonal 
+        (idHorarioPersonal, inicio, fin, dia, idEmpleado, usuarioA, estado) 
+        VALUES (?, ?, ?, ?, ?, '1', 1)");
 
-        foreach ($horarios as $h) {
-            if (empty($h['inicio']) || empty($h['fin'])) continue;
+    foreach ($horarios as $h) {
+        if (empty($h['inicio']) || empty($h['fin'])) continue;
 
-            $idHorario = 'H' . $siguiente++;
-            $insert->execute([
-                $idHorario,
-                $h['inicio'] . ':00',
-                $h['fin'] . ':00',
-                $h['dia'],
-                $ciEmpleado
-            ]);
-        }
-
-        $pdo->commit();
-        echo json_encode(['success' => true, 'message' => 'Horarios guardados correctamente']);
-    } catch (Exception $e) {
-        $pdo->rollBack();
-        echo json_encode(['success' => false, 'message' => 'Error al guardar horarios: ' . $e->getMessage()]);
+        $idHorario = 'H' . $siguiente++;
+        $insert->execute([
+            $idHorario,
+            $h['inicio'] . ':00',
+            $h['fin'] . ':00',
+            $h['dia'],
+            $ciEmpleado
+        ]);
     }
+
+    $pdo->commit();
+    echo json_encode(['success' => true, 'message' => 'Horarios guardados correctamente']);
     exit;
 }
 
-// Si llega aquí → acción desconocida
 echo json_encode(['success' => false, 'message' => 'Acción no válida']);
 ?>

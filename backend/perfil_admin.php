@@ -44,7 +44,7 @@ try {
 
 
     // ==================================================================
-    // ACTUALIZAR PERFIL DEL EMPLEADO
+    // ACTUALIZAR PERFIL DEL EMPLEADO (SIN HASHEO DE CONTRASEÑA)
     // ==================================================================
     if ($accion === 'actualizar') {
         if (!$data || !isset($data['ciEmpleado'])) {
@@ -76,11 +76,11 @@ try {
             }
         }
 
-        // Si hay nueva contraseña, hashearla
+        // Si hay nueva contraseña, guardarla directamente en texto plano
         $contrasenaCambiada = false;
         if (!empty($nuevaContrasena)) {
             $set[] = "contrasena = ?";
-            $params[] = password_hash($nuevaContrasena, PASSWORD_DEFAULT);
+            $params[] = $nuevaContrasena;           // <-- SIN password_hash()
             $contrasenaCambiada = true;
         }
 
@@ -119,7 +119,6 @@ try {
     echo json_encode(['success' => false, 'message' => 'Acción no válida o no especificada']);
 
 } catch (Exception $e) {
-    // En caso de error grave
     http_response_code(500);
     echo json_encode([
         'success' => false,
