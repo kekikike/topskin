@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo - TopSkin</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/catalogo.css">
+</head>
+<body>
+
+<div id="app">
+  
+  <div class="banner-top">
+    <div class="banner-content">
+      <h1>Cuidado de la piel</h1>
+      </div>
+  </div>
+
+  <div class="container">
+    
+    <h2 class="section-title">Categorías</h2>
+
+    <div class="main-layout">
+      
+      <aside class="sidebar-filtros">
+        <div class="filtros-header">
+          <h2>Filtros</h2>
+        </div>
+
+        <div class="filtros-body">
+          <div class="filtro-grupo">
+            <h3>Marcas</h3>
+            <div v-for="marca in marcas" :key="marca" class="checkbox-item">
+              <label>
+                <input type="checkbox" v-model="marcasSeleccionadas" :value="marca">
+                <span class="checkmark"></span>
+                CERAVE
+              </label>
+            </div>
+          </div>
+
+          <div class="filtro-grupo">
+            <h3>Productos</h3>
+            <div v-for="cat in categoriasDb" :key="cat" class="checkbox-item">
+              <label>
+                <input type="checkbox" v-model="categoriasSeleccionadas" :value="cat">
+                <span class="checkmark"></span>
+                {{ cat }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <section class="grid-productos">
+        <div v-if="productosFiltrados.length === 0" class="no-results">
+          <p>No se encontraron productos con esos filtros.</p>
+        </div>
+
+        <div 
+          v-for="p in productosFiltrados" 
+          :key="p.idProducto" 
+          class="card" 
+          @click="abrirModal(p)"
+        >
+          <div class="card-image">
+            <img :src="p.foto && p.foto !== '' ? 'img/productos/' + p.foto : 'img/placeholder.png'" :alt="p.nombre">
+          </div>
+          <div class="card-info">
+            <small>CENTELLA</small>
+            <h4>SI</h4>
+            <p class="precio">96 Bs.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <div v-if="modalVisible" class="modal-backdrop" @click="cerrarModal">
+    <div class="modal-content" @click.stop>
+      <button class="btn-close" @click="cerrarModal">&times;</button>
+      
+      <div class="modal-grid">
+        <div class="modal-img">
+            <img :src="productoSel.foto && productoSel.foto !== '' ? 'img/productos/' + productoSel.foto : 'img/placeholder.png'">
+        </div>
+        <div class="modal-details">
+            <h2>{{ productoSel.nombre }}</h2>
+            <p class="tag-marca">CERAVE</p>
+            <p class="modal-desc">Descripción  del producto.</p>
+            <h3 class="modal-price">120 Bs.</h3>
+            
+            <button class="btn-add">Agregar al Carrito</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/catalogo.js"></script>
+</body>
+</html>

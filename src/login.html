@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login | TopSkin</title>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baumans&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Baumans', cursive;
+  background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url('../media/image3.png');
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+/* CONTENEDOR PRINCIPAL */
+.login-container {
+  position: relative;
+  background: rgba(91, 102, 97, 0.527);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 28px;
+  padding: 70px 40px 40px 40px;
+  width: 380px;
+  max-width: 92vw;
+  text-align: center;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* HEADER LOGO */
+.login-header {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+}
+.login-header img {
+  width: 60px;
+  height: auto;
+}
+
+/* ICONO CENTRAL */
+.icon {
+  position: absolute;
+  top: -45px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid rgba(255,255,255,0.25);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
+}
+.icon img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+}
+
+/* TITULO */
+h2 {
+  font-size:medium;
+  font-weight: 600;
+  margin: 60px 0 35px;
+  letter-spacing: 0.5px;
+}
+
+/* INPUTS */
+.input-group {
+  margin-bottom: 22px;
+  text-align: left;
+}
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+.input-group input {
+  width: 100%;
+  padding: 16px 20px;
+  border: none;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.12);
+  color: white;
+  font-size: 1.05rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+.input-group input::placeholder {
+  color: rgba(255,255,255,0.55);
+}
+.input-group input:focus {
+  background: rgba(255,255,255,0.22);
+  box-shadow: 0 0 0 3px rgba(20,184,166,0.3);
+}
+
+/* BTN INGRESAR */
+.btn-ingresar {
+  background: rgba(255,255,255,0.22);
+  font-family: 'Baumans', cursive;
+  color: white;
+  border: none;
+  padding: 14px;
+  width: 100%;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 25px 0 18px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+}
+.btn-ingresar:hover {
+  background: rgba(255,255,255,0.32);
+  transform: translateY(-2px);
+}
+
+/* BTN REGRESAR */
+.btn-regresar {
+  display: inline-block;
+  background: rgba(255,255,255,0.15);
+  color: white;
+  padding: 10px 28px;
+  border-radius: 25px;
+  text-decoration: none;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.3s;
+  backdrop-filter: blur(6px);
+}
+.btn-regresar:hover {
+  background: rgba(255,255,255,0.28);
+}
+
+/* ERROR */
+.error {
+  color: #ff6b6b;
+  font-size: 0.92rem;
+  min-height: 22px;
+  margin-top: 8px;
+  font-weight: 500;
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="login-container">
+    <!-- HEADER LOGO -->
+    <div class="login-header">
+      <img src="../media/logo_1.png" alt="Logo TopSkin">
+    </div>
+
+    <!-- ICONO CENTRAL -->
+    <div class="icon">
+      <img src="../media/icon.png" alt="Usuario">
+    </div>
+
+    <h2>Iniciar Sesión</h2>
+
+    <form @submit.prevent="login">
+      <div class="input-group">
+        <label>Email</label>
+        <input type="email" v-model="correo" placeholder="tu@correo.com" required>
+      </div>
+
+      <div class="input-group">
+        <label>Contraseña</label>
+        <input type="password" v-model="contrasena" placeholder="••••••••" required>
+      </div>
+
+      <p class="error">{{ mensajeError }}</p>
+
+      <button type="submit" class="btn-ingresar">Ingresar</button>
+    </form>
+
+    <a href="index.html" class="btn-regresar">Regresar al Menú</a>
+  </div>
+</div>
+
+<script>
+const { createApp, ref } = Vue;
+
+createApp({
+  setup() {
+    const correo = ref('');
+    const contrasena = ref('');
+    const mensajeError = ref('');
+
+    const login = async () => {
+      mensajeError.value = '';
+
+      try {
+        const formData = new FormData();
+        formData.append('correo', correo.value);
+        formData.append('contrasena', contrasena.value);
+
+        const res = await fetch('../backend/login.php', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await res.json();
+
+        if(data.success){
+          localStorage.setItem('usuario', JSON.stringify(data.usuario));
+          window.location.href = 'index.html';
+        } else {
+          mensajeError.value = data.message || 'Correo o contraseña incorrectos';
+        }
+      } catch(e){
+        mensajeError.value = 'Error de conexión';
+        console.error(e);
+      }
+    };
+
+    return { correo, contrasena, mensajeError, login };
+  }
+}).mount('#app');
+</script>
+
+</body>
+</html>
