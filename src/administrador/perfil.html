@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Perfil | TopSkin Laneige</title>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+<style>
+    :root {
+        --bg: #f9f5f0;
+        --card: #ffffff;
+        --primary: #6b5748;
+        --accent: #a07b5b;
+        --light: #f0e6dc;
+        --text: #444;
+        --success: #7b9e87;
+        --danger: #c0392b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        padding: 20px 10px;
+        position: relative;
+    }
+
+    .header-img {
+        background: linear-gradient(135deg, #d9c8b8, #f0e6dc);
+        height: 160px;
+        border-radius: 20px;
+        margin-bottom: -60px;
+        box-shadow: 0 10px 30px rgba(107, 87, 72, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        font-size: 28px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .profile-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+
+    .profile-img {
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        border: 6px solid white;
+        object-fit: cover;
+        box-shadow: 0 10px 25px rgba(107, 87, 72, 0.2);
+        transition: transform 0.3s;
+    }
+    .profile-img:hover { transform: scale(1.05); }
+
+    .container {
+        max-width: 760px;
+        margin: 0 auto 100px auto;
+        background: var(--card);
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 15px 40px rgba(107, 87, 72, 0.18);
+    }
+
+    .title-bar {
+        background: linear-gradient(135deg, var(--primary), #8c735c);
+        color: white;
+        padding: 18px;
+        text-align: center;
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: 0.8px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 26px;
+        padding: 40px 50px;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid { grid-template-columns: 1fr; padding: 30px 25px; gap: 22px; }
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    label {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--primary);
+        font-size: 15px;
+    }
+
+    input {
+        padding: 14px 16px;
+        border: 2px solid #e2d6c8;
+        border-radius: 12px;
+        font-size:  Wiad16px;
+        background: #fdf9f4;
+        transition: all 0.3s;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: var(--accent);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(160, 123, 91, 0.15);
+    }
+
+    input[readonly], input:disabled {
+        background: #f0e6dc;
+        color: #777;
+        cursor: not-allowed;
+    }
+
+    .full-width { grid-column: 1 / -1; }
+
+    .error {
+        color: var(--danger);
+        font-size: 13px;
+        margin-top: 6px;
+        font-weight: 500;
+    }
+
+    .btn-group {
+        padding: 0 50px 40px;
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) { .btn-group { padding: 0 25px 30px; flex-direction: column; } }
+
+    button {
+        padding: 14px 20px;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        flex: 1;
+    }
+
+    .btn-edit { background: var(--accent); color: white; }
+    .btn-edit:hover { background: #8f6a4e; transform: translateY(-2px); }
+
+    .btn-save { background: var(--success); color: white; }
+    .btn-save:hover:not(:disabled) { background: #6b8c74; transform: translateY(-2px); }
+    .btn-save:disabled { background: #bbb; cursor: not-allowed; }
+
+    .btn-cancel { background: #ccc; color: #555; }
+    .btn-cancel:hover { background: #bbb; }
+
+    /* BOTÓN FIJO EN ESQUINA INFERIOR DERECHA */
+    .btn-menu-fixed {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: #5a4a42;
+        color: white;
+        padding: 16px 28px;
+        border-radius: 50px;
+        font-size: 16px;
+        font-weight: 600;
+        text-decoration: none;
+        box-shadow: 0 8px 25px rgba(90, 74, 66, 0.4);
+        z-index: 1000;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-menu-fixed:hover {
+        background: #463a32;
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(90, 74, 66, 0.5);
+    }
+
+    .btn-menu-fixed::before {
+        content: "←";
+        font-size: 18px;
+    }
+</style>
+</head>
+<body>
+
+<div id="app">
+    <div class="header-img">Mi Perfil</div>
+
+    <div class="profile-wrapper">
+        <img class="profile-img" src="../../media/perfil.png" alt="Foto de Perfil">
+    </div>
+
+    <div class="container">
+        <div class="title-bar">Datos Personales</div>
+
+        <div class="form-grid">
+            <div class="form-group"><label>Nombre 1</label><input v-model="form.nombre1" :readonly="!editando"></div>
+            <div class="form-group"><label>Nombre 2</label><input v-model="form.nombre2" :readonly="!editando"></div>
+            <div class="form-group"><label>Apellido Paterno</label><input v-model="form.apellidoP" :readonly="!editando"></div>
+            <div class="form-group"><label>Apellido Materno</label><input v-model="form.apellidoM" :readonly="!editando"></div>
+
+            <div class="form-group full-width">
+                <label>Correo Electrónico</label>
+                <input type="email" v-model="form.correo" :readonly="!editando" @blur="validarCorreo">
+                <div class="error" v-if="errores.correo && editando">{{ errores.correo }}</div>
+            </div>
+
+            <div class="form-group" v-if="editando">
+                <label>Confirmar Correo</label>
+                <input type="email" v-model="confirmarCorreo" placeholder="Repite el correo">
+                <div class="error" v-if="errores.confirmarCorreo">{{ errores.confirmarCorreo }}</div>
+            </div>
+
+            <div class="form-group">
+                <label>Teléfono</label>
+                <input v-model="form.telefono" maxlength="8" @input="validarTelefono" :readonly="!editando">
+                <div class="error" v-if="errores.telefono && editando">{{ errores.telefono }}</div>
+            </div>
+
+            <div class="form-group">
+                <label>Dirección</label>
+                <input v-model="form.direccion" :readonly="!editando">
+            </div>
+
+            <!-- NUEVA CONTRASEÑA + CONFIRMACIÓN -->
+            <div class="form-group full-width" v-if="editando">
+                <label>Nueva Contraseña</label>
+                <input type="password" v-model="form.nuevaContrasena" placeholder="Déjalo vacío si no quieres cambiarla">
+            </div>
+
+            <div class="form-group full-width" v-if="editando">
+                <label>Confirmar Nueva Contraseña</label>
+                <input type="password" v-model="confirmarContrasena" placeholder="Repite la nueva contraseña">
+                <div class="error" v-if="errores.contrasena">{{ errores.contrasena }}</div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button v-if="!editando" @click="iniciarEdicion" class="btn-edit">Editar Perfil</button>
+
+            <template v-else>
+                <button @click="guardarCambios" :disabled="hayErrores || guardando" class="btn-save">
+                    {{ guardando ? 'Guardando...' : 'Guardar Cambios' }}
+                </button>
+                <button @click="cancelarEdicion" class="btn-cancel">Cancelar</button>
+            </template>
+        </div>
+    </div>
+
+    <!-- BOTÓN FIJO EN ESQUINA -->
+    <a href="../menu_admin.html" class="btn-menu-fixed">Volver al Menú</a>
+</div>
+
+<script>
+Vue.createApp({
+    data() {
+        return {
+            ciEmpleado: localStorage.getItem("ciEmpleado"),
+            editando: false,
+            guardando: false,
+            confirmarCorreo: "",
+            confirmarContrasena: "",
+            backup: {},
+            form: {
+                nombre1: "", nombre2: "", apellidoP: "", apellidoM: "",
+                correo: "", telefono: "", direccion: "", nuevaContrasena: ""
+            },
+            errores: {
+                correo: "", confirmarCorreo: "", telefono: "", contrasena: ""
+            }
+        };
+    },
+    computed: {
+        hayErrores() {
+            return Object.values(this.errores).some(e => e !== "");
+        }
+    },
+    mounted() {
+        if (!this.ciEmpleado) {
+            alert("Debes iniciar sesión");
+            window.location.href = "../login.html";
+            return;
+        }
+        this.cargarPerfil();
+    },
+    methods: {
+        validarCorreo() {
+            const email = this.form.correo.trim();
+            if (!email) this.errores.correo = "El correo es obligatorio";
+            else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) this.errores.correo = "Correo inválido";
+            else this.errores.correo = "";
+
+            if (this.editando && this.confirmarCorreo !== "" && this.confirmarCorreo !== email) {
+                this.errores.confirmarCorreo = "Los correos no coinciden";
+            } else {
+                this.errores.confirmarCorreo = "";
+            }
+        },
+        validarTelefono() {
+            const t = this.form.telefono.replace(/\D/g, '').slice(0, 8);
+            this.form.telefono = t;
+            if (t && !/^\d{7,8}$/.test(t)) {
+                this.errores.telefono = "Teléfono debe tener 7 u 8 dígitos";
+            } else {
+                this.errores.telefono = "";
+            }
+        },
+        validarContrasena() {
+            if (this.form.nuevaContrasena && this.form.nuevaContrasena !== this.confirmarContrasena) {
+                this.errores.contrasena = "Las contraseñas no coinciden";
+            } else {
+                this.errores.contrasena = "";
+            }
+        },
+        cargarPerfil() {
+            fetch(`../../backend/perfil_admin.php?accion=cargar&ci=${this.ciEmpleado}`, { credentials: "include" })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success && res.data) {
+                        this.form = { ...res.data, nuevaContrasena: "" };
+                        this.backup = { ...this.form };
+                    } else alert("No se pudo cargar el perfil");
+                })
+                .catch(() => alert("Error de conexión"));
+        },
+        iniciarEdicion() {
+            this.editando = true;
+            this.confirmarCorreo = this.form.correo;
+            this.backup = { ...this.form };
+        },
+        cancelarEdicion() {
+            this.form = { ...this.backup };
+            this.confirmarCorreo = this.form.correo;
+            this.confirmarContrasena = "";
+            this.editando = false;
+            this.errores = { correo: "", confirmarCorreo: "", telefono: "", contrasena: "" };
+        },
+        guardarCambios() {
+            this.validarCorreo();
+            this.validarTelefono();
+            this.validarContrasena();
+
+            if (this.confirmarCorreo !== this.form.correo) {
+                this.errores.confirmarCorreo = "Los correos no coinciden";
+            }
+            if (this.hayErrores) return;
+
+            this.guardando = true;
+            const payload = { accion: "actualizar", ciEmpleado: this.ciEmpleado, ...this.form };
+            if (!payload.nuevaContrasena.trim()) delete payload.nuevaContrasena;
+
+            fetch("../../backend/perfil_admin.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify(payload)
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    alert("¡Perfil actualizado con éxito!");
+                    this.backup = { ...this.form };
+                    this.editando = false;
+                } else {
+                    alert("Error: " + (res.message || "No se pudo guardar"));
+                }
+            })
+            .catch(() => alert("Error de conexión"))
+            .finally(() => this.guardando = false);
+        }
+    },
+    watch: {
+        "form.nuevaContrasena"() { this.validarContrasena(); },
+        confirmarContrasena() { this.validarContrasena(); },
+        confirmarCorreo() { this.validarCorreo(); }
+    }
+}).mount("#app");
+</script>
+
+</body>
+</html>
