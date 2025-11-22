@@ -83,6 +83,100 @@
   </div>
 </div>
 
-<script src="js/carrito.js"></script>
+<script >
+    const { createApp } = Vue;
+
+createApp({
+  data() {
+    return {
+      carrito: [],
+      seleccionados: []
+    }
+  },
+
+  computed: {
+    todosSeleccionados: {
+      get() {
+        return this.carrito.length > 0 && this.seleccionados.length === this.carrito.length;
+      },
+      set(value) {
+        this.seleccionados = value ? this.carrito.map(p => p.idProducto) : [];
+      }
+    },
+
+    productosSeleccionados() {
+      return this.carrito.filter(p => this.seleccionados.includes(p.idProducto));
+    },
+
+    totalSeleccionado() {
+      return this.productosSeleccionados.reduce((sum, p) => {
+        return sum + (p.precioUnitario * p.cantidad);
+      }, 0);
+    }
+  },
+
+  methods: {
+    cargarCarrito() {
+      fetch('../backend/cargar_carrito.php')
+        .then(r => r.json())
+        .then(data => {
+          this.carrito = data;
+          this.seleccionados = data.map(p => p.idProducto);
+        });
+    },
+
+    toggleSeleccion(id) {
+      const idx = this.seleccionados.indexOf(id);
+      if (idx === -1) this.seleccionados.push(id);
+      else this.seleccionados.splice(idx, 1);
+    },
+
+    cambiarCantidad(item, delta) {
+      const nueva = item.cantidad + delta;
+      if (nueva >= 1) {
+        item.cantidad = nueva;
+        this.guardarCarrito();
+      }
+    },
+
+    eliminar(id) {
+      this.carrito = this.carrito.filter(p => p.idProducto !== id);
+      this.seleccionados = this.seleccionados.filter(s => s !== id);
+      this.guardarCarrito();
+    },
+
+    irAlPago() {
+      if (this.seleccionados.length === 0) {
+        alert('Por favor selecciona al menos un producto');
+        return;
+      }
+      alert('Redirigiendo al pago con ' + this.seleccionados.length + ' productos...');
+    },
+
+    guardarCarrito() {
+      const paraBackend = this.carrito.map(p => ({
+        idProducto: p.idProducto,
+        cantidad: p.cantidad
+      }));
+
+      fetch('../backend/actualizar_carrito.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(paraBackend)
+      })
+      .then(r => r.json())
+      .then(res => {
+        console.log('Carrito guardado:', res);
+      })
+      .catch(err => console.error('Error:', err));
+    }
+  },
+
+  mounted() {
+    this.cargarCarrito();
+  }
+
+}).mount('#app');
+</script>
 </body>
 </html>
