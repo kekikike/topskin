@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventario | TopSkin Laneige</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root {
+      --primary: #0d9488;
+      --primary-light: #14b8a6;
+      --primary-dark: #0f766e;
+      --accent: #a0d8cf;
+      --bg: #f8fffe;
+      --card: #ffffff;
+      --text: #1f2937;
+      --text-light: #6b7280;
+      --danger: #ef4444;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --border: #e5e7eb;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+      min-height: 100vh;
+      color: var(--text);
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      padding: 1rem 3rem;
+      box-shadow: 0 10px 30px rgba(13, 148, 136, 0.3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo-img { height: 70px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    .header h1 {
+      color: white;
+      font-weight: 700;
+      font-size: 2.2rem;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .perfil {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      border: 4px solid var(--accent);
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      overflow: hidden; /* Asegura que la imagen no se salga del círculo */
+    }
+    .perfil a {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+    }
+    .perfil img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover; /* Evita la distorsión de la imagen */
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+    .perfil:hover img { 
+      transform: scale(1.1); 
+    }
+
+    .nav-menu {
+      display: flex;
+      gap: 1rem;
+      margin: 2rem 3rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .nav-btn {
+      padding: 0.9rem 2rem;
+      background: white;
+      color: var(--primary-dark);
+      border: none;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.4s;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      font-size: 1rem;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .nav-btn:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(13, 148, 136, 0.3);
+    }
+    .nav-btn.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 8px 25px rgba(13, 148, 136, 0.4);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .page-title {
+      text-align: center;
+      font-size: 2.5rem;
+      margin: 2rem 0;
+      color: var(--primary-dark);
+      font-weight: 700;
+    }
+
+    .filter-card {
+      background: var(--card);
+      padding: 1.5rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-card label {
+      font-weight: 600;
+      color: var(--primary-dark);
+      font-size: 1.1rem;
+    }
+
+    .filter-card select,
+    .filter-card input {
+      padding: 0.9rem 1.2rem;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+    .filter-card select:focus,
+    .filter-card input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.15);
+    }
+
+    .marca-card {
+      margin: 3rem 0;
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    .marca-header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      padding: 1.2rem 2rem;
+      border-radius: 16px;
+      font-size: 1.8rem;
+      font-weight: 700;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(13, 148, 136, 0.3);
+      margin-bottom: 1.5rem;
+    }
+
+    .table-container {
+      background: var(--card);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+      margin-bottom: 3rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background: linear-gradient(135deg, #1e293b, #334155);
+      color: white;
+      padding: 1.3rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+
+    td {
+      padding: 1.2rem;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.3s;
+    }
+
+    tr:hover td {
+      background: #f0fdfa;
+    }
+
+    .producto-img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 14px;
+      border: 3px solid var(--accent);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.7rem 1.3rem;
+      border: none;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.95rem;
+    }
+
+    .btn-edit { background: var(--warning); color: white; }
+    .btn-delete { background: var(--danger); color: white; }
+    .btn-save { background: var(--success); color: white; }
+    .btn-cancel { background: #94a3b8; color: white; }
+
+    .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+
+    input, select {
+      padding: 0.7rem;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.15);
+    }
+
+    .select-categorias {
+      height: 170px !important;
+      font-size: 1rem;
+      padding: 0.8rem;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .no-products {
+      text-align: center;
+      padding: 4rem;
+      color: var(--text-light);
+      font-size: 1.3rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="header">
+      <img src="../../media/logo_1.png" alt="TopSkin Laneige" class="logo-img">
+      <h1>TOPSKIN LANEIGE</h1>
+      <div class="perfil">
+        <a href="perfil.html">
+          <img src="../../media/perfil.png" alt="Perfil">
+        </a>
+      </div>
+    </header>
+
+    <!-- Navegación -->
+    <div class="nav-menu">
+      <a href="nuevo_personal.html" class="nav-btn">Gestión de Personal</a>
+        <a href="horario_personal.html" class="nav-btn">Horarios del Personal</a>
+        <a href="inventario.html" class="nav-btn active">Gestión de Productos</a>
+        <a href="reportes.html" class="nav-btn">Reportes</a>
+        <a href="../menu_admin.html" class="nav-btn">Menú Admin</a>
+    </div>
+
+    <div class="container">
+      <h2 class="page-title">Gestión de Inventario</h2>
+
+      <!-- Filtros -->
+      <div class="filter-card">
+        <label>Filtrar Productos</label>
+        <select v-model="filtroMarca">
+          <option value="">Todas las marcas</option>
+          <option v-for="m in marcas" :value="m.idMarca">{{ m.nombre }}</option>
+        </select>
+        <input type="text" v-model="busqueda" placeholder="Buscar producto...">
+      </div>
+
+      <!-- Productos por marca -->
+      <div v-for="marca in marcasFiltradas" :key="marca.idMarca" class="marca-card">
+        <div class="marca-header">
+          {{ marca.nombre.toUpperCase() }}
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Imagen</th>
+                <th>Nombre del Producto</th>
+                <th>Stock</th>
+                <th>Precio (Bs)</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="prod in productosDeMarca(marca.idMarca)" :key="prod.idProducto">
+                <td>
+                  <img :src="prod.foto || '../../media/no-image.png'" 
+                       class="producto-img" 
+                       alt="Producto"
+                       @error="($event.target.src = '../../media/no-image.png')">
+                </td>
+                <td>
+                  <strong v-if="!prod.editing">{{ prod.nombre }}</strong>
+                  <input v-else v-model="prod.edit.nombre" style="width:100%">
+                </td>
+                <td>
+                  <span v-if="!prod.editing">{{ prod.stock || 0 }}</span>
+                  <input v-else type="number" v-model.number="prod.edit.stock" style="width:80px">
+                </td>
+                <td>
+                  <strong v-if="!prod.editing">{{ prod.precioUnitario }} Bs</strong>
+                  <input v-else type="number" step="0.01" v-model.number="prod.edit.precioUnitario">
+                </td>
+                <td>
+                  <div class="actions" v-if="!prod.editing">
+                    <button class="btn btn-edit" @click="iniciarEdicion(prod)">
+                      Editar
+                    </button>
+                    <button class="btn btn-delete" @click="eliminarProducto(prod)">
+                      Eliminar
+                    </button>
+                  </div>
+
+                  <div v-else style="display:flex; flex-direction:column; gap:14px; min-width:280px;">
+                    <select multiple class="select-categorias" v-model="prod.edit.categoriasSeleccionadas">
+                      <option v-for="cat in categorias" :value="cat.idCategoria">{{ cat.nombre }}</option>
+                    </select>
+
+                    <select v-model="prod.edit.idMarca">
+                      <option v-for="m in marcas" :value="m.idMarca">{{ m.nombre }}</option>
+                    </select>
+
+                    <input type="url" v-model="prod.edit.foto" placeholder="URL de imagen (opcional)">
+
+                    <div style="display:flex; gap:10px;">
+                      <button class="btn btn-save" @click="guardarProducto(prod)">
+                        Guardar
+                      </button>
+                      <button class="btn btn-cancel" @click="cancelarEdicion(prod)">
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div v-if="marcasFiltradas.length === 0" class="no-products">
+        <i class="fas fa-box-open fa-3x" style="color:#94a3b8; margin-bottom:1rem;"></i>
+        <p>No se encontraron productos con los filtros aplicados.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const productos = ref([]);
+        const marcas = ref([]);
+        const categorias = ref([]);
+        const filtroMarca = ref('');
+        const busqueda = ref('');
+
+        const cargarDatos = async () => {
+          try {
+            const res = await axios.post('../../backend/inventario_admin.php', { action: 'listar_todo' });
+            if (!res.data.success) throw new Error(res.data.error || "Error desconocido");
+
+            productos.value = res.data.productos.map(p => ({
+              ...p,
+              editing: false,
+              edit: { 
+                ...p, 
+                categoriasSeleccionadas: p.categorias || []
+              }
+            }));
+
+            marcas.value = res.data.marcas;
+            categorias.value = res.data.categorias;
+
+          } catch (err) {
+            console.error(err);
+            Swal.fire('Error', 'No se pudieron cargar los datos', 'error');
+          }
+        };
+
+        const productosDeMarca = (idMarca) => {
+          return productos.value
+            .filter(p => p.idMarca === idMarca)
+            .filter(p => p.nombre.toLowerCase().includes(busqueda.value.toLowerCase()));
+        };
+
+        const marcasFiltradas = computed(() => {
+          const usadas = [...new Set(productos.value.map(p => p.idMarca))];
+          return marcas.value
+            .filter(m => !filtroMarca.value || m.idMarca === filtroMarca.value)
+            .filter(m => usadas.includes(m.idMarca));
+        });
+
+        const iniciarEdicion = (prod) => {
+          prod.edit = {
+            ...prod,
+            categoriasSeleccionadas: [...(prod.categorias || [])]
+          };
+          prod.editing = true;
+        };
+
+        const cancelarEdicion = (prod) => {
+          prod.editing = false;
+        };
+
+        const guardarProducto = async (prod) => {
+  const formData = new FormData();
+  formData.append('action', 'actualizar_producto');  // <--- ESTO ES CLAVE
+  formData.append('idProducto', prod.idProducto);
+  formData.append('nombre', prod.edit.nombre);
+  formData.append('precioUnitario', prod.edit.precioUnitario);
+  formData.append('stock', prod.edit.stock);
+  formData.append('idMarca', prod.edit.idMarca);
+  formData.append('foto', prod.edit.foto || ''); // <-- URL externa o vacía
+  formData.append('categorias', JSON.stringify(prod.edit.categoriasSeleccionadas));
+
+  try {
+    const res = await axios.post('../../backend/inventario_admin.php', formData);
+    if (res.data.ok) {
+      Object.assign(prod, prod.edit);
+      prod.categorias = [...prod.edit.categoriasSeleccionadas];
+      prod.editing = false;
+      Swal.fire({
+        icon: 'success',
+        title: '¡Actualizado!',
+        text: `"${prod.nombre}" se guardó correctamente`,
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } else {
+      Swal.fire('Error', res.data.error || 'No se pudo guardar', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+    Swal.fire('Error', 'Error de conexión o servidor', 'error');
+  }
+};
+
+        const eliminarProducto = async (prod) => {
+          const result = await Swal.fire({
+            title: '¿Eliminar producto?',
+            text: 'Se marcará como eliminado',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+          });
+
+          if (!result.isConfirmed) return;
+
+          const formData = new FormData();
+          formData.append('action', 'eliminar_producto');
+          formData.append('idProducto', prod.idProducto);
+
+          await axios.post('../../backend/inventario_admin.php', formData);
+          prod.estado = 0;
+          Swal.fire('Eliminado', 'El producto fue marcado como eliminado', 'success');
+        };
+
+        const irAPerfil = () => {
+          location.href = '../gestion_cuenta.html';
+        };
+
+        onMounted(cargarDatos);
+
+        return {
+          productos,
+          marcas,
+          categorias,
+          filtroMarca,
+          busqueda,
+          marcasFiltradas,
+          productosDeMarca,
+          iniciarEdicion,
+          cancelarEdicion,
+          guardarProducto,
+          eliminarProducto,
+          irAPerfil
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
