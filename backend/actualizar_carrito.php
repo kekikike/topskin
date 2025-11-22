@@ -8,20 +8,25 @@ header('Content-Type: application/json; charset=utf-8');
 
 $input = json_decode(file_get_contents('php://input'), true);
 
-if ($input === null && json_last_error() !== JSON_ERROR_NONE) {
+if (!is_array($input)) {
     $input = [];
-} elseif (!is_array($input)) {
-    $input = [];  
 }
 
-$_SESSION['carrito'] = [];
+// Inicializamos carrito si no existe
+if (!isset($_SESSION['carrito'])) {
+    $_SESSION['carrito'] = [];
+}
 
 foreach ($input as $item) {
-    $id = intval($item['idProducto'] ?? 0);
+    $id = $item['idProducto'] ?? $item['id'] ?? null;
     $cantidad = max(1, intval($item['cantidad'] ?? 1));
-    if ($id > 0) {
+
+    if ($id !== null && $id !== '') {
         $_SESSION['carrito'][$id] = $cantidad;
     }
+
+    // Debug
+    file_put_contents('debug_ids.txt', print_r($item, true) . "\n", FILE_APPEND);
 }
 
 $totalItems = array_sum($_SESSION['carrito']);
@@ -31,4 +36,3 @@ echo json_encode([
     'totalItems' => $totalItems,
     'debug' => $_SESSION['carrito']  
 ]);
-?>
