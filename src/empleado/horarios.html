@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mis Horarios - TOPSKIN</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #a7cde4; color: #333; }
+    .header {
+      background: linear-gradient(135deg, #2c6e49, #4c9a6b);
+      background-image:url("../../media/header_empleado.png");
+      background-size: cover; 
+      color: white; padding: 15px 30px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 1000;
+    }
+    .logo{
+      width: 150px;
+      height: auto;
+    }
+   
+    hr{
+      height: 25px;             
+      border: none;            
+      background-color: #6691bc;
+      margin: 0;            
+      width: 100%;  
+      display: block;
+    }
+    .navbar a { color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; margin: 0 5px; }
+    .navbar a:hover, .navbar a.active { background: rgba(255,255,255,0.2); }
+    .user-info img { width: 48px; height: 48px; border-radius: 50%; border: 3px solid #a8e6cf; object-fit: cover; }
+
+    .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+    h1 { color: #34578d; text-align: center; margin-bottom: 30px; font-size: 28px; }
+
+    .card { background: rgba(255, 255, 255, 0.849); border-radius: 5px; padding: 25px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); margin-bottom: 30px; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #82a792; color: rgb(255, 255, 255); padding: 14px; text-align: center; font-size: 15px; }
+    td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; vertical-align: top; }
+
+    .turno {
+      padding: 10px 8px; margin: 6px 0; border-radius: 8px; cursor: pointer;
+      transition: all 0.2s; font-size: 14px; font-weight: 500;
+    }
+    .turno.selected { background: #4caf50; color: white; font-weight: bold; }
+    .turno.m1 { background: #e8f5e9; border: 2px solid #66bb6a; }
+    .turno.m2 { background: #68b6c4b6; border: 2px solid #68b6d2; }
+    .turno.m3 { background: #e3f2fd; border: 2px solid #2196f3; }
+
+    .info { padding: 16px; border-radius: 10px; margin: 20px 0; text-align: center; font-weight: bold; font-size: 16px; }
+    .warning { background: #ffebee; color: #c62828; }
+    .success { background: #e8f5e9; color: #2e7d32; }
+
+    button {
+      background: #4c9a6b; color: white; border: none; padding: 14px 32px;
+      border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 20px;
+    }
+    button:hover { background: #2c6e49; }
+    button:disabled { background: #aaa; cursor: not-allowed; }
+
+    .loading { text-align: center; padding: 40px; color: #666; }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <div class="header">
+    <img class="logo" src="../../media/logo_1.png">
+    <nav class="navbar">
+      <a href="../menu_empleado.html">Inicio</a>
+      <a href="horarios.html" class="active">Horarios</a>
+      <a href="historial_ventas.html">Historial Ventas</a>
+      <a href="pedidos.html">Pedidos</a>
+      <a href="productos.html">Productos</a>
+      <a href="compras.html">Registrar Compra</a>
+      <a href="cuenta.html">Mi Cuenta</a>
+    </nav>
+    <div class="user-info">
+      <span>{{ empleadoNombre }}</span>
+    </div>
+  </div>
+  <hr>
+  
+  <div class="container">
+    <h1>Mis Horarios</h1>
+
+    <div class="card">
+      <h2>Horario Actual (Esta Semana)</h2>
+      <table v-if="!loadingActual">
+        <thead>
+          <tr>
+            <th v-for="dia in dias" :key="dia">{{ dia }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td v-for="dia in dias" :key="dia">
+              <div v-for="t in horarioActual[dia]" :key="t.inicio">
+                {{ t.inicio }} - {{ t.fin }}
+              </div>
+              <div v-if="!horarioActual[dia] || horarioActual[dia].length === 0" style="color:#999;">
+                Día libre
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="loading" v-else><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+    </div>
+
+    <div class="card">
+      <h2>Programar Próxima Semana</h2>
+      <p style="text-align:center; color:#555;">
+        Turnos de 4 horas: 08:00–12:00, 12:00–16:00, 16:00–20:00<br>
+        Mínimo 5 turnos | Máximo 12 turnos | Al menos 1 día libre
+      </p>
+
+      <div class="info" :class="mensajeClase">
+        Turnos seleccionados: <strong>{{ turnosSeleccionados.length }}</strong> | 
+        Días libres: <strong>{{ diasLibres }}</strong>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th v-for="dia in dias" :key="dia">{{ dia }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td v-for="dia in dias" :key="dia">
+              <div class="turno m1" 
+                   :class="{ selected: seleccionados[dia]?.t1 }"
+                   @click="toggleTurno(dia, 't1')">
+                08:00 - 12:00
+              </div>
+              <div class="turno m2" 
+                   :class="{ selected: seleccionados[dia]?.t2 }"
+                   @click="toggleTurno(dia, 't2')">
+                12:00 - 16:00
+              </div>
+              <div class="turno m3" 
+                   :class="{ selected: seleccionados[dia]?.t3 }"
+                   @click="toggleTurno(dia, 't3')">
+                16:00 - 20:00
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="text-align:center;">
+        <button @click="guardarProximaSemana" :disabled="!puedeGuardar">
+          Guardar Próxima Semana
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const { createApp, ref, computed, onMounted } = Vue;
+
+  createApp({
+    setup() {
+      const empleadoNombre = ref('Cargando...');
+      const empleadoFoto = ref('https://via.placeholder.com/48');
+      const ciEmpleado = localStorage.getItem('ciEmpleado');
+
+      const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+      const horarioActual = ref({});
+      const loadingActual = ref(true);
+
+      const seleccionados = ref({});
+      const turnosSeleccionados = ref([]);
+
+      const turnosDefinidos = [
+        { id: 't1', inicio: '08:00', fin: '12:00' },
+        { id: 't2', inicio: '12:00', fin: '16:00' },
+        { id: 't3', inicio: '16:00', fin: '20:00' }
+      ];
+
+      const mensajeClase = computed(() => {
+        const total = turnosSeleccionados.value.length;
+        if (total < 5 || total > 12 || diasLibres.value < 1) return 'warning';
+        return 'success';
+      });
+
+      const diasLibres = computed(() => {
+        return dias.filter(d => 
+          !seleccionados.value[d]?.t1 && 
+          !seleccionados.value[d]?.t2 && 
+          !seleccionados.value[d]?.t3
+        ).length;
+      });
+
+      const puedeGuardar = computed(() => {
+        const total = turnosSeleccionados.value.length;
+        return total >= 5 && total <= 12 && diasLibres.value >= 1;
+      });
+
+      const toggleTurno = (dia, turnoId) => {
+        if (!seleccionados.value[dia]) seleccionados.value[dia] = {};
+        seleccionados.value[dia][turnoId] = !seleccionados.value[dia][turnoId];
+
+        turnosSeleccionados.value = [];
+        dias.forEach(d => {
+          turnosDefinidos.forEach(t => {
+            if (seleccionados.value[d]?.[t.id]) {
+              turnosSeleccionados.value.push({
+                dia: d,
+                inicio: t.inicio,
+                fin: t.fin
+              });
+            }
+          });
+        });
+      };
+
+      const cargarHorarioActual = async () => {
+        const res = await fetch('../../backend/menu_empleado.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ciEmpleado })
+        });
+        const data = await res.json();
+        if (data.success) {
+          empleadoNombre.value = data.empleado.nombreCompleto;
+          empleadoFoto.value = data.empleado.foto || 'https://randomuser.me/api/portraits/lego/1.jpg';
+
+          const map = {};
+          dias.forEach(d => map[d] = []);
+          data.horario.forEach(h => {
+            const diaNorm = h.dia === 'Miercoles' ? 'Miércoles' : h.dia;
+            if (map[diaNorm]) map[diaNorm].push({ inicio: h.inicio, fin: h.fin });
+          });
+          horarioActual.value = map;
+        }
+        loadingActual.value = false;
+      };
+
+
+  const guardarProximaSemana = async () => {
+    if (!puedeGuardar.value) {
+      alert('Error: Debes tener entre 5 y 12 turnos, y al menos 1 día libre');
+      return;
+    }
+
+    const turnos = turnosSeleccionados.value.map(t => ({
+      dia: t.dia,
+      inicio: t.inicio + ':00',
+      fin: t.fin + ':00'
+    }));
+
+    try {
+      const res = await fetch('../../backend/horarios.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ciEmpleado, turnos })
+      });
+
+      const result = await res.json();
+
+      if (result.success) {
+        alert("Horario guardado con éxito para la próxima semana!");
+        
+        seleccionados.value = {};
+        turnosSeleccionados.value = [];
+        
+        cargarHorarioActual();
+      } else {
+        alert("Error: " + result.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error de conexión con el servidor");
+    }
+  }
+      onMounted(cargarHorarioActual);
+
+      return {
+        empleadoNombre, empleadoFoto, dias, horarioActual, loadingActual,
+        seleccionados, turnosSeleccionados, mensajeClase, diasLibres, puedeGuardar,
+        toggleTurno, guardarProximaSemana, turnosDefinidos
+      };
+    }
+  }).mount('#app');
+</script>
+</body>
+</html>

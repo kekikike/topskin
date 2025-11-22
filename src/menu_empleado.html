@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Menú Empleado - TOPSKIN</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background-color: #fff8ed;
+      color: #333;
+    }
+    .header {
+      background: linear-gradient(135deg, #2c6e49, #4c9a6b);
+      background-image:url("../media/header_menuEmpleado.png"); 
+      background-size: cover;
+      color: white;
+      padding: 15px 30px ;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    
+    .navbar { display: flex; gap: 25px; }
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .navbar a:hover, .navbar a.active {
+      background: rgba(255,255,255,0.2);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .user-info {
+      display: flex;
+      align-items: right;
+      gap: 15px;
+      font-weight: 600;
+    }
+    
+
+    .main-content {
+      padding: 40px 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .welcome {
+      font-size: 28px;
+      text-align: center;
+      color: #2c6e49;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      color: #555;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    h1 {
+      color: #2c6e49;
+      margin: 40px 0 20px;
+      font-size: 26px;
+      text-align: center;
+    }
+
+    .logo{
+      width: 150px;
+      height: auto;
+    }
+    table {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto 50px;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 5px;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    th {
+      background: #8dad7b;
+      color: white;
+      padding: 18px;
+      font-size: 17px;
+    }
+    td {
+      padding: 18px;
+      text-align: center;
+      font-size: 16px;
+      border-bottom: 1px solid #eee;
+    }
+    hr{
+      height: 25px;             
+      border: none;            
+      background-color: #7f9a8c;
+      margin: 0;            
+      width: 100%;  
+      display: block;
+    }
+    .libre { color: #e74c3c; font-weight: bold; }
+    .loading { text-align: center; color: #666; font-size: 18px; padding: 40px; }
+  </style>
+</head>
+<body>
+
+  <div id="app">
+    <div class="header">
+      <img class="logo" src="../media/logo_1.png">
+      <nav class="navbar">
+        <a href="menu_empleado.html" class="active">Inicio</a>
+        <a href="empleado/horarios.html">Horarios</a>
+        <a href="empleado/historial_ventas.html">Historial Ventas</a>
+        <a href="empleado/pedidos.html">Pedidos</a>
+        <a href="empleado/productos.html">Productos</a>
+        <a href="empleado/compras.html">Registrar Compra</a>
+        <a href="empleado/cuenta.html">Mi Cuenta</a>
+      </nav>
+      <div class="user-info">
+        <span>{{ empleadoNombre }}</span>
+      </div>
+      
+    </div>
+    <hr>
+    <div class="main-content">
+      
+      <h2 class="welcome">¡Bienvenido, {{ empleadoNombre }}!</h2>
+      <p class="subtitle">Aquí tienes tu horario de esta semana</p>
+
+      <div v-if="loading" class="loading">
+        <i class="fas fa-spinner fa-spin"></i> Cargando horario...
+      </div>
+
+      <div v-else>
+        <h1>Horario Semanal</h1>
+        <table>
+          <thead>
+            <tr>
+              <th>LUNES</th>
+              <th>MARTES</th>
+              <th>MIÉRCOLES</th>
+              <th>JUEVES</th>
+              <th>VIERNES</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td v-for="dia in diasSemana" :key="dia">
+                <div v-if="horario[dia] && horario[dia].length > 0">
+                  {{ horario[dia][0].inicio }} - {{ horario[dia][0].fin }}
+                </div>
+                <div v-else class="libre">Libre</div>
+              </td>
+            </tr>
+            <tr>
+              <td v-for="dia in diasSemana" :key="'second-' + dia">
+                <div v-if="horario[dia] && horario[dia].length > 1">
+                  {{ horario[dia][1].inicio }} - {{ horario[dia][1].fin }}
+                </div>
+                <div v-else-if="horario[dia] && horario[dia].length === 1"></div>
+                <div v-else></div>
+              </td>
+            </tr>
+            <tr>
+              <td v-for="dia in diasSemana" :key="'second-' + dia">
+                <div v-if="horario[dia] && horario[dia].length > 1">
+                  {{ horario[dia][2].inicio }} - {{ horario[dia][2].fin }}
+                </div>
+                <div v-else-if="horario[dia] && horario[dia].length === 1"></div>
+                <div v-else></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const { createApp, ref, onMounted } = Vue;
+
+  createApp({
+    setup() {
+      const empleadoNombre = ref('Cargando...');
+      const empleadoFoto = ref('https://via.placeholder.com/48?text=User');
+      const horario = ref({});
+      const loading = ref(true);
+
+      const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+
+      const ciEmpleado = localStorage.getItem('ciEmpleado');
+
+      const cargarDatosEmpleado = async () => {
+        if (!ciEmpleado) {
+          alert('No estás autenticado');
+          return;
+        }
+
+        try {
+          const response = await fetch('../backend/menu_empleado.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CI-Empleado': ciEmpleado  // También por header
+            },
+            body: JSON.stringify({ ciEmpleado })
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            empleadoNombre.value = data.empleado.nombreCompleto;
+            empleadoFoto.value = data.empleado.foto || 'https://randomuser.me/api/portraits/lego/1.jpg';
+
+            // Organizar horario por día
+            const horarioMap = {};
+            diasSemana.forEach(d => horarioMap[d] = []);
+
+            data.horario.forEach(h => {
+              if (horarioMap[h.dia]) {
+                horarioMap[h.dia].push({
+                  inicio: h.inicio,
+                  fin: h.fin
+                });
+              }
+            });
+
+            horario.value = horarioMap;
+          } else {
+            alert(data.message || 'Error al cargar datos');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Error de conexión');
+        } finally {
+          loading.value = false;
+        }
+      };
+
+      onMounted(cargarDatosEmpleado);
+
+      return { empleadoNombre, empleadoFoto, horario, loading, diasSemana };
+    }
+  }).mount('#app');
+</script>
+</body>
+</html>

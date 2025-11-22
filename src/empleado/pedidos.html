@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pedidos - TOPSKIN</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #a7cde4; color: #333; }
+    .header {
+      background: linear-gradient(135deg, #2c6e49, #4c9a6b);
+      background-image:url("../../media/header_empleado.png");
+      background-size: cover; 
+      color: white; padding: 15px 30px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 1000;
+    }
+ .logo{
+      width: 150px;
+      height: auto;
+    }
+   
+    hr{
+      height: 25px;             
+      border: none;            
+      background-color: #6691bc;
+      margin: 0;            
+      width: 100%;  
+      display: block;
+    }
+    .navbar a { color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; margin: 0 5px; }
+    .navbar a:hover, .navbar a.active { background: rgba(255,255,255,0.2); }
+    .user-info img { width: 48px; height: 48px; border-radius: 50%; border: 3px solid #a8e6cf; object-fit: cover; }
+
+    .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+    h1 { color: #34578d; text-align: center; margin-bottom: 30px; font-size: 28px; }
+
+    .filtros {
+      background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 25px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;
+    }
+    select, input { padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; }
+    button { background: #356b4a; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+    button:hover { background: #2c6e49; }
+
+    table {
+      width: 100%; border-collapse: collapse; background: white; border-radius: 5px;
+      overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    th { background: #1cac98; color: white; padding: 15px; text-align: center; }
+    td { padding: 14px; text-align: center; border-bottom: 1px solid #eee; }
+    tr:hover { background: #f9f9f9; }
+
+    .estado {
+      padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 14px;
+    }
+    .estado.P { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+    .estado.E { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .estado.C { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+    select.estado-select {
+      padding: 8px; border-radius: 8px; font-size: 14px; cursor: pointer;
+    }
+
+    .loading, .no-data { text-align: center; padding: 50px; color: #666; font-size: 18px; }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <div class="header">
+      <img class="logo" src="../../media/logo_1.png">
+    <nav class="navbar">
+      <a href="../menu_empleado.html">Inicio</a>
+      <a href="horarios.html" class="active">Horarios</a>
+      <a href="historial_ventas.html">Historial Ventas</a>
+      <a href="pedidos.html">Pedidos</a>
+      <a href="productos.html">Productos</a>
+      <a href="compras.html">Registrar Compra</a>
+      <a href="cuenta.html">Mi Cuenta</a>
+    </nav>
+    <div class="user-info">
+      <span>{{ empleadoNombre }}</span>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>Gestión de Pedidos</h1>
+
+    <div class="filtros">
+      <select v-model="filtroEstado">
+        <option value="">Todos los estados</option>
+        <option value="P">Pendiente</option>
+        <option value="E">Entregado</option>
+        <option value="C">Cancelado</option>
+      </select>
+      <input type="date" v-model="fechaDesde" />
+      <input type="date" v-model="fechaHasta" />
+      <button @click="cargarPedidos">Buscar</button>
+      <button @click="limpiarFiltros">Limpiar</button>
+    </div>
+
+    <div v-if="loading" class="loading">
+      <i class="fas fa-spinner fa-spin"></i> Cargando pedidos...
+    </div>
+
+    <div v-else-if="pedidos.length === 0" class="no-data">
+      No se encontraron pedidos con los filtros aplicados.
+    </div>
+
+    <table v-else>
+      <thead>
+        <tr>
+          <th># Pedido</th>
+          <th>Factura</th>
+          <th>Fecha Venta</th>
+          <th>Cliente</th>
+          <th>Estado</th>
+          <th>Fecha Entrega</th>
+          <th>Actualizar Estado</th>
+        </tr>
+     </thead>
+      <tbody>
+        <tr v-for="pedido in pedidos" :key="pedido.idPedido">
+          <td>{{ pedido.idPedido }}</td>
+          <td>{{ pedido.nFactura }}</td>
+          <td>{{ formatFecha(pedido.fechaVenta) }}</td>
+          <td>{{ pedido.nombreCliente || 'Cliente genérico' }}</td>
+          <td>
+            <span class="estado" :class="pedido.estadoEntrega">
+              {{ estadoTexto(pedido.estadoEntrega) }}
+            </span>
+          </td>
+          <td>{{ pedido.fechaEntrega ? formatFechaCorta(pedido.fechaEntrega) : 'No definida' }}</td>
+          <td>
+            <select class="estado-select" 
+                    :value="pedido.estadoEntrega" 
+                    @change="actualizarEstado(pedido.idPedido, $event.target.value)"
+                    :disabled="pedido.estadoEntrega === 'C'">
+              <option value="P">Pendiente</option>
+              <option value="E">Entregado</option>
+              <option value="C" :disabled="pedido.estadoEntrega !== 'P'">Cancelar</option>
+            </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const { createApp, ref, onMounted } = Vue;
+
+  createApp({
+    setup() {
+      const empleadoNombre = ref('Cargando...');
+      const empleadoFoto = ref('https://via.placeholder.com/48');
+      const ciEmpleado = localStorage.getItem('ciEmpleado');
+
+      const pedidos = ref([]);
+      const loading = ref(true);
+
+      const filtroEstado = ref('');
+      const fechaDesde = ref('');
+      const fechaHasta = ref('');
+
+      const formatFecha = (f) => new Date(f).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' });
+      const formatFechaCorta = (f) => new Date(f).toLocaleDateString('es-ES');
+
+      const estadoTexto = (estado) => {
+        return { P: 'Pendiente', E: 'Entregado', C: 'Cancelado' }[estado] || 'Desconocido';
+      };
+
+      const cargarPedidos = async () => {
+        loading.value = true;
+        try {
+          const res = await fetch('../../backend/pedidos.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ciEmpleado,
+              estado: filtroEstado.value,
+              desde: fechaDesde.value,
+              hasta: fechaHasta.value
+            })
+          });
+          const data = await res.json();
+          if (data.success) {
+            pedidos.value = data.pedidos;
+            empleadoNombre.value = data.empleadoNombre;
+          } else {
+            alert(data.message || 'Error al cargar pedidos');
+          }
+        } catch (err) {
+          alert('Error de conexión');
+        } finally {
+          loading.value = false;
+        }
+      };
+
+      const actualizarEstado = async (idPedido, nuevoEstado) => {
+        if (!confirm(`¿Cambiar estado del pedido #${idPedido} a "${estadoTexto(nuevoEstado)}"?`)) {
+          cargarPedidos(); 
+          return;
+        }
+
+        try {
+          const res = await fetch('../../backend/actualizarpedido.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idPedido, estado: nuevoEstado, ciEmpleado })
+          });
+          const result = await res.json();
+          if (result.success) {
+            alert('Estado actualizado correctamente');
+            cargarPedidos();
+          } else {
+            alert(result.message || 'Error al actualizar');
+            cargarPedidos();
+          }
+        } catch (err) {
+          alert('Error de conexión');
+          cargarPedidos();
+        }
+      };
+
+      const limpiarFiltros = () => {
+        filtroEstado.value = '';
+        fechaDesde.value = '';
+        fechaHasta.value = '';
+        cargarPedidos();
+      };
+
+      onMounted(cargarPedidos);
+
+      return {
+        empleadoNombre, empleadoFoto, pedidos, loading,
+        filtroEstado, fechaDesde, fechaHasta,
+        formatFecha, formatFechaCorta, estadoTexto,
+        cargarPedidos, actualizarEstado, limpiarFiltros
+      };
+    }
+  }).mount('#app');
+</script>
+</body>
+</html>

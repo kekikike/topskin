@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Productos - TOPSKIN</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',Arial,sans-serif; background:#e0d8a7; color:#333; }
+    .header {
+      background:linear-gradient(135deg,#2c6e49,#4c9a6b);
+      background-image:url("../../media/header_empleado.png");
+      background-size: cover; 
+      color:white; padding:18px 30px; display:flex; align-items:center; justify-content:space-between;
+      box-shadow:0 4px 12px rgba(0,0,0,0.15); position:sticky; top:0; z-index:1000;
+    }
+   .logo{
+      width: 150px;
+      height: auto;
+    }
+   
+    hr{
+      height: 25px;             
+      border: none;            
+      background-color: #6691bc;
+      margin: 0;            
+      width: 100%;  
+      display: block;
+    }
+    .navbar a { color:white; text-decoration:none; padding:10px 18px; border-radius:8px; margin:0 5px; }
+    .navbar a:hover, .navbar a.active { background:rgba(255,255,255,0.2); }
+
+    .container { max-width:1200px; margin:40px auto; padding:20px; }
+    h1 { color:#5a6b2acb; text-align:center; margin-bottom:30px; }
+
+    .acciones { text-align:center; margin-bottom:25px; }
+    .btn { background:#758849; color:white; padding:12px 28px; border:none; border-radius:8px; cursor:pointer; font-size:16px; }
+    .btn:hover { background:#2c6e49; }
+
+    table { width:100%; border-collapse:collapse; background:white; border-radius:5px; overflow:hidden; box-shadow:0 6px 20px rgba(0,0,0,0.1); }
+    th { background:#97b85b; color:white; padding:16px; text-align:center; }
+    td { padding:16px; text-align:center; border-bottom:1px solid #eee; }
+    tr:hover { background:#f8f9fa; }
+    img.prod { width:70px; height:70px; object-fit:cover; border-radius:10px; border:2px solid #eee; }
+
+    .stock-bajo { color:#e74c3c; font-weight:bold; }
+    .stock-ok { color:#73ae27; font-weight:bold; }
+
+    .loading { text-align:center; padding:60px; font-size:20px; color:#666; }
+
+    .modal {
+      position:fixed; top:0; left:0; width:100%; height:100%;
+      background:rgba(204, 212, 97, 0.301); display:flex; align-items:center; justify-content:center; z-index:2000;
+    }
+    .modal-content {
+      background:white; width:90%; max-width:600px; border-radius:16px; overflow:hidden;
+      box-shadow:0 10px 30px rgba(0,0,0,0.4);
+    }
+    .modal-header {
+      background:#839a4c; color:white; padding:20px; text-align:center; font-size:22px;
+    }
+    .modal-body { padding:30px; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    .form-group { margin-bottom:20px; }
+    label { display:block; margin-bottom:8px; font-weight:600; color:#2c6e49; }
+    input, select { width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; font-size:15px; }
+    .preview { width:130px; height:130px; object-fit:cover; border-radius:12px; margin-top:10px; border:3px dashed #4c9a6b; }
+    .close { float:right; font-size:30px; cursor:pointer; }
+  </style>
+</head>
+<body>
+
+<div id="app">
+   <div class="header">
+    <img class="logo" src="../../media/logo_1.png">
+    <nav class="navbar">
+      <a href="../menu_empleado.html">Inicio</a>
+      <a href="horarios.html" class="active">Horarios</a>
+      <a href="historial_ventas.html">Historial Ventas</a>
+      <a href="pedidos.html">Pedidos</a>
+      <a href="productos.html">Productos</a>
+      <a href="compras.html">Registrar Compra</a>
+      <a href="cuenta.html">Mi Cuenta</a>
+    </nav>
+    <div>{{ empleadoNombre }}</div>
+  </div>
+
+  <div class="container">
+    <h1>Lista de Productos</h1>
+
+    <div class="acciones">
+      <button class="btn" @click="abrirModal(null)">
+        <i class="fas fa-plus"></i> Agregar Producto
+      </button>
+    </div>
+
+    <div v-if="loading" class="loading">
+      <i class="fas fa-spinner fa-spin"></i> Cargando productos...
+    </div>
+
+    <table v-else>
+      <thead>
+        <tr>
+          <th>Foto</th>
+          <th>Producto</th>
+          <th>Marca</th>
+          <th>Precio</th>
+          <th>Stock</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="p in productos" :key="p.idProducto">
+          <td>
+            <img :src="p.foto ? p.foto : 'img/no-image.png'" class="prod" alt="Producto">
+          </td>
+          <td><strong>{{ p.nombre }}</strong></td>
+          <td>{{ p.marca }}</td>
+          <td>{{ parseFloat(p.precioUnitario).toFixed(2) }} Bs</td>
+          <td :class="p.stock < 10 ? 'stock-bajo' : 'stock-ok'">{{ p.stock }} und.</td>
+          <td>
+            <button @click="abrirModal(p)" style="background:#9c8747;color:black;padding:8px 16px;border:none;border-radius:6px;cursor:pointer;">
+              Editar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div v-if="modalVisible" class="modal" @click.self="modalVisible=false">
+    <div class="modal-content">
+      <div class="modal-header">
+        {{ productoEdit ? 'Editar Producto' : 'Nuevo Producto' }}
+        <span class="close" @click="modalVisible=false">×</span>
+      </div>
+      <div class="modal-body">
+        <form @submit.prevent="guardarProducto">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nombre del producto</label>
+              <input v-model="form.nombre" required />
+            </div>
+            <div class="form-group">
+              <label>Precio Unitario</label>
+              <input type="number" step="0.01" min="0" v-model="form.precioUnitario" required />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Marca</label>
+              <select v-model="form.idMarca" required>
+                <option value="">Seleccione marca</option>
+                <option v-for="m in marcas" :key="m.idMarca" :value="m.idMarca">
+                  {{ m.nombre }}
+                </option>
+              </select>
+            </div>
+<div class="form-group">
+  <label>Categorías <small>(puede seleccionar varias)</small></label>
+  <div style="max-height:180px; overflow-y:auto; border:1px solid #ddd; border-radius:8px; padding:12px; background:#fafafa;">
+    <div v-for="c in categorias" :key="c.idCategoria" style="margin:10px 0;">
+      <label :for="'cat_' + c.idCategoria" style="cursor:pointer; display:flex; align-items:center; font-weight:normal;">
+        <input 
+          type="checkbox" 
+          :id="'cat_' + c.idCategoria"
+          :value="c.idCategoria" 
+          v-model="form.categorias"
+          style="margin-right:10px; transform:scale(1.2);"
+        />
+        {{ c.nombre }}
+      </label>
+    </div>
+  </div>
+  <small v-if="form.categorias.length" style="color:#2c6e49; margin-top:8px; display:block;">
+    Seleccionadas: {{ form.categorias.length }} categoría(s)
+  </small>
+</div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Stock inicial</label>
+              <input type="number" v-model="form.stock" required min="0" />
+            </div>
+            <div class="form-group">
+              <label>Foto del producto</label>
+              <input type="file" accept="image/*" @change="cambiarFoto" />
+              <img v-if="vistaPrevia" :src="vistaPrevia" class="preview" />
+              <img v-else-if="form.foto" :src="form.foto" class="preview" />
+            </div>
+          </div>
+
+          <div style="text-align:center; margin-top:30px;">
+            <button type="submit" class="btn">
+              {{ productoEdit ? 'Actualizar' : 'Guardar' }} Producto
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const { createApp, ref, onMounted } = Vue;
+
+createApp({
+  setup() {
+    const ciEmpleado = localStorage.getItem('ciEmpleado') || '12345678';
+    const empleadoNombre = ref('Empleado');
+    const productos = ref([]);
+    const categorias = ref([]);
+    const marcas = ref([]);
+    const loading = ref(true);
+
+    const modalVisible = ref(false);
+    const productoEdit = ref(null);
+    const vistaPrevia = ref('');
+    const archivoFoto = ref(null);
+
+  const form = ref({
+  idProducto: null,
+  nombre: '',
+  precioUnitario: '',
+  stock: '',
+  idMarca: '',
+  categorias: [],  
+  foto: ''
+});
+
+    const cargarDatos = async () => {
+      try {
+        const res = await fetch('../../backend/productos.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ciEmpleado })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          productos.value = data.productos;
+          categorias.value = data.categorias;
+          marcas.value = data.marcas;
+          empleadoNombre.value = data.empleadoNombre;
+        } else {
+          alert('Error: ' + data.message);
+        }
+      } catch (e) {
+        alert('Error de conexión');
+      } finally {
+        loading.value = false;
+      }
+    };
+
+    const abrirModal = (producto) => {
+  if (producto) {
+    productoEdit.value = producto;
+    form.value = {
+      idProducto: producto.idProducto,
+      nombre: producto.nombre,
+      precioUnitario: producto.precioUnitario,
+      stock: producto.stock,
+      idMarca: producto.idMarca || '',
+      categorias: producto.categoriasIds ? producto.categoriasIds.split(',') : [],
+      foto: producto.foto
+    };
+  } else {
+    productoEdit.value = null;
+    form.value = { idProducto:null, nombre:'', precioUnitario:'', stock:'', idMarca:'', categorias:[], foto:'' };
+  }
+  vistaPrevia.value = '';
+  archivoFoto.value = null;
+  modalVisible.value = true;
+};
+    const cambiarFoto = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        archivoFoto.value = file;
+        vistaPrevia.value = URL.createObjectURL(file);
+      }
+    };
+
+   const guardarProducto = async () => {
+  if (!form.value.nombre || !form.value.idMarca || form.value.categorias.length === 0) {
+    alert("Complete todos los campos obligatorios y seleccione al menos una categoría");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('ciEmpleado', ciEmpleado);
+  formData.append('accion', productoEdit.value ? 'editar' : 'agregar');
+  formData.append('nombre', form.value.nombre);
+  formData.append('precioUnitario', form.value.precioUnitario);
+  formData.append('stock', form.value.stock);
+  formData.append('idMarca', form.value.idMarca);
+  formData.append('categorias', form.value.categorias.join(',')); // ← Aquí está la clave
+  if (productoEdit.value) formData.append('idProducto', productoEdit.value.idProducto);
+  if (archivoFoto.value) formData.append('foto', archivoFoto.value);
+
+  try {
+    const res = await fetch('../../backend/gestionproductos.php', {
+      method: 'POST',
+      body: formData
+    });
+    const result = await res.json();
+    alert(result.message);
+    if (result.success) {
+      modalVisible.value = false;
+      cargarDatos();
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Error de conexión");
+  }
+};
+    onMounted(cargarDatos);
+
+    return {
+      empleadoNombre, productos, categorias, marcas, loading,
+      modalVisible, productoEdit, form, vistaPrevia,
+      abrirModal, cambiarFoto, guardarProducto
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>

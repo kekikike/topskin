@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Historial de Ventas - TOPSKIN</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background:  #a7acac; color: #333; }
+    .header {
+      background: linear-gradient(135deg, #2c6e49, #4c9a6b);
+      background-image:url("../../media/header_empleado.png");
+      background-size: cover; 
+      color: white; padding: 15px 30px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 1000;
+    } 
+    .logo{
+      width: 150px;
+      height: auto;
+    }
+   
+    hr{
+      height: 25px;             
+      border: none;            
+      background-color: #6691bc;
+      margin: 0;            
+      width: 100%;  
+      display: block;
+    }
+    .navbar a { color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; margin: 0 5px; }
+    .navbar a:hover, .navbar a.active { background: rgba(255,255,255,0.2); }
+    .user-info img { width: 48px; height: 48px; border-radius: 50%; border: 3px solid #a8e6cf; object-fit: cover; }
+
+    .container { max-width: 1300px; margin: 40px auto; padding: 0 20px; }
+    h1 { color: #344868;; text-align: center; margin-bottom: 30px; font-size: 28px; }
+
+    .filtros {
+      background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 25px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;
+    }
+    input, select { padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 15px; }
+    button { background: #474c77; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+    button:hover { background: #6b72b4; }
+
+    table {
+      width: 100%; border-collapse: collapse; background: white; border-radius: 5px;
+      overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    th { background: #437e8d; color: white; padding: 15px; text-align: center; }
+    td { padding: 14px; text-align: center; border-bottom: 1px solid #eee; }
+    tr:hover { background: #f5f5f5; }
+    .total { font-weight: bold; color: #272e38; font-size: 18px; }
+    .btn-detalle {
+      background: #4583b6; color: white; border: none; padding: 8px 14px;
+      border-radius: 6px; cursor: pointer; font-size: 14px;
+    }
+    .btn-detalle:hover { background: #1976d2; }
+
+    .loading, .no-data { text-align: center; padding: 50px; color: #666; font-size: 18px; }
+
+    .modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #68b6c475; display: flex; align-items: center; justify-content: center;
+      z-index: 2000;
+    }
+    .modal-content {
+      background: white; width: 90%; max-width: 700px; border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.37); max-height: 90vh; overflow-y: auto;
+    }
+    .modal-header {
+      background: #68b6c4; color: white; padding: 18px; border-radius: 16px 16px 0 0;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .modal-body { padding: 25px; }
+    .close { font-size: 28px; cursor: pointer; }
+    .detalle-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    .detalle-table th { background: #cecccc; padding: 12px; }
+    .detalle-table td { padding: 12px; border-bottom: 1px solid #ddd; text-align: center; }
+    .total-final { font-size: 22px; font-weight: bold; color: #1b1d27; text-align: right; margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <div class="header">
+    <img class="logo" src="../../media/logo_1.png">
+    <nav class="navbar">
+      <a href="../menu_empleado.html">Inicio</a>
+      <a href="horarios.html" class="active">Horarios</a>
+      <a href="historial_ventas.html">Historial Ventas</a>
+      <a href="pedidos.html">Pedidos</a>
+      <a href="productos.html">Productos</a>
+      <a href="compras.html">Registrar Compra</a>
+      <a href="cuenta.html">Mi Cuenta</a>
+    </nav>
+    <div class="user-info">
+      <span>{{ empleadoNombre }}</span>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>Historial de Ventas</h1>
+
+    <div class="filtros">
+      <input type="text" v-model="buscarCliente" placeholder="Buscar por cliente..." />
+      <input type="date" v-model="fechaDesde" />
+      <input type="date" v-model="fechaHasta" />
+      <button @click="cargarVentas()">Buscar</button>
+      <button @click="limpiarFiltros">Limpiar</button>
+    </div>
+
+    <div v-if="loading" class="loading">
+      <i class="fas fa-spinner fa-spin"></i> Cargando ventas...
+    </div>
+
+    <div v-else-if="ventas.length === 0" class="no-data">
+      No se encontraron ventas.
+    </div>
+
+    <table v-else>
+      <thead>
+        <tr>
+          <th># Factura</th>
+          <th>Fecha</th>
+          <th>Cliente</th>
+          <th>Empleado</th>
+          <th>Productos</th>
+          <th class="total">Total</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="venta in ventas" :key="venta.nFactura">
+          <td>{{ venta.nFactura }}</td>
+          <td>{{ formatFecha(venta.fechaVenta) }}</td>
+          <td>{{ venta.nombreCliente || 'Cliente genérico' }}</td>
+          <td>{{ venta.nombreEmpleado }}</td>
+          <td>{{ venta.cantidadProductos }} producto(s)</td>
+          <td class="total">{{ parseFloat(venta.costoTotal).toFixed(2) }} Bs</td>
+          <td>
+            <button class="btn-detalle" @click="abrirDetalle(venta.nFactura)">
+              Ver detalle
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div v-if="modalVisible" class="modal" @click="modalVisible = false">
+    <div class="modal-content" @click.stop>
+      <div class="modal-header">
+        <h2>Detalle de Venta #{{ ventaSeleccionada.nFactura }}</h2>
+        <span class="close" @click="modalVisible = false">×</span>
+      </div>
+      <div class="modal-body">
+        <p><strong>Fecha:</strong> {{ formatFecha(ventaSeleccionada.fechaVenta) }}</p>
+        <p><strong>Cliente:</strong> {{ ventaSeleccionada.nombreCliente || 'Cliente genérico' }}</p>
+        <p><strong>Vendido por:</strong> {{ ventaSeleccionada.nombreEmpleado }}</p>
+
+        <table class="detalle-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Precio Unit.</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in detalleProductos" :key="item.idDetalleVenta">
+              <td>{{ item.nombreProducto }}</td>
+              <td>{{ item.cantidad }}</td>
+              <td>{{ parseFloat(item.precioUnitario).toFixed(2) }} Bs</td>
+              <td>{{ parseFloat(item.subtotal).toFixed(2) }} Bs</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="total-final">
+          Total Final: {{ parseFloat(ventaSeleccionada.costoTotal).toFixed(2) }} Bs
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const { createApp, ref } = Vue;
+
+  createApp({
+    setup() {
+      const empleadoNombre = ref('Cargando...');
+      const empleadoFoto = ref('https://via.placeholder.com/48');
+      const ciEmpleado = localStorage.getItem('ciEmpleado');
+
+      const ventas = ref([]);
+      const loading = ref(true);
+
+      const buscarCliente = ref('');
+      const buscarEmpleado = ref('');
+      const fechaDesde = ref('');
+      const fechaHasta = ref('');
+
+      const modalVisible = ref(false);
+      const ventaSeleccionada = ref({});
+      const detalleProductos = ref([]);
+
+      const formatFecha = (fecha) => {
+        return new Date(fecha).toLocaleString('es-ES', {
+          year: 'numeric', month: 'short', day: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        });
+      };
+
+      const cargarVentas = async () => {
+        loading.value = true;
+        try {
+          const res = await fetch('../../backend/ventas.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ciEmpleado,
+              cliente: buscarCliente.value,
+              empleado: buscarEmpleado.value,
+              desde: fechaDesde.value,
+              hasta: fechaHasta.value
+            })
+          });
+          const data = await res.json();
+          if (data.success) {
+            ventas.value = data.ventas;
+            empleadoNombre.value = data.empleadoNombre;
+          }
+        } catch (err) {
+          alert('Error de conexión');
+        } finally {
+          loading.value = false;
+        }
+      };
+
+      const abrirDetalle = async (nFactura) => {
+        try {
+          const res = await fetch('../../backend/detalleventa.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nFactura })
+          });
+          const data = await res.json();
+          if (data.success) {
+            ventaSeleccionada.value = ventas.value.find(v => v.nFactura == nFactura);
+            detalleProductos.value = data.productos;
+            modalVisible.value = true;
+          }
+        } catch (err) {
+          alert('Error al cargar detalle');
+        }
+      };
+
+      const limpiarFiltros = () => {
+        buscarCliente.value = '';
+        buscarEmpleado.value = '';
+        fechaDesde.value = '';
+        fechaHasta.value = '';
+        cargarVentas();
+      };
+
+      cargarVentas();
+
+      return {
+        empleadoNombre, empleadoFoto, ventas, loading,
+        buscarCliente, buscarEmpleado, fechaDesde, fechaHasta,
+        formatFecha, cargarVentas, limpiarFiltros,
+        modalVisible, ventaSeleccionada, detalleProductos, abrirDetalle
+      };
+    }
+  }).mount('#app');
+</script>
+</body>
+</html>
