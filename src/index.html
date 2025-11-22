@@ -545,35 +545,46 @@
         }
 
         function agregarAlCarrito(p, cantidadSeleccionada = 1) {
-          const item = {
-            idProducto: p.idProducto || p.id,   
-            cantidad: cantidadSeleccionada
-          };
-          let index = carrito.value.findIndex(x => x.idProducto === item.idProducto);
-          if (index !== -1) {
-            carrito.value[index].cantidad += cantidadSeleccionada;
-          } else {
-            carrito.value.push({ ...p, cantidad: cantidadSeleccionada });
-          }
-          const soloParaBackend = carrito.value.map(x => ({
-            idProducto: x.idProducto,
-            cantidad: x.cantidad
-          }));
+  // Forzar un ID consistente
+  const idProducto = p.idProducto || p.id;
 
-          fetch('../backend/actualizar_carrito.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(soloParaBackend)
-          })
-          .then(r => r.json())
-          .then(res => {
-            console.log('Carrito actualizado:', res);
-          })
-          .catch(err => console.error('Error guardando carrito:', err));
+  if (!idProducto) {
+    console.error("Producto sin ID:", p);
+    return;
+  }
 
-          alert(`¡${cantidadSeleccionada} ${p.nombre} agregado(s) al carrito!`);
-          cerrarPopupProducto();
-        }
+  // Buscar si ya existe en carrito
+  let index = carrito.value.findIndex(x => x.idProducto === idProducto);
+  if (index !== -1) {
+    carrito.value[index].cantidad += cantidadSeleccionada;
+  } else {
+    carrito.value.push({ ...p, cantidad: cantidadSeleccionada, idProducto });
+  }
+
+  // Preparar solo lo que necesita el backend
+  const soloParaBackend = carrito.value.map(x => ({
+    idProducto: x.idProducto,
+    cantidad: x.cantidad
+  }));
+
+  console.log("ENVIANDO AL BACKEND:", soloParaBackend); // <-- revisa aquí en consola
+
+  fetch('../backend/actualizar_carrito.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(soloParaBackend)
+  })
+    .then(r => r.json())
+    .then(res => {
+      console.log('Carrito actualizado:', res);
+    })
+    .catch(err => console.error('Error guardando carrito:', err));
+
+  alert(`¡${cantidadSeleccionada} ${p.nombre} agregado(s) al carrito!`);
+  cerrarPopupProducto();
+}
+
+
 
         onMounted(() => {
           fetch('../backend/index.php')
