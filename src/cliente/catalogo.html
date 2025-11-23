@@ -6,277 +6,101 @@
   <title>Catálogo - TopSkin</title>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Baumans&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
-  
-  <style>
-    body { margin: 0; font-family: 'Open Sans', sans-serif; background: #f0f0f0; }
-    
-    /* Banner */
-    .banner {
-      background: linear-gradient(to bottom, #6BC5D2, #a0d8e0);
-      height: 150px; display: flex; align-items: center; justify-content: center;
-      color: white; font-family: 'Baumans', cursive; font-size: 2.5rem;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.2); margin-bottom: 20px;
-    }
-
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; gap: 30px; }
-
-    /* Filtros */
-    .filters {
-      width: 250px; background: #658C7B; border-radius: 10px; padding: 20px;
-      color: white; font-family: 'Open Sans', sans-serif;
-    }
-    .filter-group { margin-bottom: 20px; }
-    .filter-group label { display: block; margin-bottom: 8px; cursor: pointer; }
-    .filter-group input[type="checkbox"] { margin-right: 10px; }
-
-    /* Grid de productos */
-    .products-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 20px; flex: 1;
-    }
-    .product-card {
-      background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      text-align: center; padding: 10px; cursor: pointer; transition: transform 0.3s;
-    }
-    .product-card:hover { transform: scale(1.05); }
-    .product-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; }
-    .product-card h4 { font-size: 1rem; margin: 5px 0; color: #333; }
-    .product-card p { font-weight: bold; color: #658C7B; font-size: 1.1rem; }
-
-    /* POPUP EXACTO COMO TU CAPTURA */
-    .popup-overlay {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center;
-      z-index: 9999; padding: 20px;
-    }
-    .popup-content {
-      background: #fff; border-radius: 20px; width: 100%; max-width: 900px;
-      position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.3); overflow: hidden;
-    }
-    .cerrar-popup {
-      position: absolute; top: 15px; right: 20px; background: #333; color: white;
-      padding: 8px 20px; border-radius: 30px; font-size: 14px; cursor: pointer; z-index: 10;
-    }
-    .popup-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 30px; padding: 40px;
-      background: url('media/fondo-popup.jpg') center/cover no-repeat;
-    }
-    .popup-img img {
-      width: 100%; height: 420px; object-fit: contain; border-radius: 15px;
-      background: white; padding: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-    .popup-info h2 { margin: 18px 0 8px; color: #444; font-size: 1rem; font-weight: bold; }
-    .nombre-producto { font-size: 1.5rem; font-weight: bold; color: #333; margin-bottom: 15px; }
-    .marca { font-size: 1.3rem; color: #658C7B; margin-bottom: 15px; }
-    .precio { font-size: 1.8rem; font-weight: bold; color: #658C7B; margin: 20px 0; }
-    .descripcion { line-height: 1.6; color: #555; margin-bottom: 25px; }
-    .cantidad-contenedor { margin: 20px 0; text-align: center; }
-    .cantidad-controls {
-      display: inline-flex; align-items: center; background: #f0f0f0;
-      border-radius: 30px; padding: 5px; margin-left: 15px;
-    }
-    .cantidad-controls button {
-      width: 40px; height: 40px; border: none; background: #658C7B; color: white;
-      font-size: 1.4rem; cursor: pointer; border-radius: 50%;
-    }
-    .cantidad-controls span { margin: 0 20px; font-size: 1.4rem; font-weight: bold; min-width: 30px; }
-    .btn-agregar {
-      width: 100%; padding: 16px; background: #a8d5c8; color: #333;
-      font-size: 1.3rem; font-weight: bold; border: none; border-radius: 50px;
-      cursor: pointer; margin-top: 20px; transition: 0.3s;
-    }
-    .btn-agregar:hover { background: #90c7b8; }
-  </style>
+  <link rel="stylesheet" href="../css/catalogo.css">
 </head>
 <body>
 
 <div id="app">
-  <!-- Banner -->
-  <div class="banner">Cuidado de la piel</div>
-
-  <div class="container">
-    <!-- Filtros -->
-    <div class="filters">
-      <div class="filter-group">
-        <h3>Filtros</h3>
-        <h4>Marcas</h4>
-        <label><input type="checkbox" v-model="selectedMarcas" value="CERAVE"> CERAVE</label>
-        <label><input type="checkbox" v-model="selectedMarcas" value="CENTELLA"> CENTELLA</label>
-        <label><input type="checkbox" v-model="selectedMarcas" value="TOCOBO"> TOCOBO</label>
-        <label><input type="checkbox" v-model="selectedMarcas" value="GARNIER"> GARNIER</label>
-        <label><input type="checkbox" v-model="selectedMarcas" value="ISDIN"> ISDIN</label>
+  
+  <div class="banner-top">
+    <div class="banner-content">
+      <h1>Cuidado de la piel</h1>
       </div>
-      <div class="filter-group">
-        <h4>Productos</h4>
-        <label><input type="checkbox" v-model="selectedProductos" value="Mascarillas"> Mascarillas</label>
-        <label><input type="checkbox" v-model="selectedProductos" value="Sérums"> Sérums</label>
-        <label><input type="checkbox" v-model="selectedProductos" value="Limpiadores"> Limpiadores</label>
-        <label><input type="checkbox" v-model="selectedProductos" value="Cremas"> Cremas</label>
-      </div>
-    </div>
-
-    <!-- Productos -->
-    <div class="products-grid">
-      <div v-for="p in filteredProducts" :key="p.id" class="product-card" @click="abrirPopup(p)">
-        <img :src="p.image" alt="Producto">
-        <h4>{{ p.name }}</h4>
-        <p>{{ p.price }} Bs.</p>
-      </div>
-    </div>
   </div>
 
-  <!-- POPUP 100% IGUAL AL QUE MOSTRASTE -->
-  <div v-if="productoSeleccionado" class="popup-overlay" @click.self="productoSeleccionado = null">
-    <div class="popup-content">
-      <div class="cerrar-popup" @click="productoSeleccionado = null">Cerrar</div>
-      <div class="popup-grid">
-        <div class="popup-img">
-          <img :src="productoSeleccionado.image" :alt="productoSeleccionado.name">
+  <div class="container">
+    
+    <h2 class="section-title">Categorías</h2>
+
+    <div class="main-layout">
+      
+      <aside class="sidebar-filtros">
+        <div class="filtros-header">
+          <h2>Filtros</h2>
         </div>
-        <div class="popup-info">
-          <h2>PRODUCTO:</h2>
-          <p class="nombre-producto">{{ productoSeleccionado.name }}</p>
 
-          <h2>MARCA:</h2>
-          <p class="marca">{{ productoSeleccionado.marca }}</p>
-
-          <h2>PRECIO:</h2>
-          <p class="precio">{{ productoSeleccionado.price }} Bs.</p>
-
-          <h2>DESCRIPCIÓN:</h2>
-          <p class="descripcion">{{ productoSeleccionado.description }}</p>
-
-          <div class="cantidad-contenedor">
-            <label>Cantidad:</label>
-            <div class="cantidad-controls">
-              <button @click="cantidad = Math.max(1, cantidad - 1)">-</button>
-              <span>{{ cantidad }}</span>
-              <button @click="cantidad++">+</button>
+        <div class="filtros-body">
+          <div class="filtro-grupo">
+            <h3>Marcas</h3>
+            <div v-for="marca in marcas" :key="marca" class="checkbox-item">
+              <label>
+                <input type="checkbox" v-model="marcasSeleccionadas" :value="marca">
+                <span class="checkmark"></span>
+                CERAVE
+              </label>
             </div>
           </div>
 
-          <button class="btn-agregar" @click="agregarAlCarrito">
-            Agregar al Carrito
-          </button>
+          <div class="filtro-grupo">
+            <h3>Productos</h3>
+            <div v-for="cat in categoriasDb" :key="cat" class="checkbox-item">
+              <label>
+                <input type="checkbox" v-model="categoriasSeleccionadas" :value="cat">
+                <span class="checkmark"></span>
+                {{ cat }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <section class="grid-productos">
+        <div v-if="productosFiltrados.length === 0" class="no-results">
+          <p>No se encontraron productos con esos filtros.</p>
+        </div>
+
+        <div 
+          v-for="p in productosFiltrados" 
+          :key="p.idProducto" 
+          class="card" 
+          @click="abrirModal(p)"
+        >
+          <div class="card-image">
+            <img :src="p.foto && p.foto !== '' ? 'img/productos/' + p.foto : 'img/placeholder.png'" :alt="p.nombre">
+          </div>
+          <div class="card-info">
+            <small>CENTELLA</small>
+            <h4>SI</h4>
+            <p class="precio">96 Bs.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <div v-if="modalVisible" class="modal-backdrop" @click="cerrarModal">
+    <div class="modal-content" @click.stop>
+      <button class="btn-close" @click="cerrarModal">&times;</button>
+      
+      <div class="modal-grid">
+        <div class="modal-img">
+            <img :src="productoSel.foto && productoSel.foto !== '' ? 'img/productos/' + productoSel.foto : 'img/placeholder.png'">
+        </div>
+        <div class="modal-details">
+            <h2>{{ productoSel.nombre }}</h2>
+            <p class="tag-marca">CERAVE</p>
+            <p class="modal-desc">Descripción  del producto.</p>
+            <h3 class="modal-price">120 Bs.</h3>
+            
+            <button class="btn-add">Agregar al Carrito</button>
         </div>
       </div>
     </div>
   </div>
+
 </div>
 
-<script>
-  const { createApp } = Vue
-  createApp({
-    data() {
-      return {
-        selectedMarcas: [],
-        selectedProductos: [],
-        productoSeleccionado: null,
-        cantidad: 1,
-        products: [
-          // Aquí pones tus 75 productos reales (ejemplo con algunos)
-          { id: 1, name: 'Producto 1', price: 47, image: 'media/producto1.jpg', marca: 'CERAVE', tipo: 'Limpiadores', description: 'Descripción del producto 1' },
-          { id: 2, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 3, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-          { id: 4, name: 'Producto 4', price: 89, image: 'media/producto4.jpg', marca: 'GARNIER', tipo: 'Mascarillas', description: 'Descripción del producto 4' },
-          { id: 5, name: 'Producto 1', price: 47, image: 'media/producto1.jpg', marca: 'CERAVE', tipo: 'Limpiadores', description: 'Descripción del producto 1' },
-          { id: 6, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 7, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-          { id: 8, name: 'Producto 4', price: 89, image: 'media/producto4.jpg', marca: 'GARNIER', tipo: 'Mascarillas', description: 'Descripción del producto 4' },
-          { id: 9, name: 'Producto 1', price: 47, image: 'media/producto1.jpg', marca: 'CERAVE', tipo: 'Limpiadores', description: 'Descripción del producto 1' },
-          { id: 10, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 11, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-          { id: 12, name: 'Producto 4', price: 89, image: 'media/producto4.jpg', marca: 'GARNIER', tipo: 'Mascarillas', description: 'Descripción del producto 4' },
-          { id: 13, name: 'Producto 1', price: 47, image: 'media/producto1.jpg', marca: 'CERAVE', tipo: 'Limpiadores', description: 'Descripción del producto 1' },
-          { id: 14, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 15, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-          { id: 16, name: 'Producto 4', price: 89, image: 'media/producto4.jpg', marca: 'GARNIER', tipo: 'Mascarillas', description: 'Descripción del producto 4' },
-          { id: 17, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 18, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-          { id: 19, name: 'Producto 4', price: 89, image: 'media/producto4.jpg', marca: 'GARNIER', tipo: 'Mascarillas', description: 'Descripción del producto 4' },
-          { id: 20, name: 'Producto 1', price: 47, image: 'media/producto1.jpg', marca: 'CERAVE', tipo: 'Limpiadores', description: 'Descripción del producto 1' },
-          { id: 21, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 22, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-          { id: 23, name: 'Producto 4', price: 89, image: 'media/producto4.jpg', marca: 'GARNIER', tipo: 'Mascarillas', description: 'Descripción del producto 4' },
-          { id: 24, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 25, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-          { id: 26, name: 'Producto 4', price: 89, image: 'media/producto4.jpg', marca: 'GARNIER', tipo: 'Mascarillas', description: 'Descripción del producto 4' },
-          { id: 27, name: 'Producto 1', price: 47, image: 'media/producto1.jpg', marca: 'CERAVE', tipo: 'Limpiadores', description: 'Descripción del producto 1' },
-          { id: 28, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 29, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-          { id: 30, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 31, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-          { id: 32, name: 'Producto 4', price: 89, image: 'media/producto4.jpg', marca: 'GARNIER', tipo: 'Mascarillas', description: 'Descripción del producto 4' },
-          { id: 33, name: 'Producto 1', price: 47, image: 'media/producto1.jpg', marca: 'CERAVE', tipo: 'Limpiadores', description: 'Descripción del producto 1' },
-          { id: 34, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 35, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-          { id: 36, name: 'Producto 4', price: 89, image: 'media/producto4.jpg', marca: 'GARNIER', tipo: 'Mascarillas', description: 'Descripción del producto 4' },
-          { id: 37, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 38, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-          { id: 39, name: 'Producto 4', price: 89, image: 'media/producto4.jpg', marca: 'GARNIER', tipo: 'Mascarillas', description: 'Descripción del producto 4' },
-          { id: 40, name: 'Producto 1', price: 47, image: 'media/producto1.jpg', marca: 'CERAVE', tipo: 'Limpiadores', description: 'Descripción del producto 1' },
-          { id: 41, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 42, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-          { id: 43, name: 'Producto 4', price: 89, image: 'media/producto4.jpg', marca: 'GARNIER', tipo: 'Mascarillas', description: 'Descripción del producto 4' },
-          { id: 44, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 45, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-          { id: 46, name: 'Producto 4', price: 89, image: 'media/producto4.jpg', marca: 'GARNIER', tipo: 'Mascarillas', description: 'Descripción del producto 4' },
-          { id: 47, name: 'Producto 1', price: 47, image: 'media/producto1.jpg', marca: 'CERAVE', tipo: 'Limpiadores', description: 'Descripción del producto 1' },
-          { id: 48, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 49, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-          { id: 46, name: 'Producto 4', price: 89, image: 'media/producto4.jpg', marca: 'GARNIER', tipo: 'Mascarillas', description: 'Descripción del producto 4' },
-          { id: 50, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 51, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 52, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-          { id: 53, name: 'Producto 4', price: 89, image: 'media/producto4.jpg', marca: 'GARNIER', tipo: 'Mascarillas', description: 'Descripción del producto 4' },
-          { id: 54, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 55, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-          { id: 56, name: 'Producto 4', price: 89, image: 'media/producto4.jpg', marca: 'GARNIER', tipo: 'Mascarillas', description: 'Descripción del producto 4' },
-          { id: 57, name: 'Producto 1', price: 47, image: 'media/producto1.jpg', marca: 'CERAVE', tipo: 'Limpiadores', description: 'Descripción del producto 1' },
-          { id: 58, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 59, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-          { id: 60, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 61, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-          { id: 62, name: 'Producto 4', price: 89, image: 'media/producto4.jpg', marca: 'GARNIER', tipo: 'Mascarillas', description: 'Descripción del producto 4' },
-          { id: 63, name: 'Producto 1', price: 47, image: 'media/producto1.jpg', marca: 'CERAVE', tipo: 'Limpiadores', description: 'Descripción del producto 1' },
-          { id: 64, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 65, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-          { id: 66, name: 'Producto 4', price: 89, image: 'media/producto4.jpg', marca: 'GARNIER', tipo: 'Mascarillas', description: 'Descripción del producto 4' },
-          { id: 67, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 68, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-          { id: 69, name: 'Producto 4', price: 89, image: 'media/producto4.jpg', marca: 'GARNIER', tipo: 'Mascarillas', description: 'Descripción del producto 4' },
-          { id: 70, name: 'Producto 1', price: 47, image: 'media/producto1.jpg', marca: 'CERAVE', tipo: 'Limpiadores', description: 'Descripción del producto 1' },
-          { id: 71, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 72, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-          { id: 73, name: 'Producto 4', price: 89, image: 'media/producto4.jpg', marca: 'GARNIER', tipo: 'Mascarillas', description: 'Descripción del producto 4' },
-          { id: 74, name: 'Producto 2', price: 57, image: 'media/producto2.jpg', marca: 'CENTELLA', tipo: 'Cremas', description: 'Descripción del producto 2' },
-          { id: 75, name: 'Producto 3', price: 145, image: 'media/producto3.jpg', marca: 'TOCOBO', tipo: 'Sérums', description: 'Descripción del producto 3' },
-        ]
-      }
-    },
-    computed: {
-      filteredProducts() {
-        return this.products.filter(p => {
-          const marcaOk = this.selectedMarcas.length === 0 || this.selectedMarcas.includes(p.marca)
-          const tipoOk = this.selectedProductos.length === 0 || this.selectedProductos.includes(p.tipo)
-          return marcaOk && tipoOk
-        })
-      }
-    },
-    methods: {
-      abrirPopup(p) {
-        this.productoSeleccionado = p
-        this.cantidad = 1
-      },
-      agregarAlCarrito() {
-        alert(`${this.cantidad} x ${this.productoSeleccionado.name} agregado(s) al carrito`)
-        this.productoSeleccionado = null
-      }
-    }
-  }).mount('#app')
-</script>
+<script src="../js/catalogo.js"></script>
 </body>
 </html>
