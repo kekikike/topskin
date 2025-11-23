@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Cuenta | TopSkin</title>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baumans&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  
+  body {
+    font-family: 'Baumans', cursive;
+    background: url('../media/fondo5.jpg') no-repeat center 90% / cover ;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  .header {
+    height: 250px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6)), url('../media/image7.jpg') center 100% / cover;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 20px;
+  }
+
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: -60px; 
+    padding: 0 20px;
+    z-index: 10;
+  }
+
+  .btn-editar {
+    background: #a8dadc;
+    color: #1d3557;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 30px;
+    font-family: 'Baumans', cursive;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(168,218,220,0.5);
+    transition: all 0.3s;
+  }
+
+  .btn-editar:hover {
+    background: #90c7c9;
+    transform: translateY(-2px);
+  }
+
+  .volver {
+    background: rgba(255,255,255,0.25);
+    backdrop-filter: blur(8px);
+    color: white;
+    padding: 10px 22px;
+    border-radius: 25px;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: 0.3s;
+  }
+  .volver:hover { background: rgba(255,255,255,0.4); }
+
+  .avatar {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    border: 1px solid white;
+    overflow: hidden;
+    margin: -70px auto 0 30px;
+    background: #666;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    
+  }
+
+  .btn-editar {
+    position: absolute;
+    top: 190px;
+    right: 40px;
+    background: #a8dadc;
+    color: #1d3557;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 30px;
+    font-family: 'Baumans', cursive;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(168,218,220,0.5);
+    transition: all 0.3s;
+  }
+  .btn-editar:hover {
+    background: #90c7c9;
+    transform: translateY(-3px);
+  }
+
+  .info {
+    background: rgba(245, 240, 225, 0.96);
+    backdrop-filter: blur(10px);
+    padding: 50px 35px 30px;
+    border-radius: 0 0 28px 28px;
+    margin-top: -20px;
+    color: #2d3436;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .info h3 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #1d3557;
+    font-size: 1.6rem;
+    letter-spacing: 1px;
+  }
+  .info p {
+    margin: 18px 0;
+    font-size: 1.15rem;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    line-height: 1.4;
+  }
+  .info strong {
+    color: #1d3557;
+    min-width: 110px;
+    font-weight: bold;
+  }
+  .info input {
+    width: 65%;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-family: 'Baumans', cursive;
+    font-size: 1rem;
+  }
+
+  /* Historial de compras */
+  .historial {
+    margin: 35px 0;
+    background: rgba(180, 210, 190, 0.90);
+    backdrop-filter: blur(8px);
+    border-radius: 24px;
+    padding: 25px;
+    color: #0f4c5c;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+  }
+  .historial h3 {
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+    color: #0f4c5c;
+  }
+  .pedido {
+    background: rgba(255,255,255,0.75);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .pedido p { margin: 8px 0; font-size: 1.05rem; }
+
+  /* Botón cerrar sesión */
+  .btn-cerrar {
+    width: 100%;
+    padding: 16px;
+    background: #e76f51;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-family: 'Baumans', cursive;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    box-shadow: 0 6px 20px rgba(231,111,81,0.4);
+    transition: 0.3s;
+  }
+  .btn-cerrar:hover { background: #d65c42; transform: translateY(-2px); }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .avatar { width: 110px; height: 110px; margin-left: 20px; }
+    .btn-editar { right: 20px; top: 180px; padding: 10px 20px; }
+    .info p { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+    <!-- header -->
+    <div class="header">
+      <a href="index.html" class="volver">Volver al Menú</a>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; position:relative;">
+      <div class="avatar">
+        <img src="../../media/icon.png" alt="Foto de perfil">
+      </div>
+    </div>
+
+    <!-- debajo del header -->
+    <div class="header-row">
+      <button v-if="!editando" @click="editando = true" class="btn-editar">Editar Datos</button>
+    </div>
+
+    <!-- Información del usuario -->
+    <div class="info">
+      <h3>Mis Datos</h3>
+
+      <p><strong>Nombre:</strong>
+        <span v-if="!editando">{{ usuario.nombre1 }} {{ usuario.apellidoP }} {{ usuario.apellidoM || '' }}</span>
+        <span v-else style="display:flex; flex-direction:column; gap:6px; width:65%;">
+          <input type="text" v-model="form.nombre1" placeholder="Nombre">
+          <input type="text" v-model="form.apellidoP" placeholder="Apellido Paterno">
+          <input type="text" v-model="form.apellidoM" placeholder="Apellido Materno (opcional)">
+        </span>
+      </p>
+
+      <p><strong>Teléfono:</strong>
+        <span v-if="!editando">{{ usuario.telefono || 'No registrado' }}</span>
+        <input v-else type="text" v-model="form.telefono" placeholder="Teléfono">
+      </p>
+
+      <p><strong>Email:</strong>
+        <span v-if="!editando">{{ usuario.correo }}</span>
+        <input v-else type="email" v-model="form.correo" placeholder="Email">
+      </p>
+
+      <p><strong>Dirección:</strong>
+        <span v-if="!editando">{{ usuario.direccion || 'No registrada' }}</span>
+        <input v-else type="text" v-model="form.direccion" placeholder="Dirección">
+      </p>
+
+      <div v-if="editando" style="text-align:center; margin-top:20px;">
+        <button @click="guardarDatos"
+          style="background:#457b9d;color:white;padding:12px 30px;border-radius:30px;font-size:1rem;">
+          Guardar Cambios
+        </button>
+      </div>
+    </div>
+
+    <!-- Historial de compras -->
+    <div class="historial">
+      <h3>Historial de Compras</h3>
+      <div v-for="c in compras" :key="c.idCompra" class="pedido">
+        <p><strong>Compra ID:</strong> {{ c.idCompra }}</p>
+        <p><strong>Fecha:</strong> {{ c.fechaA }}</p>
+        <p><strong>Proveedor:</strong> {{ c.idProveedor || 'N/A' }}</p>
+      </div>
+      <div v-if="compras.length === 0" style="text-align:center; color:#0f4c5c; font-style:italic;">
+        No hay compras aún
+      </div>
+    </div>
+
+    <!-- Cerrar sesión -->
+    <button @click="logout" class="btn-cerrar">Cerrar sesión</button>
+
+  </div>
+  <script>
+  const { createApp, ref, onMounted } = Vue;
+
+  createApp({
+    setup() {
+      const usuario = ref(JSON.parse(localStorage.getItem('usuario')) || null);
+      const compras = ref([]);
+      const editando = ref(false);  
+      const mensaje = ref('');
+
+      const form = ref({});
+
+      onMounted(() => {
+        if(!usuario.value) {
+          window.location.href = 'index.html';
+          return;
+        }
+
+        fetch(`../../backend/cuentacln.php?ci=${usuario.value.ciCliente}`)
+          .then(res => res.json())
+          .then(data => {
+            if(data.success){
+              usuario.value = data.usuario;
+              form.value = { ...data.usuario };
+              compras.value = data.compras;
+            } else {
+              mensaje.value = data.message;
+            }
+          }).catch(e => {
+            mensaje.value = 'Error de conexión';
+            console.error(e);
+          });
+      });
+
+      const guardar = async () => {
+        try {
+          const res = await fetch('../backend/cuentacln.php', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(form.value)
+          });
+          const data = await res.json();
+          if(data.success){
+            usuario.value = { ...form.value }; 
+            editando.value = false;
+            localStorage.setItem('usuario', JSON.stringify(usuario.value));
+          } else {
+            console.log(data.message);
+          }
+        } catch(e) {
+          console.error('Error de conexión:', e);
+        }
+      }
+
+      const cancelar = () => {
+        form.value = { ...usuario.value };
+        editando.value = false;
+      }
+
+      const logout = () => {
+        localStorage.clear();
+        window.location.href = 'index.html';
+      }
+
+      return { usuario, compras, editando, form, mensaje, guardarDatos: guardar, cancelar, logout };
+    }
+  }).mount('#app');
+  </script>
+</body>
+</html>
