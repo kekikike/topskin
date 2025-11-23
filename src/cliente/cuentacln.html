@@ -13,7 +13,7 @@
   
   body {
     font-family: 'Baumans', cursive;
-    background: url('../media/fondo5.jpg') no-repeat center 90% / cover ;
+    background: url('../../media/fondo5.jpg') no-repeat center 90% / cover ;
     min-height: 100vh;
     position: relative;
   }
@@ -270,7 +270,7 @@
 
   createApp({
     setup() {
-      const usuario = ref(JSON.parse(localStorage.getItem('usuario')) || null);
+      const usuario = ref(JSON.parse(localStorage.getItem('cliente')) || null);
       const compras = ref([]);
       const editando = ref(false);  
       const mensaje = ref('');
@@ -326,7 +326,7 @@
 
       const logout = () => {
         localStorage.clear();
-        window.location.href = 'index.html';
+        window.location.href = '../../index.html';
       }
 
       return { usuario, compras, editando, form, mensaje, guardarDatos: guardar, cancelar, logout };
