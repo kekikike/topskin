@@ -12,7 +12,6 @@ try {
 
     // ==================== LISTAR EMPLEADOS DE LA MISMA SUCURSAL ====================
     if ($accion === 'listar_empleados') {
-        // Recibimos idSucursal directamente desde el frontend (más seguro y rápido)
         $idSucursal = $_REQUEST['idSucursal'] ?? '';
 
         if (!$idSucursal || $idSucursal === 'null' || $idSucursal === 'undefined') {
@@ -45,7 +44,7 @@ try {
         exit;
     }
 
-    // ==================== CARGAR HORARIOS (sin cambios) ====================
+    // ==================== CARGAR HORARIOS ====================
     if ($accion === 'cargar_horarios') {
         $ci = $_REQUEST['ciEmpleado'] ?? '';
         if (!$ci) {
@@ -78,9 +77,45 @@ try {
         exit;
     }
 
+    // ==================== DATOS DEL USUARIO LOGUEADO (NUEVA ACCIÓN) ====================
+    if ($accion === 'datos_usuario_logueado') {
+        $ciEmpleado = $_REQUEST['ciEmpleado'] ?? '';
+
+        if (!$ciEmpleado) {
+            echo json_encode(["success" => false, "message" => "No hay sesión"]);
+            exit;
+        }
+
+        $sql = "SELECT 
+                    e.nombre1,
+                    IFNULL(e.nombre2, '') AS nombre2,
+                    e.apellidoP,
+                    IFNULL(e.apellidoM, '') AS apellidoM,
+                    r.nombreRol AS rol
+                FROM templeados e
+                LEFT JOIN troles r ON e.idRol = r.idRol
+                WHERE e.ciEmpleado = ? AND e.estado = 1";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$ciEmpleado]);
+        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($usuario) {
+            $nombreCompleto = trim("{$usuario['nombre1']} {$usuario['nombre2']} {$usuario['apellidoP']} {$usuario['apellidoM']}");
+            echo json_encode([
+                "success" => true,
+                "nombreCompleto" => $nombreCompleto,
+                "rol" => $usuario['rol'] ?? 'Sin rol'
+            ]);
+        } else {
+            echo json_encode(["success" => false, "message" => "Usuario no encontrado"]);
+        }
+        exit;
+    }
+
     echo json_encode(["success" => false, "message" => "Acción no válida"]);
 
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(["success" => false, "message" => "Error del servidor"]);
+    echo json_encode(["success" => false, "message" => "Error del servidor: " . $e->getMessage()]);
 }

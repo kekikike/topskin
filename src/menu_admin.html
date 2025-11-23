@@ -13,6 +13,12 @@
     .logo-img { height:56px; }
     .profile-link img { width:56px; height:56px; border-radius:50%; object-fit:cover; border:4px solid rgba(255,255,255,0.3); transition:all 0.3s ease; }
     .profile-link:hover img { transform:scale(1.12); border-color:white; box-shadow:0 8px 20px rgba(0,0,0,0.3); }
+
+    /* NUEVOS ESTILOS PARA EL USUARIO LOGUEADO */
+    .usuario-info { text-align:left; line-height:1.35; }
+    .nombre-usuario { font-weight:600; font-size:1.15rem; color:white; }
+    .rol-usuario { font-size:0.95rem; color:rgba(255,255,255,0.92); font-weight:500; }
+
     nav { display:flex; gap:1.2rem; }
     nav a { background:rgba(255,255,255,0.25); padding:0.7rem 1.4rem; border-radius:2rem; text-decoration:none; color:white; font-weight:500; transition:0.3s; }
     nav a:hover { background:rgba(255,255,255,0.38); }
@@ -61,6 +67,13 @@
       <a href="administrador/perfil.html" class="profile-link">
         <img src="../media/perfil.png" alt="Mi perfil">
       </a>
+
+      <!-- NUEVO: Nombre y rol del usuario logueado -->
+      <div class="usuario-info" v-if="usuarioLogueado">
+        <div class="nombre-usuario">{{ usuarioLogueado.nombreCompleto }}</div>
+        <div class="rol-usuario">{{ usuarioLogueado.rol }}</div>
+      </div>
+
       <img src="../media/logo_1.png" alt="TopSkin Laneige" class="logo-img">
     </div>
     <nav>
@@ -97,8 +110,6 @@
   <!-- SECCIÓN DE TURNOS -->
   <div v-if="horariosSeleccionados.length" class="horarios-section">
     <h2 class="horarios-title">Horario Actual del Empleado</h2>
-
-    <!-- RESUMEN GENERAL (opcional, queda bonito) -->
     <div class="resumen-empleado">
       {{ resumenGeneralEmpleado() }}
     </div>
@@ -118,11 +129,7 @@
             <template v-if="!editando">
               <div v-if="dia.turnos.length === 0" style="color:#6b7280;">Libre</div>
               <div v-else class="turnos-lista">
-                <span 
-                  v-for="t in dia.turnos" 
-                  :key="t.nombre"
-                  :class="['turno-tag', t.clase]"
-                >
+                <span v-for="t in dia.turnos" :key="t.nombre" :class="['turno-tag', t.clase]">
                   {{ t.nombre }}
                 </span>
                 <strong style="margin-left:8px;">
@@ -173,6 +180,9 @@ createApp({
     const horaCierre = ref('20:00');
     const idSucursal = localStorage.getItem('idSucursal');
 
+    // NUEVO: Datos del usuario logueado
+    const usuarioLogueado = ref(null);
+
     if (!idSucursal || !localStorage.getItem('ciEmpleado')) {
       alert("Sesión expirada");
       window.location.href = '../login.html';
@@ -191,6 +201,22 @@ createApp({
       const res = await fetch(`../backend/menu_admin.php?accion=listar_empleados&idSucursal=${idSucursal}`);
       const data = await res.json();
       if (data.success) empleados.value = data.empleados;
+    };
+
+    // NUEVA FUNCIÓN: Cargar datos del usuario logueado
+    const cargarDatosUsuario = async () => {
+      const ciEmpleado = localStorage.getItem('ciEmpleado');
+      if (!ciEmpleado) return;
+
+      try {
+        const res = await fetch(`../backend/menu_admin.php?accion=datos_usuario_logueado&ciEmpleado=${ciEmpleado}`);
+        const data = await res.json();
+        if (data.success) {
+          usuarioLogueado.value = data;
+        }
+      } catch (err) {
+        console.error("Error cargando datos del usuario:", err);
+      }
     };
 
     const cargarHorarios = async (ci) => {
@@ -213,7 +239,6 @@ createApp({
         const inicio = reg && reg.inicio !== '-' ? reg.inicio : null;
         const fin = reg && reg.fin !== '-' ? reg.fin : null;
 
-        // Detectar qué turnos tiene según las horas
         const turnos = [];
         if (inicio && fin) {
           const inicioMin = horaAMinutos(inicio);
@@ -275,7 +300,6 @@ createApp({
       diaObj.horaInicio = inicioMin !== null ? minutosAHora(inicioMin) : '-';
       diaObj.horaFin = finMin !== null ? minutosAHora(finMin) : '-';
 
-      // Actualizar turnos visuales
       diaObj.turnos = seleccionados.map(t => ({
         nombre: t === 'manana' ? 'Mañana' : t === 'mediodia' ? 'Mediodía' : 'Tarde',
         clase: t === 'mediodia' ? 'mediodia' : t === 'tarde' ? 'tarde' : ''
@@ -322,12 +346,16 @@ createApp({
       }
     };
 
-    onMounted(cargarEmpleados);
+    onMounted(() => {
+      cargarEmpleados();
+      cargarDatosUsuario();   // ← Cargamos el nombre y rol al iniciar
+    });
 
     return {
       empleados, horariosSeleccionados, editando, mensaje,
       cargarHorarios, iniciarEdicion, cancelarEdicion, guardarHorarios,
-      resumenGeneralEmpleado, actualizarDia
+      resumenGeneralEmpleado, actualizarDia,
+      usuarioLogueado   // ← Exponemos al template
     };
   }
 }).mount('#app');

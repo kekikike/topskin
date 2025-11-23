@@ -50,6 +50,24 @@
     input, select, textarea { width: 100%; padding: 14px 18px; border: 1px solid #ccc; border-radius: 10px; font-size: 16px; transition: border 0.3s; }
     input:focus, select:focus, textarea:focus { outline: none; border-color: #00bf8f; box-shadow: 0 0 10px rgba(0,191,143,0.3); }
 
+    /* Campo de código país: solo lectura */
+    input[readonly] {
+      background: #f0f8ff;
+      color: #2c3e50;
+      font-weight: bold;
+      cursor: default;
+    }
+
+    /* Campo de código marca: solo lectura */
+    input#codigo-marca {
+      background: #e6f7ff;
+      color: #0891b2;
+      font-weight: bold;
+      font-size: 18px;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
     .phone-group { display: flex; gap: 12px; align-items: center; }
     .phone-group input:first-child { width: 100px; text-align: center; font-weight: bold; font-size: 18px; }
     .phone-group input:last-child { flex: 1; }
@@ -86,7 +104,6 @@
 <body>
 
 <div id="app">
-  <!-- Header y menú (igual) -->
   <div class="header">
     <img src="../../media/logo_1.png" alt="Logo" class="logo">
     <div class="perfil">
@@ -96,10 +113,10 @@
 
   <div class="menu">
     <a href="nuevo_personal.html">Gestión de personal</a>
-      <a href="inventario.html" class="active">inventario</a>
-      <a href="marcas.html">marcas y</a>
-      <a href="reportes.html">Reportes</a>
-      <a href="../menu_admin.html">Menú Admin</a>
+    <a href="inventario.html">Inventario</a>
+    <a href="marcas.html" class="active">Marcas y Proveedores</a>
+    <a href="reportes.html">Reportes</a>
+    <a href="../menu_admin.html">Menú Admin</a>
   </div>
 
   <div class="container">
@@ -126,16 +143,16 @@
           </div>
           <div class="form-group">
             <label>País</label>
-            <select v-model="prov.idPais" required>
+            <select v-model="prov.idPais" @change="actualizarCodigoPais" required>
               <option value="">Seleccione país</option>
               <option v-for="p in paises" :value="p.idPais">{{ p.nombre }}</option>
             </select>
           </div>
           <div class="form-group">
-            <label>Código País + Teléfono</label>
+            <label>Teléfono (Código + Número)</label>
             <div class="phone-group">
-              <input v-model="prov.codigoPais" placeholder="591" maxlength="3">
-              <input v-model="prov.telefono" placeholder="71234567" maxlength="8">
+              <input v-model="prov.codigoPais" readonly placeholder="000">
+              <input v-model="prov.telefono" placeholder="71234567" maxlength="10">
             </div>
           </div>
         </div>
@@ -162,8 +179,8 @@
       <div class="form-grid">
         <div>
           <div class="form-group">
-            <label>Código Marca (máx 5)</label>
-            <input v-model.trim="marca.idMarca" maxlength="5" placeholder="LAN01" required>
+            <label>Código de Marca (Automático)</label>
+            <input id="codigo-marca" v-model="marca.idMarca" readonly>
           </div>
           <div class="form-group">
             <label>Nombre de la Marca</label>
@@ -209,10 +226,11 @@ createApp({
     const popup = ref({ visible: false, mensaje: '' });
 
     const prov = ref({
-      idProveedor: '', nombre: '', idPais: '', codigoPais: '591', telefono: '', X: '', Y: ''
+      idProveedor: '', nombre: '', idPais: '', codigoPais: '000', telefono: '', X: '', Y: ''
     });
+
     const marca = ref({
-      idMarca: '', nombre: '', idPais: '', descripcion: ''
+      idMarca: 'LAN01', nombre: '', idPais: '', descripcion: ''
     });
 
     let map = null;
@@ -221,7 +239,19 @@ createApp({
 
     const cargarPaises = async () => {
       const res = await fetch('../../backend/proveedores_marcas.php?action=paises');
-      paises.value = await res.json();
+      const data = await res.json();
+      paises.value = data;
+    };
+
+    const actualizarCodigoPais = () => {
+      const paisSeleccionado = paises.value.find(p => p.idPais === prov.value.idPais);
+      prov.value.codigoPais = paisSeleccionado ? paisSeleccionado.codigopais_tel : '000';
+    };
+
+    const generarSiguienteCodigoMarca = async () => {
+      const res = await fetch('../../backend/proveedores_marcas.php?action=siguiente_codigo_marca');
+      const data = await res.json();
+      marca.value.idMarca = data.siguiente || 'LAN01';
     };
 
     const initMap = () => {
@@ -241,7 +271,6 @@ createApp({
       popup.value = { visible: true, mensaje: msg };
     };
 
-    // VERSIÓN QUE NUNCA FALLA: asumimos éxito si llega al servidor
     const guardarProveedor = async () => {
       if (!prov.value.idProveedor || !prov.value.nombre || !prov.value.idPais || !prov.value.X) {
         alert('Completa todos los campos obligatorios');
@@ -250,53 +279,64 @@ createApp({
 
       const data = { action: 'nuevo_proveedor', usuarioA, ...prov.value };
 
-      await fetch('../../backend/proveedores_marcas.php', {
+      const res = await fetch('../../backend/proveedores_marcas.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
 
-      // FORZAMOS ÉXITO porque sabemos que se guarda
-      prov.value = { idProveedor: '', nombre: '', idPais: '', codigoPais: '591', telefono: '', X: '', Y: '' };
-      if (marker) { map.removeLayer(marker); marker = null; }
-      mostrarPopup('¡Proveedor registrado exitosamente!');
+      const result = await res.json();
+      if (result.success) {
+        prov.value = { idProveedor: '', nombre: '', idPais: '', codigoPais: '000', telefono: '', X: '', Y: '' };
+        if (marker) { map.removeLayer(marker); marker = null; }
+        initMap();
+        mostrarPopup('¡Proveedor registrado exitosamente!');
+      } else {
+        alert('Error: ' + result.message);
+      }
     };
 
     const guardarMarca = async () => {
-      if (!marca.value.idMarca || !marca.value.nombre || !marca.value.idPais) {
+      if (!marca.value.nombre || !marca.value.idPais) {
         alert('Completa los campos obligatorios');
         return;
       }
 
       const data = { action: 'nueva_marca', usuarioA, ...marca.value };
 
-      await fetch('../../backend/proveedores_marcas.php', {
+      const res = await fetch('../../backend/proveedores_marcas.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
 
-      // FORZAMOS ÉXITO
-      marca.value = { idMarca: '', nombre: '', idPais: '', descripcion: '' };
-      mostrarPopup('¡Marca registrada exitosamente!');
+      const result = await res.json();
+      if (result.success) {
+        marca.value = { idMarca: '', nombre: '', idPais: '', descripcion: '' };
+        await generarSiguienteCodigoMarca();
+        mostrarPopup('¡Marca registrada exitosamente!');
+      } else {
+        alert('Error: ' + result.message);
+      }
     };
 
     onMounted(() => {
       cargarPaises();
+      generarSiguienteCodigoMarca();
       if (tab.value === 'proveedor') initMap();
     });
 
     watch(tab, (n) => {
       if (n === 'proveedor') setTimeout(initMap, 100);
+      if (n === 'marca') generarSiguienteCodigoMarca();
     });
 
     return {
       tab, paises, prov, marca, popup,
-      guardarProveedor, guardarMarca
+      actualizarCodigoPais, guardarProveedor, guardarMarca
     };
   }
 }).mount('#app');
 </script>
-
 </body>
 </html>
