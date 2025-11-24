@@ -235,33 +235,27 @@ createApp({
         cerrarPopup() {
             this.productoSeleccionado = null;
         },
-        agregarAlCarrito() {
-            if (this.cantidad > this.productoSeleccionado.stock) {
-                alert("¡No hay suficiente stock!");
-                return;
-            }
+        async agregarAlCarrito() {
+            const cliente = JSON.parse(localStorage.getItem('cliente'));
+            if (!cliente) return alert("Debes iniciar sesión");
 
-            const item = {
-                idProducto: this.productoSeleccionado.idProducto,
-                nombre: this.productoSeleccionado.nombre,
-                precioUnitario: this.productoSeleccionado.precioUnitario,
-                foto: this.productoSeleccionado.foto,
-                marca: this.productoSeleccionado.marca,
-                cantidad: this.cantidad
-            };
+            const ci = cliente.ciCliente || cliente.ci;
 
-            let carrito = JSON.parse(localStorage.getItem('topskinCarrito') || '[]');
-            const existente = carrito.find(i => i.idProducto === item.idProducto);
-            if (existente) {
-                existente.cantidad += item.cantidad;
-            } else {
-                carrito.push(item);
-            }
+            await fetch(`../../backend/actualizar_carrito.php?ci=${ci}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify([
+                    {
+                        idProducto: this.productoSeleccionado.idProducto,
+                        cantidad: this.cantidad
+                    }
+                ])
+            });
 
-            localStorage.setItem('topskinCarrito', JSON.stringify(carrito));
-            alert(`¡${this.cantidad} × "${item.nombre}" agregado al carrito!`);
+            alert("Producto agregado al carrito");
             this.cerrarPopup();
         }
+
     },
     mounted() {
         this.cargarProductos();

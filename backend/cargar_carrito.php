@@ -23,9 +23,10 @@ if (empty($sessionCarrito)) {
 $ids = array_keys($sessionCarrito);
 $placeholders = rtrim(str_repeat('?,', count($ids)), ',');
 
-$sql = "SELECT idProducto, nombre, precioUnitario, foto 
-        FROM tproductos 
-        WHERE idProducto IN ($placeholders) AND estado = 1";
+$sql = "SELECT p.idProducto, p.nombre, p.precioUnitario, p.foto, m.nombre AS marca
+        FROM tproductos p
+        LEFT JOIN tmarcas m ON p.idMarca = m.idMarca
+        WHERE p.idProducto IN ($placeholders) AND p.estado = 1";
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute($ids);
