@@ -8,72 +8,91 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Segoe UI',Arial,sans-serif; background:#e0d8a7; color:#333; }
+    body { font-family:'Segoe UI',Arial,sans-serif; background:#e4d686; color:#333; }
     .header {
-      background:linear-gradient(135deg,#2c6e49,#4c9a6b);
+      background:linear-gradient(135deg,#978740,#4c9a6b);
       background-image:url("../../media/header_empleado.png");
       background-size: cover; 
       color:white; padding:18px 30px; display:flex; align-items:center; justify-content:space-between;
       box-shadow:0 4px 12px rgba(0,0,0,0.15); position:sticky; top:0; z-index:1000;
     }
-   .logo{
-      width: 150px;
-      height: auto;
-    }
-   
-    hr{
-      height: 25px;             
-      border: none;            
-      background-color: #6691bc;
-      margin: 0;            
-      width: 100%;  
-      display: block;
-    }
+    .logo { width:150px; height:auto; }
     .navbar a { color:white; text-decoration:none; padding:10px 18px; border-radius:8px; margin:0 5px; }
     .navbar a:hover, .navbar a.active { background:rgba(255,255,255,0.2); }
 
-    .container { max-width:1200px; margin:40px auto; padding:20px; }
-    h1 { color:#5a6b2acb; text-align:center; margin-bottom:30px; }
+    .container { max-width:1300px; margin:40px auto; padding:20px; }
+    h1 { color:#57491d; text-align:center; margin-bottom:20px; }
 
-    .acciones { text-align:center; margin-bottom:25px; }
-    .btn { background:#758849; color:white; padding:12px 28px; border:none; border-radius:8px; cursor:pointer; font-size:16px; }
-    .btn:hover { background:#2c6e49; }
+    .filtros {
+      background:white; padding:20px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom:25px; display:flex; gap:15px; flex-wrap:wrap; align-items:center;
+    }
+    .buscador-nombre {
+      position:relative; flex:2; min-width:300px;
+    }
+    .buscador-nombre input {
+      width:100%; padding:14px 14px 14px 40px; border:1px solid #ddd; border-radius:12px; font-size:16px;
+    }
+    .buscador-nombre i { position:absolute; left:12px; top:14px; color:#666666; }
 
-    table { width:100%; border-collapse:collapse; background:white; border-radius:5px; overflow:hidden; box-shadow:0 6px 20px rgba(0,0,0,0.1); }
-    th { background:#97b85b; color:white; padding:16px; text-align:center; }
+    .sugerencias {
+      position:absolute; top:100%; left:0; right:0; background:white; border:1px solid #ddd;
+      border-top:none; border-radius:0 0 12px 12px; max-height:280px; overflow-y:auto; z-index:100;
+      box-shadow:0 8px 20px rgba(0,0,0,0.15);
+    }
+    .sugerencia {
+      padding:14px; border-bottom:1px solid #eee; cursor:pointer; display:flex; justify-content:space-between;
+      transition:0.2s;
+    }
+    .sugerencia:hover { background:#f0f8f0; }
+    .sugerencia strong { color:#9e843e; }
+
+    select {
+      padding:14px; border:1px solid #ddd; border-radius:12px; font-size:16px; min-width:200px;
+    }
+
+    .btn { background:#a79d48; color:white; padding:12px 28px; border:none; border-radius:8px; cursor:pointer; font-size:16px; }
+    .btn:hover { background:#6e622c; }
+
+    table { width:100%; border-collapse:collapse; background:white; border-radius:12px; overflow:hidden; box-shadow:0 6px 20px rgba(0,0,0,0.1); }
+    th { background:#cfab47; color:white; padding:16px; text-align:center; }
     td { padding:16px; text-align:center; border-bottom:1px solid #eee; }
     tr:hover { background:#f8f9fa; }
     img.prod { width:70px; height:70px; object-fit:cover; border-radius:10px; border:2px solid #eee; }
-
     .stock-bajo { color:#e74c3c; font-weight:bold; }
-    .stock-ok { color:#73ae27; font-weight:bold; }
+    .stock-ok { color:#27ae60; font-weight:bold; }
 
-    .loading { text-align:center; padding:60px; font-size:20px; color:#666; }
-
-    .modal {
-      position:fixed; top:0; left:0; width:100%; height:100%;
-      background:rgba(204, 212, 97, 0.301); display:flex; align-items:center; justify-content:center; z-index:2000;
-    }
-    .modal-content {
-      background:white; width:90%; max-width:600px; border-radius:16px; overflow:hidden;
-      box-shadow:0 10px 30px rgba(0,0,0,0.4);
-    }
-    .modal-header {
-      background:#839a4c; color:white; padding:20px; text-align:center; font-size:22px;
-    }
-    .modal-body { padding:30px; }
+   .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(184, 147, 68, 0.596); display:flex; align-items:center; justify-content:center; z-index:2000; padding:20px; overflow:auto; }
+    .modal-content { background:rgb(230, 220, 180); width:90%; max-width:750px; border-radius:16px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.4); max-height:calc(100vh - 40px); display:flex; flex-direction:column; }
+    .modal-header { background:#dbd068; color:white; padding:16px 20px; text-align:center; font-size:20px; position:sticky; top:0; z-index:10; }
+    .close { position:absolute; right:16px; top:8px; font-size:30px; cursor:pointer; color:white; }
+    .modal-body { padding:20px; overflow:auto; }
     .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
     .form-group { margin-bottom:20px; }
-    label { display:block; margin-bottom:8px; font-weight:600; color:#2c6e49; }
-    input, select { width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; font-size:15px; }
-    .preview { width:130px; height:130px; object-fit:cover; border-radius:12px; margin-top:10px; border:3px dashed #4c9a6b; }
-    .close { float:right; font-size:30px; cursor:pointer; }
+    label { display:block; margin-bottom:8px; font-weight:600; color:#af9a39; }
+    input, select { width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; }
+    .preview { width:150px; height:150px; object-fit:cover; border-radius:12px; margin-top:10px; border:3px dashed #bd9e49; }
+  
+    .user-info {
+      display: flex;
+      flex-direction: column;   
+      align-items: flex-end;    
+      text-align: right;
+      gap: 4px;
+      font-weight: 600;
+    }
+    .user-info p, .user-info span {
+      margin: 0;
+    }
+    .user-info span {
+      font-weight: 700;
+    }
   </style>
 </head>
 <body>
 
 <div id="app">
-   <div class="header">
+  <div class="header">
     <img class="logo" src="../../media/logo_1.png">
     <nav class="navbar">
       <a href="../menu_empleado.html">Inicio</a>
@@ -84,128 +103,141 @@
       <a href="compras.html">Registrar Compra</a>
       <a href="cuenta.html">Mi Cuenta</a>
     </nav>
-    <div>{{ empleadoNombre }}</div>
+   <div class="user-info">
+        <p>Empleado:</p>
+        <span>{{ empleadoNombre }}</span>
+      </div>
   </div>
 
   <div class="container">
-    <h1>Lista de Productos</h1>
+    <h1>Gestión de Productos</h1>
 
-    <div class="acciones">
+    <div class="filtros">
+      <div class="buscador-nombre">
+        <i class="fas fa-search"></i>
+        <input 
+          type="text" 
+          v-model="busquedaNombre" 
+          @input="filtrarSugerencias"
+          @focus="filtrarSugerencias"
+          placeholder="Buscar por nombre..."
+        >
+        <div v-if="sugerencias.length" class="sugerencias">
+          <div v-for="p in sugerencias" :key="p.idProducto" class="sugerencia" @click="seleccionarNombre(p)">
+            <div>
+              <strong>{{ p.nombre }}</strong><br>
+              <small>{{ p.marca || 'Sin marca' }}</small>
+            </div>
+            <div>
+              <small>Stock: {{ p.stock }} |{{ parseFloat(p.precioUnitario).toFixed(2) }} Bs</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <select v-model="filtroMarca">
+        <option value="">Todas las marcas</option>
+        <option v-for="m in marcasUnicas" :value="m.idMarca">{{ m.nombre }}</option>
+      </select>
+
       <button class="btn" @click="abrirModal(null)">
-        <i class="fas fa-plus"></i> Agregar Producto
+        + Agregar Producto
       </button>
     </div>
 
-    <div v-if="loading" class="loading">
-      <i class="fas fa-spinner fa-spin"></i> Cargando productos...
-    </div>
-
-    <table v-else>
+    <table v-if="productosFiltrados.length">
       <thead>
         <tr>
           <th>Foto</th>
           <th>Producto</th>
           <th>Marca</th>
+          <th>Categorías</th>
           <th>Precio</th>
           <th>Stock</th>
           <th>Acción</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="p in productos" :key="p.idProducto">
-          <td>
-            <img :src="p.foto ? p.foto : 'img/no-image.png'" class="prod" alt="Producto">
-          </td>
+        <tr v-for="p in productosFiltrados" :key="p.idProducto">
+          <td><img :src="p.foto || 'img/no-image.png'" class="prod"></td>
           <td><strong>{{ p.nombre }}</strong></td>
-          <td>{{ p.marca }}</td>
+          <td>{{ p.marca || '-' }}</td>
+          <td><small>{{ p.categorias || '-' }}</small></td>
           <td>{{ parseFloat(p.precioUnitario).toFixed(2) }} Bs</td>
           <td :class="p.stock < 10 ? 'stock-bajo' : 'stock-ok'">{{ p.stock }} und.</td>
           <td>
-            <button @click="abrirModal(p)" style="background:#9c8747;color:black;padding:8px 16px;border:none;border-radius:6px;cursor:pointer;">
+            <button @click="abrirModal(p)" class="btn" style="background:#9c8747;padding:8px 16px;font-size:14px;">
               Editar
             </button>
           </td>
         </tr>
       </tbody>
     </table>
-  </div>
-
-  <div v-if="modalVisible" class="modal" @click.self="modalVisible=false">
-    <div class="modal-content">
-      <div class="modal-header">
-        {{ productoEdit ? 'Editar Producto' : 'Nuevo Producto' }}
-        <span class="close" @click="modalVisible=false">×</span>
-      </div>
-      <div class="modal-body">
-        <form @submit.prevent="guardarProducto">
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Nombre del producto</label>
-              <input v-model="form.nombre" required />
-            </div>
-            <div class="form-group">
-              <label>Precio Unitario</label>
-              <input type="number" step="0.01" min="0" v-model="form.precioUnitario" required />
-            </div>
-          </div>
-
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Marca</label>
-              <select v-model="form.idMarca" required>
-                <option value="">Seleccione marca</option>
-                <option v-for="m in marcas" :key="m.idMarca" :value="m.idMarca">
-                  {{ m.nombre }}
-                </option>
-              </select>
-            </div>
-<div class="form-group">
-  <label>Categorías <small>(puede seleccionar varias)</small></label>
-  <div style="max-height:180px; overflow-y:auto; border:1px solid #ddd; border-radius:8px; padding:12px; background:#fafafa;">
-    <div v-for="c in categorias" :key="c.idCategoria" style="margin:10px 0;">
-      <label :for="'cat_' + c.idCategoria" style="cursor:pointer; display:flex; align-items:center; font-weight:normal;">
-        <input 
-          type="checkbox" 
-          :id="'cat_' + c.idCategoria"
-          :value="c.idCategoria" 
-          v-model="form.categorias"
-          style="margin-right:10px; transform:scale(1.2);"
-        />
-        {{ c.nombre }}
-      </label>
+    <div v-else style="text-align:center;padding:60px;color:#666;font-size:18px;">
+      No se encontraron productos con los filtros seleccionados
     </div>
-  </div>
-  <small v-if="form.categorias.length" style="color:#2c6e49; margin-top:8px; display:block;">
-    Seleccionadas: {{ form.categorias.length }} categoría(s)
-  </small>
-</div>
 
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Stock inicial</label>
-              <input type="number" v-model="form.stock" required min="0" />
+    <div v-if="modalVisible" class="modal" @click.self="modalVisible=false">
+      <div class="modal-content">
+        <div class="modal-header">
+          {{ productoEdit ? 'Editar Producto' : 'Nuevo Producto' }}
+          <span class="close" @click="modalVisible=false">×</span>
+        </div>
+        <div class="modal-body">
+          <form @submit.prevent="guardarProducto">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Nombre</label>
+                <input v-model="form.nombre" required />
+              </div>
+              <div class="form-group">
+                <label>Precio Unitario</label>
+                <input type="number" step="0.01" v-model.number="form.precioUnitario" required required min="1"/>
+              </div>
             </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Marca</label>
+                <select v-model="form.idMarca" required>
+                  <option value="">Seleccione</option>
+                  <option v-for="m in marcas" :value="m.idMarca">{{ m.nombre }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Stock</label>
+                <input type="number" v-model.number="form.stock" required min="0" />
+              </div>
+            </div>
+
             <div class="form-group">
-              <label>Foto del producto</label>
+              <label>Categorías (múltiples)</label>
+              <div style="max-height:180px;overflow-y:auto;border:1px solid #ddd;border-radius:8px;padding:12px;background:#fafafa;">
+                <label v-for="c in categorias" :key="c.idCategoria" style="display:block;margin:8px 0;">
+                  <input type="checkbox" :value="c.idCategoria" v-model="form.categorias">
+                  {{ c.nombre }}
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Foto</label>
               <input type="file" accept="image/*" @change="cambiarFoto" />
-              <img v-if="vistaPrevia" :src="vistaPrevia" class="preview" />
-              <img v-else-if="form.foto" :src="form.foto" class="preview" />
+              <img v-if="vistaPrevia || form.foto" :src="vistaPrevia || form.foto" class="preview">
             </div>
-          </div>
 
-          <div style="text-align:center; margin-top:30px;">
-            <button type="submit" class="btn">
-              {{ productoEdit ? 'Actualizar' : 'Guardar' }} Producto
-            </button>
-          </div>
-        </form>
+            <div style="text-align:center;margin-top:30px;">
+              <button type="submit" class="btn">Guardar Producto</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-const { createApp, ref, onMounted } = Vue;
+const { createApp, ref, computed, onMounted } = Vue;
 
 createApp({
   setup() {
@@ -214,67 +246,82 @@ createApp({
     const productos = ref([]);
     const categorias = ref([]);
     const marcas = ref([]);
-    const loading = ref(true);
+    const busquedaNombre = ref('');
+    const filtroMarca = ref('');
+    const sugerencias = ref([]);
 
     const modalVisible = ref(false);
     const productoEdit = ref(null);
     const vistaPrevia = ref('');
     const archivoFoto = ref(null);
 
-  const form = ref({
-  idProducto: null,
-  nombre: '',
-  precioUnitario: '',
-  stock: '',
-  idMarca: '',
-  categorias: [],  
-  foto: ''
-});
+    const form = ref({
+      idProducto: null, nombre: '', precioUnitario: '', stock: '', idMarca: '', categorias: [], foto: ''
+    });
+
+    const marcasUnicas = computed(() => {
+      const map = new Map();
+      productos.value.forEach(p => {
+        if (p.idMarca && p.marca) map.set(p.idMarca, { idMarca: p.idMarca, nombre: p.marca });
+      });
+      return Array.from(map.values()).sort((a,b) => a.nombre.localeCompare(b.nombre));
+    });
+
+    const productosFiltrados = computed(() => {
+      return productos.value.filter(p => {
+        const coincideNombre = !busquedaNombre.value || 
+          p.nombre.toLowerCase().includes(busquedaNombre.value.toLowerCase());
+        const coincideMarca = !filtroMarca.value || p.idMarca === filtroMarca.value;
+        return coincideNombre && coincideMarca;
+      });
+    });
+
+    const filtrarSugerencias = () => {
+      if (!busquedaNombre.value.trim()) {
+        sugerencias.value = [];
+        return;
+      }
+      const q = busquedaNombre.value.toLowerCase();
+      sugerencias.value = productos.value
+        .filter(p => p.nombre.toLowerCase().includes(q))
+        .slice(0, 8);
+    };
+
+    const seleccionarNombre = (p) => {
+      busquedaNombre.value = p.nombre;
+      sugerencias.value = [];
+    };
 
     const cargarDatos = async () => {
-      try {
-        const res = await fetch('../../backend/productos.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ciEmpleado })
-        });
-        const data = await res.json();
-
-        if (data.success) {
-          productos.value = data.productos;
-          categorias.value = data.categorias;
-          marcas.value = data.marcas;
-          empleadoNombre.value = data.empleadoNombre;
-        } else {
-          alert('Error: ' + data.message);
-        }
-      } catch (e) {
-        alert('Error de conexión');
-      } finally {
-        loading.value = false;
+      const res = await fetch('../../backend/productos.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ciEmpleado })
+      });
+      const data = await res.json();
+      if (data.success) {
+        productos.value = data.productos;
+        categorias.value = data.categorias;
+        marcas.value = data.marcas;
+        empleadoNombre.value = data.empleadoNombre;
       }
     };
 
-    const abrirModal = (producto) => {
-  if (producto) {
-    productoEdit.value = producto;
-    form.value = {
-      idProducto: producto.idProducto,
-      nombre: producto.nombre,
-      precioUnitario: producto.precioUnitario,
-      stock: producto.stock,
-      idMarca: producto.idMarca || '',
-      categorias: producto.categoriasIds ? producto.categoriasIds.split(',') : [],
-      foto: producto.foto
+    const abrirModal = (p) => {
+      productoEdit.value = p;
+      form.value = p ? {
+        idProducto: p.idProducto,
+        nombre: p.nombre,
+        precioUnitario: p.precioUnitario,
+        stock: p.stock,
+        idMarca: p.idMarca || '',
+        categorias: p.categoriasIds ? p.categoriasIds.split(',') : [],
+        foto: p.foto
+      } : { idProducto:null, nombre:'', precioUnitario:'', stock:'', idMarca:'', categorias:[], foto:'' };
+      vistaPrevia.value = '';
+      modalVisible.value = true;
     };
-  } else {
-    productoEdit.value = null;
-    form.value = { idProducto:null, nombre:'', precioUnitario:'', stock:'', idMarca:'', categorias:[], foto:'' };
-  }
-  vistaPrevia.value = '';
-  archivoFoto.value = null;
-  modalVisible.value = true;
-};
+
     const cambiarFoto = (e) => {
       const file = e.target.files[0];
       if (file) {
@@ -283,45 +330,38 @@ createApp({
       }
     };
 
-   const guardarProducto = async () => {
-  if (!form.value.nombre || !form.value.idMarca || form.value.categorias.length === 0) {
-    alert("Complete todos los campos obligatorios y seleccione al menos una categoría");
-    return;
-  }
+    const guardarProducto = async () => {
+      if (!form.value.nombre || !form.value.idMarca || form.value.categorias.length === 0) {
+        alert("Complete todos los campos obligatorios");
+        return;
+      }
+      const fd = new FormData();
+      fd.append('ciEmpleado', ciEmpleado);
+      fd.append('accion', productoEdit.value ? 'editar' : 'agregar');
+      fd.append('nombre', form.value.nombre);
+      fd.append('precioUnitario', form.value.precioUnitario);
+      fd.append('stock', form.value.stock);
+      fd.append('idMarca', form.value.idMarca);
+      fd.append('categorias', form.value.categorias.join(','));
+      if (productoEdit.value) fd.append('idProducto', productoEdit.value.idProducto);
+      if (archivoFoto.value) fd.append('foto', archivoFoto.value);
 
-  const formData = new FormData();
-  formData.append('ciEmpleado', ciEmpleado);
-  formData.append('accion', productoEdit.value ? 'editar' : 'agregar');
-  formData.append('nombre', form.value.nombre);
-  formData.append('precioUnitario', form.value.precioUnitario);
-  formData.append('stock', form.value.stock);
-  formData.append('idMarca', form.value.idMarca);
-  formData.append('categorias', form.value.categorias.join(',')); // ← Aquí está la clave
-  if (productoEdit.value) formData.append('idProducto', productoEdit.value.idProducto);
-  if (archivoFoto.value) formData.append('foto', archivoFoto.value);
+      const res = await fetch('../../backend/gestionproductos.php', { method: 'POST', body: fd });
+      const r = await res.json();
+      alert(r.message);
+      if (r.success) {
+        modalVisible.value = false;
+        cargarDatos();
+      }
+    };
 
-  try {
-    const res = await fetch('../../backend/gestionproductos.php', {
-      method: 'POST',
-      body: formData
-    });
-    const result = await res.json();
-    alert(result.message);
-    if (result.success) {
-      modalVisible.value = false;
-      cargarDatos();
-    }
-  } catch (err) {
-    console.error(err);
-    alert("Error de conexión");
-  }
-};
     onMounted(cargarDatos);
 
     return {
-      empleadoNombre, productos, categorias, marcas, loading,
+      empleadoNombre, productos, categorias, marcas, marcasUnicas,
+      busquedaNombre, filtroMarca, sugerencias, productosFiltrados,
       modalVisible, productoEdit, form, vistaPrevia,
-      abrirModal, cambiarFoto, guardarProducto
+      filtrarSugerencias, seleccionarNombre, abrirModal, cambiarFoto, guardarProducto
     };
   }
 }).mount('#app');

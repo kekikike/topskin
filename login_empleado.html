@@ -197,14 +197,12 @@ createApp({
         if (data.success) {
           const u = data.usuario;
 
-          // GUARDAMOS TODO LO QUE NECESITAMOS
           localStorage.setItem('usuario', JSON.stringify(u));
           localStorage.setItem('ciEmpleado', u.ciEmpleado);
-          localStorage.setItem('idSucursal', u.idSucursal);     // ¡NUEVO!
+          localStorage.setItem('idSucursal', u.idSucursal);    
           localStorage.setItem('idRol', u.idRol);
           localStorage.setItem('nombreCompleto', u.nombre);
 
-          // Redirección según rol
           if (u.idRol === 'ADM') {
             window.location.href = 'src/menu_admin.html';
           } else if (u.idRol === 'VND') {

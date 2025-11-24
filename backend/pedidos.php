@@ -19,7 +19,10 @@ $hasta = $input['hasta'] ?? '';
 try {
     $pdo = Conexion::conectar();
 
-    $stmt = $pdo->prepare("SELECT CONCAT(nombre1,' ',apellidoP) AS nombre FROM templeados WHERE ciEmpleado = ?");
+     $stmt = $pdo->prepare("
+        SELECT CONCAT(nombre1,' ',IFNULL(nombre2,''),' ',apellidoP,' ',IFNULL(apellidoM,'')) AS nombre 
+        FROM templeados WHERE ciEmpleado = ?
+    ");
     $stmt->execute([$ciEmpleado]);
     $emp = $stmt->fetch();
     $empleadoNombre = $emp['nombre'] ?? 'Empleado';

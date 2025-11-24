@@ -1,16 +1,11 @@
 <?php
-// ================================================
-// reporte.php - ARCHIVO ÚNICO (todo incluido)
-// Funciona solo, sin dependencias externas
-// ================================================
 
 header('Content-Type: application/json; charset=utf-8');
-ob_start(); // Evita cualquier salida accidental antes del JSON
+ob_start(); 
 
 try {
-    // ================= CONFIGURACIÓN DE LA BASE DE DATOS =================
     $host = 'localhost';
-    $user = 'root';           // Cambia si tu usuario es diferente
+    $user = 'root';           
     $pass = '';               // Pon aquí tu contraseña si tienes una
     $db   = 'topskin';        // Nombre exacto de tu base de datos
 
