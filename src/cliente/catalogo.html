@@ -6,56 +6,27 @@
     <title>Catálogo - TopSkin</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Baumans&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
     
     <style>
         body { margin: 0; font-family: 'Open Sans', sans-serif; background: #f0f0f0; }
-        
-        /* Banner */
         .banner {
             background: linear-gradient(to bottom, #6BC5D2, #a0d8e0);
             height: 150px; display: flex; align-items: center; justify-content: center;
             color: white; font-family: 'Baumans', cursive; font-size: 2.5rem;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.2); margin-bottom: 20px;
         }
-
         .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; gap: 30px; }
-
-        /* Filtros */
         .filters {
-            width: 250px;
-            background: #658C7B;
-            border-radius: 10px;
-            padding: 20px;
-            color: white;
-            font-family: 'Open Sans', sans-serif;
-            height: 520px;
-            overflow-y: auto;
-            position: sticky;
-            top: 20px;
-            display: flex;
-            flex-direction: column;
+            width: 250px; background: #658C7B; border-radius: 10px; padding: 20px;
+            color: white; height: 520px; overflow-y: auto; position: sticky; top: 20px;
         }
-        .filters::-webkit-scrollbar {
-            width: 8px;
-        }
-        .filters::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .filters::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.3);
-            border-radius: 10px;
-        }
-        .filters::-webkit-scrollbar-thumb:hover {
-            background: rgba(255,255,255,0.5);
-        }
+        .filters::-webkit-scrollbar { width: 8px; }
+        .filters::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
         .filter-group { margin-bottom: 20px; }
         .filter-group label { display: block; margin-bottom: 8px; cursor: pointer; }
         .filter-group input[type="checkbox"] { margin-right: 10px; }
-        
-        /* Grid */
+
         .products-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 20px; flex: 1;
@@ -69,7 +40,6 @@
         .product-card h4 { font-size: 1rem; margin: 5px 0; color: #333; }
         .product-card p { font-weight: bold; color: #658C7B; font-size: 1.1rem; }
 
-        /* POPUP */
         .popup-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center;
@@ -83,9 +53,7 @@
             position: absolute; top: 15px; right: 20px; background: #333; color: white;
             padding: 8px 20px; border-radius: 30px; font-size: 14px; cursor: pointer; z-index: 10;
         }
-        .popup-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 30px; padding: 40px;
-        }
+        .popup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; padding: 40px; }
         .popup-img img {
             width: 100%; height: 420px; object-fit: contain; border-radius: 15px;
             background: white; padding: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
@@ -94,6 +62,7 @@
         .nombre-producto { font-size: 1.5rem; font-weight: bold; color: #333; margin-bottom: 15px; }
         .marca { font-size: 1.3rem; color: #658C7B; margin-bottom: 15px; }
         .precio { font-size: 1.8rem; font-weight: bold; color: #658C7B; margin: 20px 0; }
+        .categorias { color: #555; font-style: italic; margin-bottom: 15px; }
         .descripcion { line-height: 1.6; color: #555; margin-bottom: 25px; }
         .cantidad-contenedor { margin: 20px 0; text-align: center; }
         .cantidad-controls {
@@ -104,10 +73,7 @@
             width: 40px; height: 40px; border: none; background: #658C7B; color: white;
             font-size: 1.4rem; cursor: pointer; border-radius: 50%; transition: 0.3s;
         }
-        .cantidad-controls button:disabled {
-            background: #aaa !important;
-            cursor: not-allowed;
-        }
+        .cantidad-controls button:disabled { background: #aaa !important; cursor: not-allowed; }
         .cantidad-controls span { margin: 0 20px; font-size: 1.4rem; font-weight: bold; min-width: 30px; }
         .btn-agregar {
             width: 100%; padding: 16px; background: #a8d5c8; color: #333;
@@ -115,6 +81,10 @@
             cursor: pointer; margin-top: 20px; transition: 0.3s;
         }
         .btn-agregar:hover { background: #90c7b8; }
+        .btn-agregar:disabled { background: #ccc; cursor: not-allowed; }
+
+        .loading, .error { text-align: center; padding: 60px; font-size: 1.5rem; }
+        .error { color: #d32f2f; background: #ffebee; border-radius: 15px; margin: 20px; }
     </style>
 </head>
 <body>
@@ -122,68 +92,89 @@
 <div id="app">
     <div class="banner">Catálogo TopSkin</div>
 
-    <div class="container">
+    <!-- ESTADO DE CARGA / ERROR -->
+    <div v-if="loading" class="loading">
+        <i class="fas fa-spinner fa-spin"></i> Cargando productos...
+    </div>
+    <div v-else-if="error" class="error">
+        <i class="fas fa-exclamation-triangle"></i> {{ error }}
+    </div>
+
+    <!-- CATÁLOGO -->
+    <div v-else class="container">
+        <!-- FILTROS -->
         <div class="filters">
-            <h3><i class="fas fa-filter"></i> Filtros de Catálogo</h3>
+            <h3><i class="fas fa-filter"></i> Filtros</h3>
             
             <div class="filter-group">
                 <h4><i class="fas fa-tags"></i> Marcas</h4>
-                <template v-for="marca in availableMarcas">
-                    <label><input type="checkbox" v-model="selectedMarcas" :value="marca"> {{ marca }}</label>
-                </template>
+                <label v-for="marca in availableMarcas" :key="marca">
+                    <input type="checkbox" v-model="selectedMarcas" :value="marca"> {{ marca }}
+                </label>
             </div>
 
-            <hr> <div class="filter-group">
-                <h4><i class="fas fa-box"></i> Categorías de Producto</h4>
-                <template v-for="producto in availableProductos">
-                    <label><input type="checkbox" v-model="selectedProductos" :value="producto"> {{ producto }}</label>
-                </template>
+            <hr>
+
+            <div class="filter-group">
+                <h4><i class="fas fa-box"></i> Categorías</h4>
+                <label v-for="cat in availableCategorias" :key="cat">
+                    <input type="checkbox" v-model="selectedCategorias" :value="cat"> {{ cat }}
+                </label>
             </div>
         </div>
 
+        <!-- PRODUCTOS -->
         <div class="products-grid">
-            <div v-for="p in filteredProducts" :key="p.id" class="product-card" @click="abrirPopup(p)">
-                <img :src="p.image" :alt="p.name">
-                <h4>{{ p.name }}</h4>
-                <p>{{ p.price }} Bs.</p>
+            <div v-for="p in filteredProducts" :key="p.idProducto" class="product-card" @click="abrirPopup(p)">
+                <img :src="p.foto" :alt="p.nombre" loading="lazy" 
+                     onerror="this.src='https://via.placeholder.com/300x300.png?text=Sin+Foto'">
+                <h4>{{ p.nombre }}</h4>
+                <p>{{ p.precioUnitario.toFixed(2) }} Bs.</p>
+                <small v-if="p.stock < 5" style="color: red;">¡Solo {{ p.stock }} en stock!</small>
             </div>
-            <div v-if="filteredProducts.length === 0" style="grid-column: 1 / -1; text-align: center; color: #658C7B; padding: 30px;">
-                <i class="fas fa-info-circle"></i> No se encontraron productos con esos filtros.
+
+            <div v-if="filteredProducts.length === 0" style="grid-column: 1/-1; text-align:center; padding:40px; color:#658C7B;">
+                <i class="fas fa-search" style="font-size:3rem;"></i><br><br>
+                No se encontraron productos con los filtros seleccionados.
             </div>
         </div>
     </div>
 
-    <div v-if="productoSeleccionado" class="popup-overlay" @click.self="productoSeleccionado = null">
+    <!-- POPUP DETALLE -->
+    <div v-if="productoSeleccionado" class="popup-overlay" @click.self="cerrarPopup">
         <div class="popup-content">
-            <div class="cerrar-popup" @click="productoSeleccionado = null">Cerrar</div>
+            <div class="cerrar-popup" @click="cerrarPopup">Cerrar</div>
             <div class="popup-grid">
                 <div class="popup-img">
-                    <img :src="productoSeleccionado.image" :alt="productoSeleccionado.name">
+                    <img :src="productoSeleccionado.foto" :alt="productoSeleccionado.nombre"
+                         onerror="this.src='https://via.placeholder.com/500x500.png?text=Sin+Imagen'">
                 </div>
                 <div class="popup-info">
                     <h2>PRODUCTO:</h2>
-                    <p class="nombre-producto">{{ productoSeleccionado.name }}</p>
+                    <p class="nombre-producto">{{ productoSeleccionado.nombre }}</p>
 
                     <h2>MARCA:</h2>
                     <p class="marca">{{ productoSeleccionado.marca }}</p>
 
-                    <h2>PRECIO:</h2>
-                    <p class="precio">{{ productoSeleccionado.price }} Bs.</p>
+                    <h2>CATEGORÍAS:</h2>
+                    <p class="categorias">{{ productoSeleccionado.categorias }}</p>
 
-                    <h2>DESCRIPCIÓN:</h2>
-                    <p class="descripcion">{{ productoSeleccionado.description }}</p>
+                    <h2>PRECIO:</h2>
+                    <p class="precio">{{ productoSeleccionado.precioUnitario.toFixed(2) }} Bs.</p>
 
                     <div class="cantidad-contenedor">
-                        <label>Cantidad:</label>
+                        <label>Cantidad (Stock: {{ productoSeleccionado.stock }}):</label>
                         <div class="cantidad-controls">
-                            <button @click="cantidad = Math.max(1, cantidad - 1)"> - </button>
+                            <button @click="cantidad = Math.max(1, cantidad - 1)">−</button>
                             <span>{{ cantidad }}</span>
-                            <button @click="cantidad < 20 ? cantidad++ : ''" :disabled="cantidad >= 20"> + </button>
+                            <button @click="cantidad < Math.min(20, productoSeleccionado.stock) ? cantidad++ : null"
+                                    :disabled="cantidad >= Math.min(20, productoSeleccionado.stock)">+</button>
                         </div>
                     </div>
 
-                    <button class="btn-agregar" @click="agregarAlCarrito">
-                        Agregar al Carrito
+                    <button class="btn-agregar" @click="agregarAlCarrito"
+                            :disabled="cantidad > productoSeleccionado.stock">
+                        <i class="fas fa-cart-plus"></i> Agregar al Carrito
                     </button>
                 </div>
             </div>
@@ -192,174 +183,91 @@
 </div>
 
 <script>
-    const { createApp } = Vue
-    createApp({
-        data() {
-            return {
-                selectedMarcas: [],
-                selectedProductos: [],
-                productoSeleccionado: null,
-                cantidad: 1,
-                availableMarcas: [
-                    'Tocobo', 'Beauty of Joseon', 'Anva', 'Round Lab', 'La Roche Posay', 
-                    'Vichy', 'Sol de Janeiro', 'Sephora', 'Rare Beauty', 'Good Molecues', 
-                    'Pax Moly', 'Elizavecca', 'Some by Mi', 'CENTELLA', 'CERAVE', 'Medicube', 
-                    'La Prairie', 'Valmont', 'Weleda', 
-                    'FOREO', 'L:A Bruket', 'Oriflam', 
-                    'Cosméticos de Totora', 'Manjar de Oro', 'Yanbal',
-                ],
-                availableProductos: [
-                    'Cuidado Facial', 'Cuidado Corporal', 'Maquillaje', 'Cuidado del Cabello',
-                    'Protectores Solares', 'Exfoliantes', 'Hidratantes', 'Productos Dermatológicos',
-                    'Brochas y Aplicadores', 'Antiedad y Arrugas'
-                ],
-                products: [
-                  { id: 1, name: 'Crema Corporal Emoliente Nutratopic Pro-AMP x200 Ml', price: 300, image: 'media/producto1.jpg', marca: 'La Roche Posay', tipo: 'Productos Dermatológicos', description: 'Tratamiento emoliente intensivo para pieles muy secas y con tendencia atópica.' },
-                    { id: 2, name: 'Limpiador Facial Espumoso para Piel Normal a Grasa', price: 125, image: 'media/producto2.jpg', marca: 'CERAVE', tipo: 'Cuidado Facial', description: 'Fórmula que limpia profundamente sin resecar, con 3 ceramidas esenciales.' },
-                    { id: 3, name: 'Sérum Vitamina C Revitalizante', price: 185, image: 'media/producto3.jpg', marca: 'Tocobo', tipo: 'Cuidado Facial', description: 'Antioxidante potente que ilumina la piel y mejora el tono desigual.' },
-                    { id: 4, name: 'Mascarilla Facial Hidra Bomb de Granada', price: 45, image: 'media/producto4.jpg', marca: 'GARNIER', tipo: 'Cuidado Facial', description: 'Mascarilla de tejido ultra-hidratante que reduce la apariencia de cansancio.' },
-                    { id: 5, name: 'Crema Solar Protectora Sun Stick', price: 155, image: 'media/producto5.jpg', marca: 'Tocobo', tipo: 'Protectores Solares', description: 'Protector solar en barra, ideal para reaplicar sobre maquillaje sin dejar rastro blanco.' },
-                    { id: 6, name: 'Sérum Revive Eye Ginseng + Retinal', price: 190, image: 'media/producto6.jpg', marca: 'Beauty of Joseon', tipo: 'Antiedad y Arrugas', description: 'Sérum para el contorno de ojos que combate arrugas y mejora la elasticidad con ingredientes tradicionales.' },
-                    { id: 7, name: 'Tónico Refrescante de Árbol de Té 30 Días', price: 130, image: 'media/producto7.jpg', marca: 'Some by Mi', tipo: 'Cuidado Facial', description: 'Tónico AHA/BHA/PHA que exfolia suavemente y calma la piel propensa al acné.' },
-                    { id: 8, name: 'Limpiador en Aceite Natural Mung Bean', price: 160, image: 'media/producto8.jpg', marca: 'Anva', tipo: 'Cuidado Facial', description: 'Limpiador en aceite para el primer paso de la doble limpieza, remueve maquillaje pesado.' },
-                    { id: 9, name: 'Crema Hidratante Pantenol 10% Cica', price: 175, image: 'media/producto9.jpg', marca: 'CENTELLA', tipo: 'Hidratantes', description: 'Crema calmante e hidratante con alta concentración de Pantenol y Centella Asiática.' },
-                    { id: 10, name: 'Protector Solar Fluido FPS 50+ Invisible', price: 230, image: 'media/producto10.jpg', marca: 'La Roche Posay', tipo: 'Protectores Solares', description: 'Protección muy alta UVA/UVB ultraligera, no grasa, apta para piel sensible.' },
-                    { id: 11, name: 'Sérum Minéral 89 Probiótico', price: 280, image: 'media/producto11.jpg', marca: 'Vichy', tipo: 'Productos Dermatológicos', description: 'Fortalece la barrera de la piel y la protege del estrés con fracciones probióticas.' },
-                    { id: 12, name: 'Limpiador en Barra para Acné y Piel Grasa', price: 90, image: 'media/producto12.jpg', marca: 'Medicube', tipo: 'Cuidado Facial', description: 'Limpiador especializado para controlar el exceso de sebo y brotes.' },
-                    { id: 13, name: 'Bronze & Glow Sol de Janeiro (Bum Bum Cream)', price: 350, image: 'media/producto13.jpg', marca: 'Sol de Janeiro', tipo: 'Cuidado Corporal', description: 'Crema corporal reafirmante icónica con fragancia a caramelo salado y pistacho.' },
-                    { id: 14, name: 'Rubor Líquido "Soft Pinch"', price: 195, image: 'media/producto14.jpg', marca: 'Rare Beauty', tipo: 'Maquillaje', description: 'Rubor líquido altamente pigmentado y de larga duración, tono "Happy".' },
-                    { id: 15, name: 'Paleta de Sombras de Ojos ' + String.fromCharCode(214) + 'ptica', price: 290, image: 'media/producto15.jpg', marca: 'Sephora', tipo: 'Maquillaje', description: 'Paleta profesional con 12 tonos mates y brillantes para looks de día y noche.' },
-                    { id: 16, name: 'Brocha Esencial para Base (Foundation Brush)', price: 110, image: 'media/producto16.jpg', marca: 'Good Molecues', tipo: 'Brochas y Aplicadores', description: 'Brocha sintética y densa para una aplicación de base líquida impecable.' },
-                    { id: 17, name: 'Cepillo Limpiador Facial LUNA Play Plus', price: 420, image: 'media/producto17.jpg', marca: 'FOREO', tipo: 'Cuidado Facial', description: 'Dispositivo sónico para una limpieza profunda y delicada de la piel.' },
-                    { id: 18, name: 'Crema de Día de Rosa Mosqueta (30ml)', price: 165, image: 'media/producto18.jpg', marca: 'Weleda', tipo: 'Hidratantes', description: 'Crema natural que suaviza las primeras líneas de expresión y regenera.' },
-                    { id: 19, name: 'Sérum Caviar Luxe Lift (30ml)', price: 1500, image: 'media/producto19.jpg', marca: 'La Prairie', tipo: 'Antiedad y Arrugas', description: 'Elixir de lujo con extracto de caviar para un efecto lifting y firmeza inmediata.' },
-                    { id: 20, name: 'Aceite Corporal Calmante de Lavanda', price: 180, image: 'media/producto20.jpg', marca: 'L:A Bruket', tipo: 'Cuidado Corporal', description: 'Aceite orgánico con aroma relajante para masajes y nutrición de la piel.' },
-                    { id: 21, name: 'Jabón Artesanal de Totora y Miel', price: 35, image: 'media/producto21.jpg', marca: 'Cosméticos de Totora', tipo: 'Cuidado Corporal', description: 'Jabón natural con propiedades emolientes y curativas de la totora andina.' },
-                    { id: 22, name: 'Crema Hidratante Manjar de Oro (50gr)', price: 80, image: 'media/producto22.jpg', marca: 'Manjar de Oro', tipo: 'Hidratantes', description: 'Crema enriquecida con ingredientes naturales bolivianos para una piel suave.' },
-                    { id: 23, name: 'Perfume y Desodorante ' + String.fromCharCode(201) + 'sika', price: 140, image: 'media/producto23.jpg', marca: 'Yanbal', tipo: 'Cuidado Corporal', description: 'Fragancia floral con toques frutales y set de desodorante a juego.' },
-                    { id: 24, name: 'Tónico de Betaglucano y Cica', price: 170, image: 'media/producto24.jpg', marca: 'Round Lab', tipo: 'Cuidado Facial', description: 'Tónico hidratante que calma y equilibra el pH de la piel sensible.' },
-                    { id: 25, name: 'Peeling Facial Enzimático (100ml)', price: 150, image: 'media/producto25.jpg', marca: 'Elizavecca', tipo: 'Exfoliantes', description: 'Exfoliante suave sin gránulos que elimina células muertas con enzimas de frutas.' },
-                    { id: 26, name: 'Mascarilla Capilar de Argán', price: 115, image: 'media/producto26.jpg', marca: 'Pax Moly', tipo: 'Cuidado del Cabello', description: 'Tratamiento profundo que repara el cabello seco y dañado, aportando brillo.' },
-                    { id: 27, name: 'Limpiador Hidratante para Piel Seca', price: 120, image: 'media/producto27.jpg', marca: 'CERAVE', tipo: 'Cuidado Facial', description: 'Mantiene la hidratación gracias a su fórmula con ácido hialurónico.' },
-                    { id: 28, name: 'Cápsulas de Retinol Puro para Noche', price: 320, image: 'media/producto28.jpg', marca: 'Good Molecues', tipo: 'Antiedad y Arrugas', description: 'Dosis precisas de Retinol para renovar la piel durante la noche.' },
-                    { id: 29, name: 'Protector Solar con Base FPS 30', price: 190, image: 'media/producto29.jpg', marca: 'Vichy', tipo: 'Protectores Solares', description: 'Protección solar y maquillaje en un solo paso, cobertura media.' },
-                    { id: 30, name: 'Kit de 5 Brochas y Estuche', price: 160, image: 'media/producto30.jpg', marca: 'Sephora', tipo: 'Brochas y Aplicadores', description: 'Set de brochas esenciales de viaje con pelo sintético ultra-suave.' },
-                    { id: 31, name: 'Sérum Ácido Hialurónico', price: 110, image: 'media/producto31.jpg', marca: 'Good Molecues', tipo: 'Hidratantes', description: 'Hidratación intensa para rellenar líneas finas y mejorar la elasticidad.' },
-                    { id: 32, name: 'Mascarilla de Arcilla Purificante', price: 85, image: 'media/producto32.jpg', marca: 'Pax Moly', tipo: 'Cuidado Facial', description: 'Limpia los poros y controla el exceso de grasa, ideal para piel mixta/grasa.' },
-                    { id: 33, name: 'Crema Contorno de Ojos con Cafeína', price: 145, image: 'media/producto33.jpg', marca: 'Tocobo', tipo: 'Cuidado Facial', description: 'Reduce bolsas y ojeras, aportando un aspecto descansado.' },
-                    { id: 34, name: 'Exfoliante Corporal de Azúcar y Coco', price: 95, image: 'media/producto34.jpg', marca: 'Sol de Janeiro', tipo: 'Exfoliantes', description: 'Exfoliante dulce que deja la piel suave y con un aroma tropical.' },
-                    { id: 35, name: 'BB Cream Coreana con FPS 40', price: 160, image: 'media/producto35.jpg', marca: 'Beauty of Joseon', tipo: 'Maquillaje', description: 'Crema con color ligera que unifica el tono y protege del sol.' },
-                    { id: 36, name: 'Acondicionador para Volumen', price: 90, image: 'media/producto36.jpg', marca: 'Vichy', tipo: 'Cuidado del Cabello', description: 'Acondicionador que aporta cuerpo y volumen al cabello fino.' },
-                    { id: 37, name: 'Kit de Esponjas de Maquillaje', price: 70, image: 'media/producto37.jpg', marca: 'Rare Beauty', tipo: 'Brochas y Aplicadores', description: 'Esponjas suaves y reutilizables para aplicar y difuminar la base.' },
-                    { id: 38, name: 'Protector Solar Matificante', price: 210, image: 'media/producto38.jpg', marca: 'La Roche Posay', tipo: 'Protectores Solares', description: 'Filtro solar para piel grasa que absorbe el sebo y previene brillos.' },
-                    { id: 39, name: 'Crema Corporal con Ceramidas', price: 150, image: 'media/producto39.jpg', marca: 'CERAVE', tipo: 'Cuidado Corporal', description: 'Restaura la barrera cutánea e hidrata la piel seca y áspera.' },
-                    { id: 40, name: 'Tónico Purificante para Poros', price: 110, image: 'media/producto40.jpg', marca: 'Medicube', tipo: 'Cuidado Facial', description: 'Minimiza la apariencia de poros dilatados y refina la textura.' },
-                    { id: 41, name: 'Crema Hidratante Celular (Anti-Edad)', price: 980, image: 'media/producto41.jpg', marca: 'Valmont', tipo: 'Antiedad y Arrugas', description: 'Crema de día revitalizante que combate los signos avanzados del envejecimiento.' },
-                    { id: 42, name: 'Gel de Ducha de Abedul', price: 135, image: 'media/producto42.jpg', marca: 'Weleda', tipo: 'Cuidado Corporal', description: 'Gel de ducha refrescante con aroma a cítricos y propiedades purificantes.' },
-                    { id: 43, name: 'Delineador Líquido de Larga Duración', price: 120, image: 'media/producto43.jpg', marca: 'Yanbal', tipo: 'Maquillaje', description: 'Delineador negro intenso y a prueba de agua con punta de precisión.' },
-                    { id: 44, name: 'Mascarilla Nocturna de Caléndula', price: 160, image: 'media/producto44.jpg', marca: 'CENTELLA', tipo: 'Hidratantes', description: 'Mascarilla que actúa mientras duermes, reparando y calmando la piel.' },
-                    { id: 45, name: 'Crema de Manos y Uñas con Shea', price: 70, image: 'media/producto45.jpg', marca: 'L:A Bruket', tipo: 'Cuidado Corporal', description: 'Crema concentrada para manos secas con manteca de karité.' },{ id: 46, name: 'Paleta de Correctores (Contorno)', price: 180, image: 'media/producto46.jpg', marca: 'Sephora', tipo: 'Maquillaje', description: 'Paleta con 4 tonos para corregir imperfecciones y contornear el rostro.' },
-                    { id: 47, name: 'Tónico Anticaída para el Cabello', price: 175, image: 'media/producto47.jpg', marca: 'Vichy', tipo: 'Cuidado del Cabello', description: 'Tratamiento capilar que ayuda a frenar la caída del cabello.' },
-                    { id: 48, name: 'Exfoliante Químico 10% AHA', price: 140, image: 'media/producto48.jpg', marca: 'Good Molecues', tipo: 'Exfoliantes', description: 'Sérum exfoliante para mejorar la textura y luminosidad de la piel.' },
-                    { id: 49, name: 'Polvo Compacto Matificante', price: 140, image: 'media/producto49.jpg', marca: 'Rare Beauty', tipo: 'Maquillaje', description: 'Sella el maquillaje y controla el brillo sin resecar la piel.' },
-                    { id: 50, name: 'Protector Solar Mineral con Color', price: 240, image: 'media/producto50.jpg', marca: 'Round Lab', tipo: 'Protectores Solares', description: 'Protector mineral con un ligero toque de color que iguala la piel.' },
-                    { id: 51, name: 'Limpiador en Gel de Bajo pH (Morning)', price: 110, image: 'media/producto51.jpg', marca: 'Good Molecues', tipo: 'Cuidado Facial', description: 'Limpiador suave que respeta la barrera de la piel, perfecto para la rutina AM.' },
-                    { id: 52, name: 'Sérum Anti-Manchas (Niacinamida 10%)', price: 145, image: 'media/producto52.jpg', marca: 'Beauty of Joseon', tipo: 'Cuidado Facial', description: 'Ayuda a reducir manchas oscuras y mejora la textura de la piel.' },
-                    { id: 53, name: 'Parches Hidrogel con Caracol', price: 95, image: 'media/producto53.jpg', marca: 'Elizavecca', tipo: 'Hidratantes', description: 'Parches para el contorno de ojos que nutren y combaten las líneas de expresión.' },
-                    { id: 54, name: 'Crema Solar Calmante de Centella Asiática', price: 180, image: 'media/producto54.jpg', marca: 'CENTELLA', tipo: 'Protectores Solares', description: 'Protector ligero y calmante, ideal para piel sensible o irritada.' },
-                    { id: 55, name: 'Ampolla S.O.S de Madécassoside', price: 210, image: 'media/producto55.jpg', marca: 'Medicube', tipo: 'Productos Dermatológicos', description: 'Tratamiento concentrado para restaurar y calmar pieles con problemas graves.' },
-                    { id: 56, name: 'Bálsamo Limpiador de Miel', price: 135, image: 'media/producto56.jpg', marca: 'Tocobo', tipo: 'Cuidado Facial', description: 'Bálsamo que se derrite en la piel para remover maquillaje y protector solar.' },
-                    { id: 57, name: 'Exfoliante Corporal con Azúcar Morena', price: 85, image: 'media/producto57.jpg', marca: 'Pax Moly', tipo: 'Exfoliantes', description: 'Exfolia suavemente y deja la piel con una sensación de suavidad y dulce aroma.' },
-                    { id: 58, name: 'Sérum H.A. Intensificador (Ácido Hialurónico)', price: 310, image: 'media/producto58.jpg', marca: 'La Roche Posay', tipo: 'Hidratantes', description: 'Rellena e hidrata intensamente la piel, reduciendo la apariencia de las arrugas.' },
-                    { id: 59, name: 'Crema de Noche Reafirmante LiftActiv Collagen', price: 295, image: 'media/producto59.jpg', marca: 'Vichy', tipo: 'Antiedad y Arrugas', description: 'Combate la pérdida de colágeno y devuelve la firmeza a la piel durante la noche.' },
-                    { id: 60, name: 'Body Wash Suave y Nutritivo (473ml)', price: 105, image: 'media/producto60.jpg', marca: 'CERAVE', tipo: 'Cuidado Corporal', description: 'Limpiador corporal diario que hidrata y restaura la barrera protectora de la piel.' },
-                    { id: 61, name: 'Sérum de Retinol Puro B3 (30ml)', price: 340, image: 'media/producto61.jpg', marca: 'La Roche Posay', tipo: 'Antiedad y Arrugas', description: 'Concentrado antiarrugas y antimanchas con Retinol y Vitamina B3.' },
-                    { id: 62, name: 'Champú Fortificante Dercos Aminexil', price: 170, image: 'media/producto62.jpg', marca: 'Vichy', tipo: 'Cuidado del Cabello', description: 'Champú complementario para el tratamiento de la caída del cabello.' },
-                    { id: 63, name: 'Corrector ' + String.fromCharCode(205) + 'dolo Líquido', price: 140, image: 'media/producto63.jpg', marca: 'Rare Beauty', tipo: 'Maquillaje', description: 'Corrector ligero con cobertura construible, no se cuartea.' },
-                    { id: 64, name: 'Bronceador en Polvo Mate (Sephora Collection)', price: 165, image: 'media/producto64.jpg', marca: 'Sephora', tipo: 'Maquillaje', description: 'Polvo bronceador para definir el rostro y dar un aspecto de sol natural.' },
-                    { id: 65, name: 'Brocha Angular para Contorno', price: 80, image: 'media/producto65.jpg', marca: 'Good Molecues', tipo: 'Brochas y Aplicadores', description: 'Brocha de corte angulado ideal para aplicar polvos de contorno y rubor.' },
-                    { id: 66, name: 'Lip Oil (Aceite Labial) Hidratante', price: 130, image: 'media/producto66.jpg', marca: 'Rare Beauty', tipo: 'Maquillaje', description: 'Aceite labial con brillo, aporta color sutil e hidratación profunda.' },
-                    { id: 67, name: 'Sérum Facial de Albaricoque y Jojoba', price: 190, image: 'media/producto67.jpg', marca: 'Weleda', tipo: 'Cuidado Facial', description: 'Aceite facial nutritivo para piel seca que restaura el brillo natural.' },
-                    { id: 68, name: 'Crema Corporal "Cheirosa 62"', price: 330, image: 'media/producto68.jpg', marca: 'Sol de Janeiro', tipo: 'Cuidado Corporal', description: 'La icónica crema Brazilian Bum Bum en formato viaje o regalo.' },
-                    { id: 69, name: 'Gel de Limpieza de Sal Marina y Alga', price: 175, image: 'media/producto69.jpg', marca: 'L:A Bruket', tipo: 'Cuidado Corporal', description: 'Gel de ducha con ingredientes marinos que revitalizan y limpian la piel.' },
-                    { id: 70, name: 'Limpiador Facial LUNA Mini 3', price: 750, image: 'media/producto70.jpg', marca: 'FOREO', tipo: 'Cuidado Facial', description: 'Dispositivo inteligente para una limpieza facial en 30 segundos.' },
-                    { id: 71, name: 'Crema Hidratante con Extracto de Coca', price: 90, image: 'media/producto71.jpg', marca: 'Cosméticos de Totora', tipo: 'Hidratantes', description: 'Crema de manos y cuerpo con extractos andinos para nutrición profunda.' },
-                    { id: 72, name: 'Maquillaje Compacto Antibrillo (SPF 20)', price: 155, image: 'media/producto72.jpg', marca: 'Yanbal', tipo: 'Maquillaje', description: 'Maquillaje en polvo compacto que matifica y ofrece protección solar.' },
-                    { id: 73, name: 'Sérum Antiarrugas Celular', price: 1250, image: 'media/producto73.jpg', marca: 'Valmont', tipo: 'Antiedad y Arrugas', description: 'Sérum intensivo de alta gama para tratar la firmeza y las arrugas profundas.' },
-                    { id: 74, name: 'Crema Corporal con Manjar de Leche', price: 75, image: 'media/producto74.jpg', marca: 'Manjar de Oro', tipo: 'Cuidado Corporal', description: 'Crema de textura suave e hidratante con un aroma dulce y clásico.' },
-                    { id: 75, name: 'Mascarilla Capilar Reparadora Intensiva', price: 130, image: 'media/producto75.jpg', marca: 'GARNIER', tipo: 'Cuidado del Cabello', description: 'Mascarilla nutritiva con aceites que repara el cabello dañado en minutos.' },
-                    { id: 76, name: 'Protector Solar con Tono CC Cream', price: 200, image: 'media/producto76.jpg', marca: 'Round Lab', tipo: 'Protectores Solares', description: 'Protector solar mineral con cobertura ligera de color para igualar el tono.' },
-                    { id: 77, name: 'Exfoliante con Ácido Salicílico (BHA)', price: 160, image: 'media/producto77.jpg', marca: 'Some by Mi', tipo: 'Exfoliantes', description: 'Líquido exfoliante que penetra los poros para limpiarlos y prevenir brotes.' },
-                    { id: 78, name: 'Mascarilla Peeling de Barro Volcánico', price: 105, image: 'media/producto78.jpg', marca: 'Elizavecca', tipo: 'Exfoliantes', description: 'Mascarilla de arcilla que absorbe el exceso de sebo y minimiza poros.' },
-                    { id: 79, name: 'Aceite Limpiador Profundo', price: 150, image: 'media/producto79.jpg', marca: 'Anva', tipo: 'Cuidado Facial', description: 'Disuelve impurezas y maquillaje a prueba de agua sin dejar residuo graso.' },
-                    { id: 80, name: 'Protector Solar en Gel Aqua', price: 175, image: 'media/producto80.jpg', marca: 'Tocobo', tipo: 'Protectores Solares', description: 'Protector solar ligero, refrescante y de rápida absorción.' },
-                    { id: 81, name: 'Esponja de Maquillaje de Precisión', price: 45, image: 'media/producto81.jpg', marca: 'Sephora', tipo: 'Brochas y Aplicadores', description: 'Esponja con punta para áreas difíciles y base plana para el resto del rostro.' },
-                    { id: 82, name: 'Brocha Grande para Polvos Sueltos', price: 120, image: 'media/producto82.jpg', marca: 'Rare Beauty', tipo: 'Brochas y Aplicadores', description: 'Brocha muy suave y grande para sellar el maquillaje con polvos.' },
-                    { id: 83, name: 'Pincel para Delineado de Ojos', price: 55, image: 'media/producto83.jpg', marca: 'Pax Moly', tipo: 'Brochas y Aplicadores', description: 'Pincel fino y angular ideal para aplicar delineador en gel o sombra húmeda.' },
-                    { id: 84, name: 'Acondicionador para Cabello Seco', price: 85, image: 'media/producto84.jpg', marca: 'CERAVE', tipo: 'Cuidado del Cabello', description: 'Nutre e hidrata el cabello sin apelmazar, apto para cuero cabelludo sensible.' },
-                    { id: 85, name: 'Champú Sólido de Eucalipto y Menta', price: 120, image: 'media/producto85.jpg', marca: 'L:A Bruket', tipo: 'Cuidado del Cabello', description: 'Opción ecológica que limpia profundamente el cuero cabelludo.' },
-                    { id: 86, name: 'Sérum Capilar Nutritivo de Argán', price: 150, image: 'media/producto86.jpg', marca: 'Yanbal', tipo: 'Cuidado del Cabello', description: 'Repara puntas abiertas y aporta brillo sin engrasar el pelo.' },
-                    { id: 87, name: 'Loción Hidratante Corporal (473ml)', price: 130, image: 'media/producto87.jpg', marca: 'CERAVE', tipo: 'Cuidado Corporal', description: 'Hidratación duradera para piel normal a seca, no comedogénica.' },
-                    { id: 88, name: 'Crema Cicaplast Baume B5+', price: 170, image: 'media/producto88.jpg', marca: 'La Roche Posay', tipo: 'Productos Dermatológicos', description: 'Bálsamo multiuso que repara y calma la piel irritada o dañada.' },
-                    { id: 89, name: 'Sérum Contorno de Ojos con Bakuchiol', price: 180, image: 'media/producto89.jpg', marca: 'Good Molecues', tipo: 'Antiedad y Arrugas', description: 'Alternativa natural al Retinol para el área sensible de los ojos' },
-                    { id: 90, name: 'Concentrado Anti-Edad Noche', price: 950, image: 'media/producto90.jpg', marca: 'La Prairie', tipo: 'Antiedad y Arrugas', description: 'Tratamiento de reparación celular intensivo para usar durante el sueño.' },
-                    { id: 91, name: 'Crema Corporal Antiestrías (Manteca de Karité)', price: 160, image: 'media/producto91.jpg', marca: 'Weleda', tipo: 'Cuidado Corporal', description: 'Aceite y crema corporal que ayuda a prevenir y atenuar estrías.' },
-                    { id: 92, name: 'Mascarilla Facial de Colágeno', price: 115, image: 'media/producto92.jpg', marca: 'Elizavecca', tipo: 'Cuidado Facial', description: 'Mascarilla para aumentar la elasticidad y firmeza de la piel.' },
-                    { id: 93, name: 'Agua Micelar Desmaquillante (400ml)', price: 90, image: 'media/producto93.jpg', marca: 'GARNIER', tipo: 'Cuidado Facial', description: 'Limpia, desmaquilla y tonifica en un solo paso.' },
-                    { id: 94, name: 'Mascarilla de Tejido Cica Healing', price: 35, image: 'media/producto94.jpg', marca: 'CENTELLA', tipo: 'Cuidado Facial', description: 'Mascarilla en lámina para calmar la piel irritada o enrojecida.' },
-                    { id: 95, name: 'Exfoliante Capilar Purificante', price: 140, image: 'media/producto95.jpg', marca: 'Vichy', tipo: 'Cuidado del Cabello', description: 'Exfolia el cuero cabelludo para eliminar residuos y revitalizar.' },
-                    { id: 96, name: 'Blush y Iluminador en Barra', price: 170, image: 'media/producto96.jpg', marca: 'Sephora', tipo: 'Maquillaje', description: 'Producto dual cremoso para mejillas y rostro.' },
-                    { id: 97, name: 'Protector Labial SPF 30', price: 65, image: 'media/producto97.jpg', marca: 'Round Lab', tipo: 'Protectores Solares', description: 'Bálsamo labial con alta protección solar y efecto hidratante.' },
-                    { id: 98, name: 'Crema Corporal de Miel y Canela', price: 80, image: 'media/producto98.jpg', marca: 'Manjar de Oro', tipo: 'Cuidado Corporal', description: 'Crema nutritiva con fragancia cálida para la piel.' },
-                    { id: 99, name: 'Sérum Triple Power Ácido Hialurónico', price: 320, image: 'media/producto99.jpg', marca: 'Medicube', tipo: 'Hidratantes', description: 'Hidratante de triple acción para pieles que necesitan un extra de humedad.' },
-                    { id: 100, name: 'Tónico Refrescante con Perlas de Mar', price: 155, image: 'media/producto100.jpg', marca: 'Anva', tipo: 'Cuidado Facial', description: 'Tónico que equilibra la piel y la prepara para la absorción de sérums.' }
-                ]
-            }
-        },
-        computed: {
-            filteredProducts() {
-                return this.products.filter(p => {
-                    const marcaMatch = this.selectedMarcas.length === 0 || this.selectedMarcas.includes(p.marca);
-                    const tipoMatch = this.selectedProductos.length === 0 || this.selectedProductos.includes(p.tipo);
-                    return marcaMatch && tipoMatch;
-                });
-            }
-        },
-        methods: {
-            abrirPopup(p) {
-                this.productoSeleccionado = p;
-                this.cantidad = 1;
-            },
-            agregarAlCarrito() {
-                if (this.cantidad > 20) {
-                    alert('¡Límite alcanzado! Máximo 20 unidades por producto.');
-                    return;
-                }
+const { createApp } = Vue;
 
-                const itemParaCarrito = {
-                    idProducto: this.productoSeleccionado.id,
-                    nombre: this.productoSeleccionado.name,
-                    precioUnitario: this.productoSeleccionado.price,
-                    foto: this.productoSeleccionado.image.split('/').pop(),
-                    marca: this.productoSeleccionado.marca,
-                    cantidad: this.cantidad
-                };
-
-                let carrito = JSON.parse(localStorage.getItem('topskinCarrito')) || [];
-                const indiceExistente = carrito.findIndex(item => item.idProducto === itemParaCarrito.idProducto);
-                
-                if (indiceExistente !== -1) {
-                    carrito[indiceExistente].cantidad += itemParaCarrito.cantidad;
-                } else {
-                    carrito.push(itemParaCarrito);
-                }
-
-                localStorage.setItem('topskinCarrito', JSON.stringify(carrito));
-                
-                this.productoSeleccionado = null; 
-            }
+createApp({
+    data() {
+        return {
+            products: [],
+            selectedMarcas: [],
+            selectedCategorias: [],
+            productoSeleccionado: null,
+            cantidad: 1,
+            loading: true,
+            error: null
         }
-    }).mount('#app')
+    },
+    computed: {
+        availableMarcas() {
+            return [...new Set(this.products.map(p => p.marca))].sort();
+        },
+        availableCategorias() {
+            const todas = this.products.flatMap(p => p.categorias_array || []);
+            return [...new Set(todas)].sort();
+        },
+        filteredProducts() {
+            return this.products.filter(p => {
+                const marcaOk = this.selectedMarcas.length === 0 || this.selectedMarcas.includes(p.marca);
+                const catOk = this.selectedCategorias.length === 0 ||
+                    this.selectedCategorias.some(cat => (p.categorias_array || []).includes(cat));
+                return marcaOk && catOk;
+            });
+        }
+    },
+    methods: {
+        async cargarProductos() {
+            try {
+                const res = await fetch('../../backend/catalogo.php');
+                if (!res.ok) throw new Error(`Error ${res.status}`);
+                const data = await res.json();
+                this.products = data;
+            } catch (err) {
+                this.error = "Error al cargar productos: " + err.message;
+                console.error(err);
+            } finally {
+                this.loading = false;
+            }
+        },
+        abrirPopup(p) {
+            this.productoSeleccionado = p;
+            this.cantidad = 1;
+        },
+        cerrarPopup() {
+            this.productoSeleccionado = null;
+        },
+        agregarAlCarrito() {
+            if (this.cantidad > this.productoSeleccionado.stock) {
+                alert("¡No hay suficiente stock!");
+                return;
+            }
+
+            const item = {
+                idProducto: this.productoSeleccionado.idProducto,
+                nombre: this.productoSeleccionado.nombre,
+                precioUnitario: this.productoSeleccionado.precioUnitario,
+                foto: this.productoSeleccionado.foto,
+                marca: this.productoSeleccionado.marca,
+                cantidad: this.cantidad
+            };
+
+            let carrito = JSON.parse(localStorage.getItem('topskinCarrito') || '[]');
+            const existente = carrito.find(i => i.idProducto === item.idProducto);
+            if (existente) {
+                existente.cantidad += item.cantidad;
+            } else {
+                carrito.push(item);
+            }
+
+            localStorage.setItem('topskinCarrito', JSON.stringify(carrito));
+            alert(`¡${this.cantidad} × "${item.nombre}" agregado al carrito!`);
+            this.cerrarPopup();
+        }
+    },
+    mounted() {
+        this.cargarProductos();
+    }
+}).mount('#app');
 </script>
+
 </body>
 </html>
