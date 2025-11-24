@@ -3,7 +3,7 @@ class Conexion {
     private static $host = 'localhost';    
     private static $dbname = 'topskin';
     private static $user = 'root';
-    private static $pass = 'mipmopmap26PanQ';
+    private static $pass = '';
     
     public static function conectar() {
         try {

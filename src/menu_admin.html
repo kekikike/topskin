@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Menú Admin - TopSkin</title>
+  <title>Asignación de Horarios - TopSkin</title>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -24,8 +24,9 @@
 
     .container { max-width:1500px; margin:3rem auto; padding:0 2rem; }
     h1 { font-size:2.4rem; text-align:center; color:#1f2937; margin-bottom:2.5rem; }
+
     .empleados-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:2.2rem; padding:1rem; }
-    .empleado-card { background:white; border-radius:18px; overflow:visible; box-shadow:0 8px 25px rgba(0,0,0,0.1); height:150px; position:relative; transition:all 0.4s ease; }
+    .empleado-card { background:white; border-radius:18px; overflow:visible; box-shadow:0 8px 25px rgba(0,0,0,0.1); height:150px; position:relative; transition:all 0.4s ease; cursor:pointer; }
     .compact-info { position:absolute; bottom:0; left:0; right:0; background:white; padding:1rem 0.8rem; text-align:center; border-radius:0 0 18px 18px; }
     .nombre { font-weight:700; font-size:1.05rem; color:#1f2937; }
     .apellido { font-size:0.94rem; color:#4b5563; margin-top:0.4rem; }
@@ -38,72 +39,68 @@
     .cargo { color:#6b7280; font-size:0.96rem; margin:0.8rem 0 1rem; font-weight:500; }
     .btn-horario { background:#10b981; color:white; border:none; padding:0.62rem 1.6rem; border-radius:2rem; cursor:pointer; font-weight:600; font-size:0.96rem; transition:all 0.3s; }
     .btn-horario:hover { background:#059669; transform:scale(1.07); }
+
     .horarios-section { margin-top:5rem; background:#f0fdfa; padding:3rem 2.5rem; border-radius:22px; box-shadow:0 12px 35px rgba(0,0,0,0.1); }
     .horarios-title { font-size:2.2rem; color:#134e4a; text-align:center; margin-bottom:1.5rem; font-weight:700; }
     .resumen-empleado { text-align:center; margin-bottom:2rem; padding:1.2rem; background:white; border-radius:16px; box-shadow:0 4px 15px rgba(0,0,0,0.08); font-size:1.1rem; color:#134e4a; font-weight:600; }
-    .btn-editar-horarios, .btn-guardar-horarios, .btn-cancelar { display: inline-block; margin: 1.5rem 0.5rem 0; padding: 0.85rem 2.2rem; font-size: 1.05rem; font-weight: 600; border: none; border-radius: 2rem; cursor: pointer; transition: all 0.3s; }
-    .btn-editar-horarios { background:#0d9488; color:white; }
-    .btn-editar-horarios:hover { background:#0f766e; transform:translateY(-3px); }
-    .btn-guardar-horarios { background:#10b981; color:white; }
-    .btn-guardar-horarios:hover { background:#059669; }
-    .btn-cancelar { background:#ef4444; color:white; }
-    .btn-cancelar:hover { background:#dc2626; }
+    .info-valida { padding:1rem; border-radius:12px; margin:1.5rem 0; text-align:center; font-weight:600; font-size:1.1rem; }
+    .valido { background:#d1fae5; color:#065f46; border:1px solid #10b981; }
+    .invalido { background:#fee2e2; color:#991b1b; border:1px solid #ef4444; }
+
     table { width:100%; border-collapse:collapse; background:white; border-radius:16px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.12); margin-top:1rem; }
     th { background:#0d9488; color:white; padding:1.3rem; font-size:1.1rem; font-weight:600; }
-    td { padding:1rem; text-align:center; background:#ecfdf5; font-size:1.02rem; border-bottom:1px solid #bbf7d0; vertical-align:middle; }
-    tr:last-child td { border:none; }
-    select { padding:0.6rem; border-radius:10px; border:1px solid #94a3b8; background:white; width:100%; font-size:1rem; }
-    .turnos-lista { font-weight:600; }
-    .turno-tag { display:inline-block; margin:0 4px; padding:2px 8px; border-radius:8px; background:#dbeafe; color:#1e40af; font-size:0.9rem; }
-    .turno-tag.mediodia { background:#fed7aa; color:#9a3412; }
-    .turno-tag.tarde { background:#fbcfe8; color:#831843; }
+    td { padding:1rem; text-align:center; background:#f8f8f8; vertical-align:middle; }
+    
+    .turno {
+      display:block; margin:10px auto; padding:14px 10px; border-radius:12px; cursor:pointer; transition:all 0.3s; font-weight:600;
+      width:90%; max-width:180px; position:relative;
+    }
+    .turno.t1 { background:#dbeafe; color:#1e40af; border:3px solid #3b82f6; }
+    .turno.t2 { background:#fef3c7; color:#92400e; border:3px solid #f59e0b; }
+    .turno.t3 { background:#fce7f3; color:#9f1239; border:3px solid #ec4899; }
 
-    /* BOTÓN CERRAR SESIÓN FIJO EN ESQUINA INFERIOR DERECHA */
+    /* Asignado al empleado actual → Verde fuerte */
+    .turno.asignado {
+      background:#10b981 !important; color:white !important; border:3px solid #059669 !important;
+      box-shadow:0 6px 20px rgba(16,185,129,0.5);
+    }
+
+    /* Disponible para asignar → color normal + hover */
+    .turno.disponible:hover { transform:scale(1.07); }
+
+    /* Bloqueado (ya hay 2 asignados y NO es del empleado actual) → gris */
+    .turno.bloqueado {
+      background:#e5e7eb !important; color:#6b7280 !important; cursor:not-allowed; border:3px dashed #94a3b8 !important;
+      opacity:0.8;
+    }
+    .turno.bloqueado::after { content:"Completo (2/2)"; font-size:0.7rem; display:block; margin-top:4px; }
+
+    .btn-guardar-horarios { display:block; margin:2.5rem auto 0; padding:1rem 3.5rem; background:#10b981; color:white; border:none; border-radius:2rem; font-size:1.15rem; font-weight:700; cursor:pointer; transition:0.3s; }
+    .btn-guardar-horarios:hover:enabled { background:#059669; transform:translateY(-3px); }
+    .btn-guardar-horarios:disabled { background:#94a3b8; cursor:not-allowed; }
+
     .btn-cerrar-sesion {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      background: #dc2626 !important;
-      color: white;
-      padding: 14px 28px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      border: none;
-      border-radius: 50px;
-      box-shadow: 0 10px 25px rgba(220, 38, 38, 0.4);
-      cursor: pointer;
-      z-index: 9999;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      position: fixed; bottom: 30px; right: 30px; background: #dc2626 !important; color: white;
+      padding: 14px 28px; font-size: 1.1rem; font-weight: 700; border: none; border-radius: 50px;
+      box-shadow: 0 10px 25px rgba(220, 38, 38, 0.4); cursor: pointer; z-index: 9999;
+      transition: all 0.3s ease; display: flex; align-items: center; gap: 10px;
     }
-
-    .btn-cerrar-sesion:hover {
-      background: #b91c1c !important;
-      transform: translateY(-4px) scale(1.05);
-      box-shadow: 0 15px 35px rgba(220, 38, 38, 0.6);
-    }
-
-    .btn-cerrar-sesion:active {
-      transform: translateY(-2px) scale(1.03);
-    }
+    .btn-cerrar-sesion:hover { background: #b91c1c !important; transform: translateY(-4px) scale(1.05); }
   </style>
 </head>
 <body>
 
 <div id="app" class="container">
+  <!-- HEADER (igual) -->
   <header>
     <div class="header-left">
       <a href="administrador/perfil.html" class="profile-link">
         <img src="../media/perfil.png" alt="Mi perfil">
       </a>
-
       <div class="usuario-info" v-if="usuarioLogueado">
         <div class="nombre-usuario">{{ usuarioLogueado.nombreCompleto }}</div>
         <div class="rol-usuario">{{ usuarioLogueado.rol }}</div>
       </div>
-
       <img src="../media/logo_1.png" alt="TopSkin Laneige" class="logo-img">
     </div>
     <nav>
@@ -114,9 +111,11 @@
     </nav>
   </header>
 
-  <h1>Empleados</h1>
+  <h1>Asignación de Horarios</h1>
+
+  <!-- GRID EMPLEADOS (igual) -->
   <div class="empleados-grid">
-    <div v-for="emp in empleados" :key="emp.ciEmpleado" class="empleado-card">
+    <div v-for="emp in empleados" :key="emp.ciEmpleado" class="empleado-card" @click="seleccionarEmpleado(emp)">
       <div class="compact-info">
         <div class="nombre">{{ emp.nombre1 }} {{ emp.nombre2 || '' }}</div>
         <div class="apellido">{{ emp.apellidoP }} {{ emp.apellidoM || '' }}</div>
@@ -128,275 +127,257 @@
             {{ emp.nombre1 }} {{ emp.nombre2 || '' }}<br>
             {{ emp.apellidoP }} {{ emp.apellidoM || '' }}
           </div>
-          <div class="cargo">{{ emp.cargo || 'Sin cargo' }}</div>
-          <button class="btn-horario" @click.stop="cargarHorarios(emp.ciEmpleado)">
-            Ver Horario
+          <div class="cargo">{{ emp.cargo || 'Empleado' }}</div>
+          <button class="btn-horario" @click.stop="seleccionarEmpleado(emp)">
+            Asignar Horario
           </button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SECCIÓN DE TURNOS -->
-  <div v-if="horariosSeleccionados.length" class="horarios-section">
-    <h2 class="horarios-title">Horario Actual del Empleado</h2>
+  <!-- SECCIÓN HORARIOS -->
+  <div v-if="empleadoSeleccionado" class="horarios-section">
+    <h2 class="horarios-title">Horario de {{ empleadoSeleccionado.nombreCompleto }}</h2>
     <div class="resumen-empleado">
-      {{ resumenGeneralEmpleado() }}
+      Semana del <strong>{{ semanaDel }}</strong> al <strong>{{ semanaAl }}</strong>
+    </div>
+
+    <div class="info-valida" :class="horarioValido ? 'valido' : 'invalido'">
+      Turnos seleccionados: <strong>{{ totalTurnos }}</strong> (5–12) • 
+      Días libres: <strong>{{ diasLibres }}</strong> (mínimo 1)
     </div>
 
     <table>
       <thead>
         <tr>
           <th>Día</th>
-          <th>Turnos Asignados</th>
-          <th v-if="editando">Editar turnos</th>
+          <th>08:00 - 12:00</th>
+          <th>12:00 - 16:00</th>
+          <th>16:00 - 20:00</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="dia in horariosSeleccionados" :key="dia.dia">
-          <td><strong>{{ dia.dia }}</strong></td>
+        <tr v-for="dia in diasSemana" :key="dia">
+          <td><strong>{{ dia }}</strong><br><small style="color:#0d9488;">{{ fechasDia[dia] }}</small></td>
           <td>
-            <template v-if="!editando">
-              <div v-if="dia.turnos.length === 0" style="color:#6b7280;">Libre</div>
-              <div v-else class="turnos-lista">
-                <span v-for="t in dia.turnos" :key="t.nombre" :class="['turno-tag', t.clase]">
-                  {{ t.nombre }}
-                </span>
-                <strong style="margin-left:8px;">
-                  ({{ dia.horaInicio }} - {{ dia.horaFin }})
-                </strong>
-              </div>
-            </template>
-          </td>
-          <td v-if="editando">
-            <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center;">
-              <label><input type="checkbox" v-model="dia.manana" @change="actualizarDia(dia)"> Mañana</label>
-              <label><input type="checkbox" v-model="dia.mediodia" @change="actualizarDia(dia)"> Mediodía</label>
-              <label><input type="checkbox" v-model="dia.tarde" @change="actualizarDia(dia)"> Tarde</label>
+            <div class="turno t1"
+                 :class="{
+                   asignado: seleccion[dia]?.t1,
+                   bloqueado: !disponible[dia]?.t1 && !seleccion[dia]?.t1,
+                   disponible: disponible[dia]?.t1
+                 }"
+                 @click="toggleTurno(dia, 't1')">
+              08:00 - 12:00
             </div>
-            <small style="color:#6b7280; display:block; margin-top:6px;">
-              {{ dia.horaInicio }} - {{ dia.horaFin }}
-            </small>
+          </td>
+          <td>
+            <div class="turno t2"
+                 :class="{
+                   asignado: seleccion[dia]?.t2,
+                   bloqueado: !disponible[dia]?.t2 && !seleccion[dia]?.t2,
+                   disponible: disponible[dia]?.t2
+                 }"
+                 @click="toggleTurno(dia, 't2')">
+              12:00 - 16:00
+            </div>
+          </td>
+          <td>
+            <div class="turno t3"
+                 :class="{
+                   asignado: seleccion[dia]?.t3,
+                   bloqueado: !disponible[dia]?.t3 && !seleccion[dia]?.t3,
+                   disponible: disponible[dia]?.t3
+                 }"
+                 @click="toggleTurno(dia, 't3')">
+              16:00 - 20:00
+            </div>
           </td>
         </tr>
       </tbody>
     </table>
 
-    <div style="text-align:center; margin-top:2rem;">
-      <button v-if="!editando" class="btn-editar-horarios" @click="iniciarEdicion">Editar Turnos</button>
-      <div v-else>
-        <button class="btn-cancelar" @click="cancelarEdicion">Cancelar</button>
-        <button class="btn-guardar-horarios" @click="guardarHorarios">Guardar Cambios</button>
-      </div>
-    </div>
+    <button class="btn-guardar-horarios" @click="guardarHorario" :disabled="!horarioValido">
+      Guardar Horario (Aprobado automáticamente)
+    </button>
 
-    <div v-if="mensaje" style="text-align:center; margin-top:1rem; font-weight:600; color:#0d9488;">
+    <div v-if="mensaje" style="text-align:center; margin-top:1rem; font-weight:600; color:#0d9488; font-size:1.1rem;">
       {{ mensaje }}
     </div>
   </div>
 
-  <!-- BOTÓN FIJO DE CERRAR SESIÓN -->
-  <button class="btn-cerrar-sesion" @click="cerrarSesion">
-    Cerrar sesión
-  </button>
+  <button class="btn-cerrar-sesion" @click="cerrarSesion">Cerrar sesión</button>
 </div>
 
 <script>
-const { createApp, ref, onMounted } = Vue;
+const { createApp, ref, computed, onMounted } = Vue;
 
 createApp({
   setup() {
     const empleados = ref([]);
-    const horariosSeleccionados = ref([]);
-    const editando = ref(false);
-    const ciEmpleadoActual = ref('');
+    const empleadoSeleccionado = ref(null);
+    const seleccion = ref({});
+    const disponible = ref({});
     const mensaje = ref('');
-    const horaApertura = ref('08:00');
-    const horaCierre = ref('20:00');
-    const idSucursal = localStorage.getItem('idSucursal');
     const usuarioLogueado = ref(null);
+    const semanaDel = ref('');
+    const semanaAl = ref('');
+    const fechasDia = ref({});
+    const diasSemana = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+    const idSucursal = localStorage.getItem('idSucursal');
 
     if (!idSucursal || !localStorage.getItem('ciEmpleado')) {
       alert("Sesión expirada");
-      window.location.href = '../login_empleado.html';
+      location.href = '../login_empleado.html';
     }
 
-    // FUNCIÓN CERRAR SESIÓN
     const cerrarSesion = () => {
-      if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+      if (confirm('¿Cerrar sesión?')) {
         localStorage.clear();
-        window.location.href = '../login_empleado.html';
+        location.href = '../login_empleado.html';
       }
     };
 
-    const cargarHorarioSucursal = async () => {
-      const res = await fetch(`../backend/editar_horario.php?accion=horario_sucursal&idSucursal=${idSucursal}`);
-      const data = await res.json();
-      if (data.success) {
-        horaApertura.value = data.apertura || '08:00';
-        horaCierre.value = data.cierre || '20:00';
-      }
+    const cargarUsuario = async () => {
+      const ci = localStorage.getItem('ciEmpleado');
+      const r = await fetch(`../backend/menu_admin.php?accion=datos_usuario_logueado&ciEmpleado=${ci}`);
+      const d = await r.json();
+      if (d.success) usuarioLogueado.value = d;
     };
 
     const cargarEmpleados = async () => {
-      const res = await fetch(`../backend/menu_admin.php?accion=listar_empleados&idSucursal=${idSucursal}`);
-      const data = await res.json();
-      if (data.success) empleados.value = data.empleados;
-    };
-
-    const cargarDatosUsuario = async () => {
-      const ciEmpleado = localStorage.getItem('ciEmpleado');
-      if (!ciEmpleado) return;
-
-      try {
-        const res = await fetch(`../backend/menu_admin.php?accion=datos_usuario_logueado&ciEmpleado=${ciEmpleado}`);
-        const data = await res.json();
-        if (data.success) {
-          usuarioLogueado.value = data;
-        }
-      } catch (err) {
-        console.error("Error cargando datos del usuario:", err);
+      const r = await fetch(`../backend/menu_admin.php?accion=listar_empleados&idSucursal=${idSucursal}`);
+      const d = await r.json();
+      if (d.success) {
+        empleados.value = d.empleados.map(e => ({
+          ...e,
+          nombreCompleto: `${e.nombre1} ${e.nombre2||''} ${e.apellidoP} ${e.apellidoM||''}`.trim()
+        }));
       }
     };
 
-    const cargarHorarios = async (ci) => {
-      ciEmpleadoActual.value = ci;
-      editando.value = false;
-      mensaje.value = '';
-      await cargarHorarioSucursal();
-      await cargarDatosEmpleado(ci);
-    };
+    const calcularSemana = () => {
+      const hoy = new Date();
+      const lunes = new Date(hoy);
+      lunes.setDate(hoy.getDate() - (hoy.getDay() || 7) + 1);
+      if (hoy.getDay() === 0) lunes.setDate(lunes.getDate() + 7);
+      const dom = new Date(lunes);
+      dom.setDate(lunes.getDate() + 6);
 
-    const cargarDatosEmpleado = async (ci) => {
-      const res = await fetch(`../backend/menu_admin.php?accion=cargar_horarios&ciEmpleado=${ci}`);
-      const data = await res.json();
+      semanaDel.value = lunes.toLocaleDateString('es-ES');
+      semanaAl.value = dom.toLocaleDateString('es-ES');
 
-      const dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
-      const rangos = calcularRangosTurnos();
-
-      horariosSeleccionados.value = dias.map(dia => {
-        const reg = data.success ? data.horarios.find(h => h.dia === dia) : null;
-        const inicio = reg && reg.inicio !== '-' ? reg.inicio : null;
-        const fin = reg && reg.fin !== '-' ? reg.fin : null;
-
-        const turnos = [];
-        if (inicio && fin) {
-          const inicioMin = horaAMinutos(inicio);
-          const finMin = horaAMinutos(fin);
-
-          if (inicioMin >= rangos.manana.inicio && inicioMin < rangos.manana.fin) turnos.push({ nombre: 'Mañana', clase: '' });
-          if (inicioMin >= rangos.mediodia.inicio && inicioMin < rangos.mediodia.fin) turnos.push({ nombre: 'Mediodía', clase: 'mediodia' });
-          if (inicioMin >= rangos.tarde.inicio && inicioMin < rangos.tarde.fin) turnos.push({ nombre: 'Tarde', clase: 'tarde' });
-        }
-
-        return {
-          dia,
-          turnos,
-          horaInicio: inicio || '-',
-          horaFin: fin || '-',
-          manana: turnos.some(t => t.nombre === 'Mañana'),
-          mediodia: turnos.some(t => t.nombre === 'Mediodía'),
-          tarde: turnos.some(t => t.nombre === 'Tarde'),
-          inicioOriginal: inicio,
-          finOriginal: fin
-        };
+      const temp = new Date(lunes);
+      diasSemana.forEach(dia => {
+        fechasDia.value[dia] = temp.toLocaleDateString('es-ES', {
+          weekday: 'long', day: 'numeric', month: 'short'
+        }).replace(/^\w/, c => c.toUpperCase());
+        temp.setDate(temp.getDate() + 1);
       });
     };
 
-    const horaAMinutos = (hora) => {
-      const [h, m] = hora.split(':').map(Number);
-      return h * 60 + m;
+    const cargarDisponibilidad = async () => {
+      const r = await fetch('../backend/editar_horarios.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accion: 'disponibilidad', idSucursal })
+      });
+      const d = await r.json();
+      if (d.success) disponible.value = d.disp;
     };
 
-    const calcularRangosTurnos = () => {
-      const [hi, mi] = horaApertura.value.split(':').map(Number);
-      const [hf, mf] = horaCierre.value.split(':').map(Number);
-      const inicio = hi * 60 + mi;
-      const fin = hf * 60 + mf;
-      const tercio = Math.floor((fin - inicio) / 3);
-
-      return {
-        manana:   { inicio, fin: inicio + tercio },
-        mediodia: { inicio: inicio + tercio, fin: inicio + tercio * 2 },
-        tarde:    { inicio: inicio + tercio * 2, fin }
-      };
+    const cargarHorarioActual = async (ci) => {
+      const r = await fetch('../backend/editar_horarios.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accion: 'horario_actual', ciEmpleado: ci })
+      });
+      const d = await r.json();
+      seleccion.value = {};
+      if (d.success && d.turnos) {
+        d.turnos.forEach(t => {
+          const dia = t.dia === 'Miercoles' ? 'Miércoles' : t.dia;
+          if (!seleccion.value[dia]) seleccion.value[dia] = {};
+          if (t.inicio === '08:00:00') seleccion.value[dia].t1 = true;
+          if (t.inicio === '12:00:00') seleccion.value[dia].t2 = true;
+          if (t.inicio === '16:00:00') seleccion.value[dia].t3 = true;
+        });
+      }
     };
 
-    const actualizarDia = (diaObj) => {
-      const seleccionados = [];
-      if (diaObj.manana) seleccionados.push('manana');
-      if (diaObj.mediodia) seleccionados.push('mediodia');
-      if (diaObj.tarde) seleccionados.push('tarde');
+    const seleccionarEmpleado = async (emp) => {
+      empleadoSeleccionado.value = emp;
+      mensaje.value = '';
+      seleccion.value = {};
+      await cargarDisponibilidad();
+      await cargarHorarioActual(emp.ciEmpleado);
+    };
 
-      const rangos = calcularRangosTurnos();
-      let inicioMin = null;
-      let finMin = null;
+    const toggleTurno = (dia, turno) => {
+      // Solo permitir si está disponible O ya lo tiene asignado (para deseleccionar)
+      if (!disponible.value[dia]?.[turno] && !seleccion.value[dia]?.[turno]) {
+        alert("Este turno ya está completo (2 empleados asignados)");
+        return;
+      }
+      if (!seleccion.value[dia]) seleccion.value[dia] = {};
+      seleccion.value[dia][turno] = !seleccion.value[dia][turno];
+    };
 
-      if (seleccionados.length > 0) {
-        inicioMin = rangos[seleccionados[0]].inicio;
-        finMin = rangos[seleccionados[seleccionados.length - 1]].fin;
+    const totalTurnos = computed(() => {
+      let count = 0;
+      diasSemana.forEach(d => {
+        if (seleccion.value[d]?.t1) count++;
+        if (seleccion.value[d]?.t2) count++;
+        if (seleccion.value[d]?.t3) count++;
+      });
+      return count;
+    });
+
+    const diasLibres = computed(() => {
+      return diasSemana.filter(d => 
+        !seleccion.value[d] || (!seleccion.value[d].t1 && !seleccion.value[d].t2 && !seleccion.value[d].t3)
+      ).length;
+    });
+
+    const horarioValido = computed(() => totalTurnos.value >= 5 && totalTurnos.value <= 12 && diasLibres.value >= 1);
+
+    const guardarHorario = async () => {
+      if (!horarioValido.value) {
+        alert("Debes asignar entre 5 y 12 turnos, y dejar al menos 1 día libre");
+        return;
       }
 
-      diaObj.horaInicio = inicioMin !== null ? minutosAHora(inicioMin) : '-';
-      diaObj.horaFin = finMin !== null ? minutosAHora(finMin) : '-';
+      const turnos = [];
+      diasSemana.forEach(dia => {
+        if (seleccion.value[dia]?.t1) turnos.push({ dia, inicio: '08:00:00', fin: '12:00:00' });
+        if (seleccion.value[dia]?.t2) turnos.push({ dia, inicio: '12:00:00', fin: '16:00:00' });
+        if (seleccion.value[dia]?.t3) turnos.push({ dia, inicio: '16:00:00', fin: '20:00:00' });
+      });
 
-      diaObj.turnos = seleccionados.map(t => ({
-        nombre: t === 'manana' ? 'Mañana' : t === 'mediodia' ? 'Mediodía' : 'Tarde',
-        clase: t === 'mediodia' ? 'mediodia' : t === 'tarde' ? 'tarde' : ''
-      }));
-    };
-
-    const minutosAHora = (min) => {
-      const h = Math.floor(min / 60).toString().padStart(2, '0');
-      const m = (min % 60).toString().padStart(2, '0');
-      return `${h}:${m}`;
-    };
-
-    const resumenGeneralEmpleado = () => {
-      const diasConTurno = horariosSeleccionados.value.filter(d => d.turnos.length > 0);
-      if (diasConTurno.length === 0) return 'El empleado no tiene turnos asignados esta semana.';
-      return `Trabaja ${diasConTurno.length} días: ${diasConTurno.map(d => d.dia).join(', ')}.`;
-    };
-
-    const iniciarEdicion = () => editando.value = true;
-    const cancelarEdicion = () => { editando.value = false; cargarHorarios(ciEmpleadoActual.value); };
-
-    const guardarHorarios = async () => {
-      const horariosParaGuardar = horariosSeleccionados.value.map(d => ({
-        dia: d.dia,
-        inicio: d.horaInicio !== '-' ? d.horaInicio : null,
-        fin: d.horaFin !== '-' ? d.horaFin : null
-      }));
-
-      const res = await fetch('../backend/editar_horario.php', {
+      const r = await fetch('../backend/editar_horarios.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          accion: 'guardar',
-          ciEmpleado: ciEmpleadoActual.value,
-          horarios: horariosParaGuardar
+          accion: 'guardar_admin',
+          ciEmpleado: empleadoSeleccionado.value.ciEmpleado,
+          turnos
         })
       });
-
-      const data = await res.json();
-      mensaje.value = data.success ? 'Turnos guardados correctamente' : (data.message || 'Error');
-      if (data.success) {
-        editando.value = false;
-        cargarHorarios(ciEmpleadoActual.value);
-      }
+      const d = await r.json();
+      mensaje.value = d.success ? 'Horario guardado y aprobado correctamente!' : d.message;
+      if (d.success) await cargarDisponibilidad();
     };
 
     onMounted(() => {
+      calcularSemana();
       cargarEmpleados();
-      cargarDatosUsuario();
+      cargarUsuario();
     });
 
     return {
-      empleados, horariosSeleccionados, editando, mensaje,
-      cargarHorarios, iniciarEdicion, cancelarEdicion, guardarHorarios,
-      resumenGeneralEmpleado, actualizarDia,
-      usuarioLogueado,
-      cerrarSesion
+      empleados, empleadoSeleccionado, seleccion, disponible, mensaje, usuarioLogueado,
+      semanaDel, semanaAl, fechasDia, diasSemana, horarioValido, totalTurnos, diasLibres,
+      seleccionarEmpleado, toggleTurno, guardarHorario, cerrarSesion
     };
   }
 }).mount('#app');
