@@ -13,142 +13,38 @@
       font-family:'Poppins',sans-serif;
       background:linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.8)),
                   url('https://img.freepik.com/fotos-premium/dos-pinceles-maquillaje-sombras-maquillaje-azul-movimiento-sobre-fondo-negro_73492-267.jpg');
-      background-size:cover;
-      min-height:100vh;
-      color:#333;
+      background-size:cover; min-height:100vh; color:#333;
     }
-    .container {
-      max-width:1150px;
-      margin:2rem auto;
-      padding:2rem;
-      background:rgba(255,255,255,0.97);
-      border-radius:20px;
-      box-shadow:0 20px 50px rgba(0,0,0,0.4);
-    }
-    header {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      flex-wrap:wrap;
-      gap:1rem;
-      padding-bottom:1rem;
-      border-bottom:3px solid #14b8a6;
-      margin-bottom:2rem;
-    }
+    .container { max-width:1150px; margin:2rem auto; padding:2rem; background:rgba(255,255,255,0.97); border-radius:20px; box-shadow:0 20px 50px rgba(0,0,0,0.4); }
+    header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; padding-bottom:1rem; border-bottom:3px solid #14b8a6; margin-bottom:2rem; }
     .logo { height:80px; }
-    nav {
-      display:flex;
-      flex-wrap:wrap;
-      gap:0.8rem;
-      justify-content:center;
-      flex:1;
-    }
-    nav a {
-      padding:0.7rem 1.3rem;
-      background:#e0f2f1;
-      border-radius:30px;
-      text-decoration:none;
-      color:#00695c;
-      font-weight:500;
-      font-size:0.95rem;
-      white-space:nowrap;
-    }
+    nav { display:flex; flex-wrap:wrap; gap:0.8rem; justify-content:center; flex:1; }
+    nav a { padding:0.7rem 1.3rem; background:#e0f2f1; border-radius:30px; text-decoration:none; color:#00695c; font-weight:500; font-size:0.95rem; white-space:nowrap; }
     nav a.active { background:#14b8a6; color:white; }
     .perfil { color:#004d40; font-weight:600; font-size:1.1rem; }
     h1 { text-align:center; color:#004d40; margin:1.5rem 0; font-size:2rem; }
-    .card {
-      background:#f8fdff;
-      padding:2rem;
-      border-radius:18px;
-      box-shadow:0 6px 20px rgba(0,0,0,0.1);
-    }
-    .form-grid {
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:1.5rem;
-      margin-bottom:1.5rem;
-    }
+    .card { background:#f8fdff; padding:2rem; border-radius:18px; box-shadow:0 6px 20px rgba(0,0,0,0.1); }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:1.5rem; }
     .full { grid-column:1/-1; }
     label { display:block; margin-bottom:0.5rem; font-weight:600; color:#004d40; }
-    input, select {
-      width:100%;
-      padding:0.95rem;
-      border:1px solid #b2dfdb;
-      border-radius:12px;
-      font-size:1rem;
-    }
-    input:focus, select:focus {
-      outline:none;
-      border-color:#14b8a6;
-      box-shadow:0 0 0 4px rgba(20,184,166,0.2);
-    }
-    .radio-group {
-      display:flex;
-      gap:3rem;
-      margin:0.8rem 0;
-    }
-    .btn-aceptar {
-      display:block;
-      width:300px;
-      margin:2.5rem auto 1rem;
-      padding:1.1rem;
-      background:linear-gradient(135deg,#14b8a6,#0d9488);
-      color:white;
-      border:none;
-      border-radius:14px;
-      font-size:1.2rem;
-      font-weight:600;
-      cursor:pointer;
-      box-shadow:0 6px 20px rgba(0,0,0,0.2);
-      transition:all 0.3s;
-    }
-    .btn-aceptar:hover { transform:translateY(-3px); box-shadow:0 10px 25px rgba(0,0,0,0.3); }
-
-    .turno-table {
-      width:100%;
-      border-collapse:collapse;
-      margin-top:1.5rem;
-      font-size:1rem;
-    }
-    .turno-table th, .turno-table td {
-      padding:1rem;
-      text-align:center;
-      border:1px solid #b2dfdb;
-    }
-    .turno-table th {
-      background:#e0f2f1;
-      color:#004d40;
-    }
-    .checkbox-group {
-      display:flex;
-      justify-content:center;
-      gap:2rem;
-      flex-wrap:wrap;
-    }
-    .checkbox-group label {
-      font-weight:normal;
-      color:#004d40;
-      cursor:pointer;
-    }
-    .rango-horario {
-      font-size:0.95rem;
-      color:#00695c;
-      font-weight:600;
-      margin-top:8px;
-      display:block;
-    }
-    .nota {
-      font-size:0.9rem;
-      color:#00695c;
-      text-align:center;
-      margin:1rem 0;
-    }
-    .loading {
-      text-align:center;
-      padding:3rem;
-      font-size:1.2rem;
-      color:#00695c;
-    }
+    input, select { width:100%; padding:0.95rem; border:1px solid #b2dfdb; border-radius:12px; font-size:1rem; }
+    input:focus, select:focus { outline:none; border-color:#14b8a6; box-shadow:0 0 0 4px rgba(20,184,166,0.2); }
+    .radio-group { display:flex; gap:3rem; margin:0.8rem 0; }
+    .btn-aceptar { display:block; width:300px; margin:2.5rem auto 1rem; padding:1.1rem; background:linear-gradient(135deg,#14b8a6,#0d9488); color:white; border:none; border-radius:14px; font-size:1.2rem; font-weight:600; cursor:pointer; box-shadow:0 6px 20px rgba(0,0,0,0.2); transition:all 0.3s; }
+    .btn-aceptar:hover:not(:disabled) { transform:translateY(-3px); box-shadow:0 10px 25px rgba(0,0,0,0.3); }
+    .btn-aceptar:disabled { background:#95a5a6; cursor:not-allowed; opacity:0.7; }
+    .turno-table { width:100%; border-collapse:collapse; margin-top:1.5rem; font-size:1rem; }
+    .turno-table th, .turno-table td { padding:1rem; text-align:center; border:1px solid #b2dfdb; }
+    .turno-table th { background:#e0f2f1; color:#004d40; }
+    .checkbox-group { display:flex; justify-content:center; gap:1.5rem; flex-wrap:wrap; align-items:center; }
+    .checkbox-item { display:flex; align-items:center; gap:0.5rem; }
+    .checkbox-item label { font-weight:normal; color:#004d40; cursor:pointer; margin:0; }
+    .checkbox-item input[type="checkbox"]:disabled + span { color:#e74c3c; font-weight:bold; }
+    .rango-horario { font-size:0.95rem; color:#00695c; font-weight:600; margin-top:8px; display:block; }
+    .nota { font-size:0.9rem; color:#00695c; text-align:center; margin:1rem 0; }
+    .alerta { background:#ffebee; color:#c62828; padding:1rem; border-radius:10px; margin:1rem 0; text-align:center; font-weight:600; }
+    .exito { background:#e8f5e9; color:#2e7d32; padding:1rem; border-radius:10px; margin:1rem 0; text-align:center; font-weight:600; }
+    .loading { text-align:center; padding:3rem; font-size:1.2rem; color:#00695c; }
   </style>
 </head>
 <body>
@@ -158,110 +54,103 @@
     <img src="../../media/logo_1.png" alt="Logo" class="logo">
     <nav>
       <a href="nuevo_personal.html">Gestión de personal</a>
-      <a href="inventario.html" class="active">inventario</a>
-      <a href="marcas.html">marcas</a>
+      <a href="inventario.html">Inventario</a>
+      <a href="marcas.html">Marcas</a>
+      <a href="horarios.html">Horarios Pendientes</a>
       <a href="reportes.html">Reportes</a>
+      <a href="ventas_admin.html">Ventas</a>
       <a href="../menu_admin.html">Menú Admin</a>
     </nav>
-    <div class="perfil"><a href="perfil.html">perfil</a></div>
+    <div class="perfil"><a href="perfil.html">Perfil</a></div>
   </header>
 
   <h1>Agregar Nuevo Personal</h1>
 
-  <!-- CARGANDO -->
-  <div class="loading" v-if="cargando">
-    Cargando datos de la sucursal...
-  </div>
+  <div class="loading" v-if="cargando">Cargando datos de la sucursal...</div>
 
-  <!-- FORMULARIO REGISTRO -->
+  <!-- FORMULARIO DE REGISTRO -->
   <div class="card" v-if="!empleadoCreado && !cargando">
     <div class="form-grid">
       <div><label>Primer Nombre</label><input v-model.trim="form.nombre1" required></div>
       <div><label>Primer Apellido</label><input v-model.trim="form.apellidoP" required></div>
       <div><label>Segundo Nombre</label><input v-model.trim="form.nombre2"></div>
       <div><label>Segundo Apellido</label><input v-model.trim="form.apellidoM"></div>
-
-      <div class="full">
-        <label>CI Empleado (9 dígitos)</label>
-        <input v-model="form.ciEmpleado" @input="soloNumerosCI" maxlength="9" placeholder="123456789" required>
-      </div>
-
-      <div>
-        <label>Teléfono/Celular</label>
-        <input v-model="form.telefono" @input="validarTelefono" placeholder="71234567" required>
-      </div>
-
-      <div>
-        <label>Sexo</label>
+      <div class="full"><label>CI Empleado (9 dígitos)</label><input v-model="form.ciEmpleado" @input="soloNumerosCI" maxlength="9" placeholder="123456789" required></div>
+      <div><label>Teléfono/Celular</label><input v-model="form.telefono" @input="validarTelefono" placeholder="71234567" required></div>
+      <div><label>Sexo</label>
         <div class="radio-group">
           <label><input type="radio" v-model="form.sexo" value="1"> Masculino</label>
           <label><input type="radio" v-model="form.sexo" value="0"> Femenino</label>
         </div>
       </div>
-
-      <div>
-        <label>Fecha Nacimiento</label>
-        <input v-model="form.fechaNacimiento" type="date" :max="fechaMax" required>        
-      </div>
-
+      <div><label>Fecha Nacimiento</label><input v-model="form.fechaNacimiento" type="date" :max="fechaMax" required></div>
       <div class="full"><label>Dirección</label><input v-model.trim="form.direccion" required></div>
       <div><label>Correo Electrónico</label><input v-model="form.correo" type="email" required></div>
-
-      <div>
-        <label>Rol</label>
+      <div><label>Rol</label>
         <select v-model="form.idRol" required>
           <option value="">Seleccionar rol</option>
           <option v-for="r in rolesFiltrados" :value="r.idRol">{{ r.nombreRol }}</option>
         </select>
       </div>
-
       <div><label>Contraseña</label><input v-model="form.contrasena" type="password" required></div>
       <div><label>Confirmar Contraseña</label><input v-model="form.confirmarContrasena" type="password" required></div>
     </div>
-
     <button @click="registrarEmpleado" class="btn-aceptar">Aceptar y Continuar</button>
   </div>
 
-  <!-- ASIGNAR TURNOS -->
+  <!-- ASIGNACIÓN DE HORARIOS -->
   <div class="card" v-if="empleadoCreado">
-    <h2 style="text-align:center;color:#004d40;margin-bottom:1rem;">
-      Horario de {{ nombreEmpleado }}
-    </h2>
+    <h2 style="text-align:center;color:#004d40;margin-bottom:1rem;">Horario de {{ nombreEmpleado }}</h2>
+    <p class="nota">Horario de la sucursal: {{ horaApertura }} - {{ horaCierre }}</p>
 
-    <p class="nota">
-      Horario de la sucursal: {{ horaApertura }} - {{ horaCierre }} 
-      → Turnos divididos automáticamente en 3 partes iguales
-    </p>
+    <div class="exito" v-if="turnosValidos >= 5">
+      ¡Listo! Tienes {{ turnosValidos }} turnos válidos
+    </div>
+    <div class="alerta" v-if="turnosValidos < 5">
+      Debes seleccionar al menos 5 turnos (actualmente: {{ turnosValidos }})
+    </div>
 
     <table class="turno-table">
-      <thead>
-        <tr>
-          <th>Día</th>
-          <th>Turnos</th>
-          <th>Rango horario</th>
-        </tr>
-      </thead>
+      <thead><tr><th>Día</th><th>Turnos</th><th>Rango horario</th></tr></thead>
       <tbody>
         <tr v-for="d in horariosDias" :key="d.dia">
           <td><strong>{{ d.dia }}</strong></td>
           <td>
             <div class="checkbox-group">
-              <label><input type="checkbox" v-model="d.manana" @change="actualizarHorario(d)"> Mañana</label>
-              <label><input type="checkbox" v-model="d.mediodia" @change="actualizarHorario(d)"> Mediodía</label>
-              <label><input type="checkbox" v-model="d.tarde" @change="actualizarHorario(d)"> Tarde</label>
+              <div class="checkbox-item">
+                <input type="checkbox" :id="'manana-'+d.dia" v-model="d.manana" :disabled="d.mananaLleno" @change="actualizarHorario(d)">
+                <label :for="'manana-'+d.dia">
+                  <span v-if="d.mananaLleno">Mañana (Lleno)</span>
+                  <span v-else>Mañana</span>
+                </label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" :id="'mediodia-'+d.dia" v-model="d.mediodia" :disabled="d.mediodiaLleno" @change="actualizarHorario(d)">
+                <label :for="'mediodia-'+d.dia">
+                  <span v-if="d.mediodiaLleno">Mediodía (Lleno)</span>
+                  <span v-else>Mediodía</span>
+                </label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" :id="'tarde-'+d.dia" v-model="d.tarde" :disabled="d.tardeLleno" @change="actualizarHorario(d)">
+                <label :for="'tarde-'+d.dia">
+                  <span v-if="d.tardeLleno">Tarde (Lleno)</span>
+                  <span v-else>Tarde</span>
+                </label>
+              </div>
             </div>
           </td>
           <td>
-            <span class="rango-horario" v-if="d.inicio && d.fin">
-              {{ d.inicio }} - {{ d.fin }}
-            </span>
+            <span class="rango-horario" v-if="d.inicio && d.fin">{{ d.inicio }} - {{ d.fin }}</span>
             <span v-else style="color:#999;">Libre</span>
           </td>
         </tr>
       </tbody>
     </table>
 
-    <button @click="guardarHorarios" class="btn-aceptar">Guardar Horarios y Finalizar</button>
+    <button @click="guardarHorarios" class="btn-aceptar" :disabled="turnosValidos < 5">
+      {{ turnosValidos < 5 ? 'Faltan turnos (mín. 5)' : 'Guardar Horarios y Finalizar' }}
+    </button>
   </div>
 </div>
 
@@ -277,6 +166,7 @@ createApp({
     const horaApertura = ref('08:00');
     const horaCierre = ref('20:00');
     const roles = ref([]);
+    const idSucursal = localStorage.getItem('idSucursal') || '00001';
 
     const form = ref({
       ciEmpleado: '', nombre1: '', nombre2: '', apellidoP: '', apellidoM: '',
@@ -288,96 +178,57 @@ createApp({
     const hace10Anios = new Date(hoy.getFullYear() - 20, hoy.getMonth(), hoy.getDate());
     const fechaMax = hace10Anios.toISOString().split('T')[0];
 
-    const rolesFiltrados = computed(() => 
-      roles.value.filter(r => !r.nombreRol.toLowerCase().includes('cliente'))
-    );
+    const rolesFiltrados = computed(() => roles.value.filter(r => !r.nombreRol.toLowerCase().includes('cliente')));
 
     const dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
     const horariosDias = ref(dias.map(dia => ({
       dia,
-      manana: false,
-      mediodia: false,
-      tarde: false,
-      inicio: '',
-      fin: ''
+      manana: false, mediodia: false, tarde: false,
+      mananaLleno: false, mediodiaLleno: false, tardeLleno: false,
+      inicio: '', fin: ''
     })));
 
-    const idSucursal = localStorage.getItem('idSucursal') || '00001';
+    const turnosValidos = computed(() => {
+      return horariosDias.value.reduce((total, d) => {
+        let count = 0;
+        if (d.manana && !d.mananaLleno) count++;
+        if (d.mediodia && !d.mediodiaLleno) count++;
+        if (d.tarde && !d.tardeLleno) count++;
+        return total + count;
+      }, 0);
+    });
 
-    // =========================================================
-    // FUNCIÓN PARA MOSTRAR ERRORES REALES DEL SERVIDOR
-    // =========================================================
     const mostrarError = async (err, res = null) => {
-      console.error('Error completo:', err);
-      let mensaje = 'Error de conexión con el servidor';
-
-      if (err.message) mensaje += `<br><br><small>${err.message}</small>`;
-
-      if (res && !res.ok) {
+      let mensaje = 'Error de conexión';
+      if (res) {
         const texto = await res.text();
-        console.log('Respuesta cruda del servidor:', texto);
-
-        if (texto.includes('SQL') || texto.includes('Fatal error') || texto.includes('Warning') || texto.includes('Parse error') || texto.includes('require')) {
-          mensaje = `<strong>Error en el servidor (PHP/SQL):</strong><br><br>
-                     <pre style="background:#fff;padding:15px;border-radius:8px;border:1px solid #ccc;max-height:400px;overflow:auto;text-align:left;font-size:13px;">
-${texto.substring(0, 1500).replace(/</g, '&lt;')}
-                     </pre>`;
+        if (texto.includes('SQL') || texto.includes('Fatal')) {
+          mensaje = `<pre style="background:#fff;padding:15px;border-radius:8px;max-height:400px;overflow:auto;">${texto.substring(0,1500)}</pre>`;
         }
       }
-
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        html: mensaje,
-        width: '800px',
-        allowOutsideClick: false
-      });
+      Swal.fire({ icon: 'error', title: 'Error', html: mensaje, width: '800px' });
     };
 
-    // =========================================================
-    // CARGAR ROLES + HORARIO DE SUCURSAL
-    // =========================================================
     onMounted(async () => {
-      let res;
       try {
-        res = await fetch('../../backend/nuevo_empleado.php', {
+        const res = await fetch('/topskin/backend/nuevo_empleado.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'init', idSucursal })
         });
-
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
         const data = await res.json();
-
-        if (!data.success) throw new Error(data.message || 'Error del servidor');
-
-        roles.value = data.roles;
-        horaApertura.value = data.horaIni;
-        horaCierre.value = data.horaFin;
-      } catch (err) {
-        await mostrarError(err, res);
-        horaApertura.value = '08:00';
-        horaCierre.value = '20:00';
-      } finally {
-        cargando.value = false;
-      }
+        if (data.success) {
+          roles.value = data.roles;
+          horaApertura.value = data.horaIni;
+          horaCierre.value = data.horaFin;
+        }
+      } catch (err) { mostrarError(err); }
+      cargando.value = false;
     });
 
-    const soloNumerosCI = (e) => {
-      e.target.value = e.target.value.replace(/\D/g, '').slice(0,9);
-      form.value.ciEmpleado = e.target.value;
-    };
+    const soloNumerosCI = (e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0,9); form.value.ciEmpleado = e.target.value; };
+    const validarTelefono = (e) => { let v = e.target.value.replace(/\D/g, '').slice(0,8); e.target.value = v; form.value.telefono = v; };
 
-    const validarTelefono = (e) => {
-      let v = e.target.value.replace(/\D/g, '').slice(0,8);
-      e.target.value = v;
-      form.value.telefono = v;
-    };
-
-    // =========================================================
-    // REGISTRAR EMPLEADO
-    // =========================================================
     const registrarEmpleado = async () => {
       if (form.value.ciEmpleado.length !== 9) return Swal.fire('Error', 'CI debe tener 9 dígitos', 'error');
       if (!/^\d{7,8}$/.test(form.value.telefono)) return Swal.fire('Error', 'Teléfono inválido', 'error');
@@ -385,32 +236,67 @@ ${texto.substring(0, 1500).replace(/</g, '&lt;')}
       if (form.value.contrasena !== form.value.confirmarContrasena) return Swal.fire('Error', 'Las contraseñas no coinciden', 'error');
       if (!form.value.idRol) return Swal.fire('Error', 'Selecciona un rol', 'error');
 
-      let res;
       try {
-        res = await fetch('../../backend/nuevo_empleado.php', {
+        const res = await fetch('/topskin/backend/nuevo_empleado.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'registrar', form: form.value, idSucursal })
         });
-
         const r = await res.json();
-
         if (r.success) {
           ciEmpleado.value = r.ciEmpleado;
           nombreEmpleado.value = r.nombre;
           empleadoCreado.value = true;
-          Swal.fire('Éxito', 'Empleado registrado correctamente', 'success');
+          cargarDisponibilidadTurnos(); // ← Carga qué turnos ya están llenos
+          Swal.fire('Éxito', 'Empleado registrado', 'success');
         } else {
-          Swal.fire('Error', r.message || 'Error al registrar empleado', 'error');
+          Swal.fire('Error', r.message || 'Error al registrar', 'error');
         }
-      } catch (err) {
-        await mostrarError(err, res);
+      } catch (err) { mostrarError(err); }
+    };
+
+    // NUEVA FUNCIÓN: Cargar disponibilidad al entrar a horarios
+    const cargarDisponibilidadTurnos = async () => {
+      const [hi, mi] = horaApertura.value.split(':').map(Number);
+      const [hf, mf] = horaCierre.value.split(':').map(Number);
+      const inicioMin = hi * 60 + mi;
+      const finMin = hf * 60 + mf;
+      const tercio = Math.floor((finMin - inicioMin) / 3);
+
+      const rangos = {
+        manana:   { i: inicioMin, f: inicioMin + tercio },
+        mediodia: { i: inicioMin + tercio, f: inicioMin + tercio * 2 },
+        tarde:    { i: inicioMin + tercio * 2, f: finMin }
+      };
+
+      const pad = n => n.toString().padStart(2,'0');
+
+      for (const d of horariosDias.value) {
+        for (const turno of ['manana', 'mediodia', 'tarde']) {
+          const i = rangos[turno].i;
+          const f = rangos[turno].f;
+          const inicio = `${pad(Math.floor(i/60))}:${pad(i%60)}:00`;
+          const fin = `${pad(Math.floor(f/60))}:${pad(f%60)}:00`;
+
+          try {
+            const res = await fetch('/topskin/backend/nuevo_empleado.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                action: 'verificar_disponibilidad',
+                idSucursal,
+                turnos: [{ dia: d.dia, inicio, fin }]
+              })
+            });
+            const data = await res.json();
+            d[turno + 'Lleno'] = !data.disponible;
+          } catch (err) {
+            d[turno + 'Lleno'] = false;
+          }
+        }
       }
     };
 
-    // =========================================================
-    // CALCULAR HORARIOS (Mañana / Mediodía / Tarde)
-    // =========================================================
     const actualizarHorario = (dia) => {
       const [hi, mi] = horaApertura.value.split(':').map(Number);
       const [hf, mf] = horaCierre.value.split(':').map(Number);
@@ -419,62 +305,52 @@ ${texto.substring(0, 1500).replace(/</g, '&lt;')}
       const tercio = Math.floor((finMin - inicioMin) / 3);
 
       const rangos = {
-        manana:   { i: inicioMin,          f: inicioMin + tercio },
+        manana:   { i: inicioMin, f: inicioMin + tercio },
         mediodia: { i: inicioMin + tercio, f: inicioMin + tercio * 2 },
         tarde:    { i: inicioMin + tercio * 2, f: finMin }
       };
 
       const sel = [];
-      if (dia.manana) sel.push('manana');
-      if (dia.mediodia) sel.push('mediodia');
-      if (dia.tarde) sel.push('tarde');
+      if (dia.manana && !dia.mananaLleno) sel.push('manana');
+      if (dia.mediodia && !dia.mediodiaLleno) sel.push('mediodia');
+      if (dia.tarde && !dia.tardeLleno) sel.push('tarde');
 
       if (sel.length === 0) {
-        dia.inicio = '';
-        dia.fin = '';
-        return;
+        dia.inicio = ''; dia.fin = '';
+      } else {
+        const primero = rangos[sel[0]].i;
+        const ultimo = rangos[sel[sel.length-1]].f;
+        const pad = n => n.toString().padStart(2,'0');
+        dia.inicio = `${pad(Math.floor(primero/60))}:${pad(primero%60)}`;
+        dia.fin = `${pad(Math.floor(ultimo/60))}:${pad(ultimo%60)}`;
       }
-
-      const primero = rangos[sel[0]].i;
-      const ultimo = rangos[sel[sel.length-1]].f;
-
-      const pad = n => n.toString().padStart(2,'0');
-      dia.inicio = `${pad(Math.floor(primero/60))}:${pad(primero%60)}`;
-      dia.fin = `${pad(Math.floor(ultimo/60))}:${pad(ultimo%60)}`;
     };
 
-    // =========================================================
-    // GUARDAR HORARIOS
-    // =========================================================
     const guardarHorarios = async () => {
+      if (turnosValidos.value < 5) return;
+
       const horarios = horariosDias.value
         .filter(d => d.inicio && d.fin)
-        .map(d => ({ dia: d.dia, inicio: d.inicio, fin: d.fin }));
+        .map(d => ({ dia: d.dia, inicio: d.inicio + ':00', fin: d.fin + ':00' }));
 
-      let res;
       try {
-        res = await fetch('../../backend/nuevo_empleado.php', {
+        const res = await fetch('/topskin/backend/nuevo_empleado.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'horarios', ciEmpleado: ciEmpleado.value, horarios })
+          body: JSON.stringify({ action: 'horarios', ciEmpleado: ciEmpleado.value, horarios, idSucursal })
         });
-
         const r = await res.json();
-
         if (r.success) {
-          Swal.fire('Perfecto!', 'Empleado y horarios guardados correctamente', 'success')
-            .then(() => location.reload());
+          Swal.fire('¡Perfecto!', 'Empleado y horarios guardados', 'success').then(() => location.reload());
         } else {
           Swal.fire('Error', r.message || 'Error al guardar horarios', 'error');
         }
-      } catch (err) {
-        await mostrarError(err, res);
-      }
+      } catch (err) { mostrarError(err); }
     };
 
     return {
       cargando, empleadoCreado, nombreEmpleado, horaApertura, horaCierre,
-      form, roles, rolesFiltrados, horariosDias, fechaMax,
+      form, roles, rolesFiltrados, horariosDias, fechaMax, turnosValidos,
       soloNumerosCI, validarTelefono, registrarEmpleado,
       actualizarHorario, guardarHorarios
     };

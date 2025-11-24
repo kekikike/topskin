@@ -50,25 +50,32 @@
     table { width:100%; border-collapse:collapse; background:white; border-radius:16px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.12); margin-top:1rem; }
     th { background:#0d9488; color:white; padding:1.3rem; font-size:1.1rem; font-weight:600; }
     td { padding:1rem; text-align:center; background:#f8f8f8; vertical-align:middle; }
-    
+
     .turno {
       display:block; margin:10px auto; padding:14px 10px; border-radius:12px; cursor:pointer; transition:all 0.3s; font-weight:600;
       width:90%; max-width:180px; position:relative;
     }
+
+    /* TURNO DEL EMPLEADO ACTUAL → AZUL OSCURO (siempre se muestra azul si es suyo) */
+    .turno.asignado-actual {
+      background:#1e40af !important;
+      color:white !important;
+      border:3px solid #1d4ed8 !important;
+      box-shadow:0 6px 20px rgba(30,64,175,0.5);
+      font-weight:700;
+    }
+    .turno.asignado-actual::after {
+      content:"Asignado a este empleado";
+      font-size:0.7rem; display:block; margin-top:4px; opacity:0.9;
+    }
+
+    /* TURNOS DISPONIBLES (menos de 2 personas) */
     .turno.t1 { background:#dbeafe; color:#1e40af; border:3px solid #3b82f6; }
     .turno.t2 { background:#fef3c7; color:#92400e; border:3px solid #f59e0b; }
     .turno.t3 { background:#fce7f3; color:#9f1239; border:3px solid #ec4899; }
-
-    /* Asignado al empleado actual → Verde fuerte */
-    .turno.asignado {
-      background:#10b981 !important; color:white !important; border:3px solid #059669 !important;
-      box-shadow:0 6px 20px rgba(16,185,129,0.5);
-    }
-
-    /* Disponible para asignar → color normal + hover */
     .turno.disponible:hover { transform:scale(1.07); }
 
-    /* Bloqueado (ya hay 2 asignados y NO es del empleado actual) → gris */
+    /* TURNO LLENO (2 personas) Y NO ES DEL EMPLEADO ACTUAL → GRIS */
     .turno.bloqueado {
       background:#e5e7eb !important; color:#6b7280 !important; cursor:not-allowed; border:3px dashed #94a3b8 !important;
       opacity:0.8;
@@ -91,7 +98,6 @@
 <body>
 
 <div id="app" class="container">
-  <!-- HEADER (igual) -->
   <header>
     <div class="header-left">
       <a href="administrador/perfil.html" class="profile-link">
@@ -108,12 +114,13 @@
       <a href="administrador/reportes.html">Reportes</a>
       <a href="administrador/inventario.html">Inventario</a>
       <a href="administrador/marcas.html">Añadir Marcas y Proveedores</a>
+      <a href="administrador/horarios.html">Confirmar Horarios</a>
+      <a href="administrador/ventas.html">Ventas</a>
     </nav>
   </header>
 
   <h1>Asignación de Horarios</h1>
 
-  <!-- GRID EMPLEADOS (igual) -->
   <div class="empleados-grid">
     <div v-for="emp in empleados" :key="emp.ciEmpleado" class="empleado-card" @click="seleccionarEmpleado(emp)">
       <div class="compact-info">
@@ -136,7 +143,6 @@
     </div>
   </div>
 
-  <!-- SECCIÓN HORARIOS -->
   <div v-if="empleadoSeleccionado" class="horarios-section">
     <h2 class="horarios-title">Horario de {{ empleadoSeleccionado.nombreCompleto }}</h2>
     <div class="resumen-empleado">
@@ -163,9 +169,8 @@
           <td>
             <div class="turno t1"
                  :class="{
-                   asignado: seleccion[dia]?.t1,
-                   bloqueado: !disponible[dia]?.t1 && !seleccion[dia]?.t1,
-                   disponible: disponible[dia]?.t1
+                   'asignado-actual': seleccion[dia]?.t1,
+                   bloqueado: !disponible[dia]?.t1 && !seleccion[dia]?.t1
                  }"
                  @click="toggleTurno(dia, 't1')">
               08:00 - 12:00
@@ -174,9 +179,8 @@
           <td>
             <div class="turno t2"
                  :class="{
-                   asignado: seleccion[dia]?.t2,
-                   bloqueado: !disponible[dia]?.t2 && !seleccion[dia]?.t2,
-                   disponible: disponible[dia]?.t2
+                   'asignado-actual': seleccion[dia]?.t2,
+                   bloqueado: !disponible[dia]?.t2 && !seleccion[dia]?.t2
                  }"
                  @click="toggleTurno(dia, 't2')">
               12:00 - 16:00
@@ -185,9 +189,8 @@
           <td>
             <div class="turno t3"
                  :class="{
-                   asignado: seleccion[dia]?.t3,
-                   bloqueado: !disponible[dia]?.t3 && !seleccion[dia]?.t3,
-                   disponible: disponible[dia]?.t3
+                   'asignado-actual': seleccion[dia]?.t3,
+                   bloqueado: !disponible[dia]?.t3 && !seleccion[dia]?.t3
                  }"
                  @click="toggleTurno(dia, 't3')">
               16:00 - 20:00
@@ -314,7 +317,7 @@ createApp({
     };
 
     const toggleTurno = (dia, turno) => {
-      // Solo permitir si está disponible O ya lo tiene asignado (para deseleccionar)
+      // Solo bloquear si está lleno Y no es del empleado actual
       if (!disponible.value[dia]?.[turno] && !seleccion.value[dia]?.[turno]) {
         alert("Este turno ya está completo (2 empleados asignados)");
         return;

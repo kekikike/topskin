@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Horarios | TopSkin Laneige</title>
+
+  <!-- Vue 3 CDN (URL corregida y confiable) -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.75)),
+                  url('../../media/fondo-laneige.jpg') center/cover no-repeat fixed;
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .header { padding: 20px 40px; text-align: center; position: relative; background: rgba(0,0,0,0.3); }
+    .header img.logo { height: 82px; }
+    .perfil { position: absolute; top: 20px; right: 40px; }
+    .perfil img { width: 56px; height: 56px; border-radius: 50%; border: 4px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+
+    .menu { padding: 15px 40px; display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; background: rgba(0,0,0,0.2); }
+    .menu a { background: #00bf8f; color: white; padding: 12px 26px; border-radius: 30px; text-decoration: none; font-size: 14.5px; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.25); transition: all 0.3s; }
+    .menu a:hover { background: #00a077; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.35); }
+    .menu a.active { background: #00a077; }
+
+    .container { max-width: 1280px; margin: 30px auto; background: white; border-radius: 18px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+    .title { background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 28px; text-align: center; font-size: 30px; font-weight: 400; letter-spacing: 1px; }
+
+    .content { padding: 40px; }
+    h2 { color: #2c3e50; margin-bottom: 25px; font-size: 26px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    th {
+      background: #2c3e50;
+      color: white;
+      padding: 16px;
+      text-align: left;
+      font-weight: 600;
+    }
+    td { padding: 16px; border-bottom: 1px solid #ddd; }
+    tr:hover { background: #e8f5e9; }
+
+    .acciones { display: flex; gap: 10px; }
+    .btn-aprobar, .btn-rechazar {
+      border: none; padding: 8px 16px; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: bold; color: white;
+    }
+    .btn-aprobar { background: #00bf8f; }
+    .btn-aprobar:hover { background: #00a077; }
+    .btn-rechazar { background: #e74c3c; }
+    .btn-rechazar:hover { background: #c0392b; }
+
+    .estado-pendiente { color: #f39c12; font-weight: bold; }
+    .estado-aprobado { color: #27ae60; font-weight: bold; }
+    .estado-rechazado { color: #e74c3c; font-weight: bold; }
+
+    .no-data { text-align: center; padding: 50px; color: #7f8c8d; font-size: 18px; }
+
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.75); display: flex; justify-content: center; align-items: center;
+      z-index: 9999;
+    }
+    .modal {
+      background: white; padding: 40px; border-radius: 20px; text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5); max-width: 420px; width: 90%;
+    }
+    .modal h3 { color: #00bf8f; font-size: 28px; margin-bottom: 15px; }
+    .modal p { color: #444; font-size: 18px; margin-bottom: 25px; }
+    .modal button {
+      background: #00bf8f; color: white; border: none; padding: 14px 32px;
+      border-radius: 12px; font-size: 17px; font-weight: bold; cursor: pointer;
+    }
+    .modal button:hover { background: #00a077; }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <div class="header">
+    <img src="../../media/logo_1.png" alt="Logo" class="logo">
+    <div class="perfil">
+      <img src="../../media/perfil.png" alt="Perfil">
+    </div>
+  </div>
+
+  <div class="menu">
+    <a href="nuevo_personal.html">Gestión de personal</a>
+    <a href="inventario.html">Inventario</a>
+    <a href="marcas.html">Marcas y Proveedores</a>
+    <a href="gestion_horarios.html" class="active">Horarios Pendientes</a>
+    <a href="reportes.html">Reportes</a>
+    <a href="ventas_admin.html">Ventas</a>
+    <a href="../menu_admin.html">Menú Admin</a>
+  </div>
+
+  <div class="container">
+    <div class="title">Aprobación de Horarios Solicitados</div>
+
+    <div class="content">
+      <h2>Solicitudes Pendientes - Sucursal {{ idSucursal || 'No detectada' }}</h2>
+
+      <div v-if="!cargado" class="no-data">Cargando horarios...</div>
+      <div v-else-if="horarios.length === 0" class="no-data">
+        No hay solicitudes de horario pendientes en esta sucursal.
+      </div>
+
+      <table v-else>
+        <thead>
+          <tr>
+            <th>Empleado</th>
+            <th>Día</th>
+            <th>Fecha Turno</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="h in horarios" :key="h.idHorarioPersonal">
+            <td><strong>{{ h.nombreEmpleado || 'Sin nombre' }}</strong><br><small>{{ h.ciEmpleado }}</small></td>
+            <td>{{ formatearDia(h.dia) }}</td>
+            <td>{{ formatearFecha(h.fechaTurno) }}</td>
+            <td>{{ h.inicio || '-' }}</td>
+            <td>{{ h.fin || '-' }}</td>
+            <td><span :class="'estado-' + (h.estadoSolicitud || 'pendiente')">{{ (h.estadoSolicitud || 'pendiente').toUpperCase() }}</span></td>
+            <td class="acciones">
+              <button v-if="h.estadoSolicitud === 'pendiente'" class="btn-aprobar" @click="actualizarEstado(h.idHorarioPersonal, 'aprobado')">
+                Aprobar
+              </button>
+              <button v-if="h.estadoSolicitud === 'pendiente'" class="btn-rechazar" @click="actualizarEstado(h.idHorarioPersonal, 'rechazado')">
+                Rechazar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Popup -->
+  <div v-if="popup.visible" class="modal-overlay" @click="popup.visible = false">
+    <div class="modal" @click.stop>
+      <h3>¡Éxito!</h3>
+      <p>{{ popup.mensaje }}</p>
+      <button @click="popup.visible = false">Aceptar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const { createApp, ref, onMounted } = Vue;
+
+createApp({
+  setup() {
+    const horarios = ref([]);
+    const popup = ref({ visible: false, mensaje: '' });
+    const idSucursal = localStorage.getItem('idSucursal') || '';
+    const ciEmpleado = localStorage.getItem('ciEmpleado') || 'ADMIN';
+    const cargado = ref(false);
+
+    const cargarHorariosPendientes = async () => {
+      if (!idSucursal) {
+        alert('No se detectó sucursal. Inicia sesión nuevamente.');
+        cargado.value = true;
+        return;
+      }
+
+      try {
+        // ¡BACKTICKS! → ` no '
+        const res = await fetch(`../../backend/horarios.php?action=pendientes&sucursal=${idSucursal}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        horarios.value = Array.isArray(data) ? data : [];
+      } catch (err) {
+        console.error('Error cargando horarios:', err);
+        alert('No se pudieron cargar los horarios. Revisa la consola (F12).');
+        horarios.value = [];
+      } finally {
+        cargado.value = true;
+      }
+    };
+
+    const actualizarEstado = async (idHorario, nuevoEstado) => {
+      if (!confirm(`¿${nuevoEstado === 'aprobado' ? 'Aprobar' : 'Rechazar'} este horario?`)) return;
+
+      try {
+        // ¡BACKTICKS OTRA VEZ!
+        const res = await fetch(`../../backend/horarios.php`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'actualizar_estado',
+            idHorarioPersonal: idHorario,
+            estadoSolicitud: nuevoEstado,
+            usuarioA: ciEmpleado
+          })
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          mostrarPopup(`Horario ${nuevoEstado === 'aprobado' ? 'aprobado' : 'rechazado'} correctamente.`);
+          cargarHorariosPendientes();
+        } else {
+          alert('Error del servidor: ' + (result.message || 'Desconocido'));
+        }
+      } catch (err) {
+        alert('Error de conexión con el servidor');
+      }
+    };
+
+    const mostrarPopup = (msg) => {
+      popup.value = { visible: true, mensaje: msg };
+    };
+
+    const formatearDia = (dia) => {
+      if (!dia) return 'No especificado';
+      const dias = { lunes:'Lunes', martes:'Martes', miercoles:'Miércoles', jueves:'Jueves', viernes:'Viernes', sabado:'Sábado', domingo:'Domingo' };
+      return dias[dia.toLowerCase().trim()] || dia;
+    };
+
+    const formatearFecha = (fecha) => {
+      if (!fecha || fecha === '0000-00-00') return '-';
+      return new Date(fecha).toLocaleDateString('es-ES');
+    };
+
+    onMounted(cargarHorariosPendientes);
+
+    return {
+      horarios, popup, idSucursal, cargado,
+      actualizarEstado, formatearDia, formatearFecha
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
