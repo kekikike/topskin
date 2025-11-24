@@ -489,103 +489,101 @@
 
         // --- USUARIO ---s
         const cliente = ref(null);
+      try {
+          const data = localStorage.getItem('cliente');
+          if (data) cliente.value = JSON.parse(data);
+      } catch(e) {
+          console.warn('Datos corruptos en localStorage cliente → se limpiaron');
+          localStorage.removeItem('cliente');
+      }
 
-try {
-    const data = localStorage.getItem('cliente');
-    if (data) cliente.value = JSON.parse(data);
-} catch(e) {
-    console.warn('Datos corruptos en localStorage cliente → se limpiaron');
-    localStorage.removeItem('cliente');
-}
+              const mostrarPopup = ref(false);
 
-        const mostrarPopup = ref(false);
+              // Computed para mostrar el nombre completo
+              const nombreMostrar = computed(() => {
+              if (!cliente.value) return '';
+              const u = cliente.value;
+              return `${u.nombre1 || ''} ${u.apellidoP || ''}`.trim() || 'Cliente';
+              });
 
-        // Computed para mostrar el nombre completo
-        const nombreMostrar = computed(() => {
-        if (!cliente.value) return '';
-        const u = cliente.value;
-        return `${u.nombre1 || ''} ${u.apellidoP || ''}`.trim() || 'Cliente';
-        });
+              function abrirUsuario() {
+                if (cliente.value) {
+                  window.location.href = 'src/cliente/cuentacln.html';
+                } else {
+                  mostrarPopup.value = true;
+                }
+              }
 
-        function abrirUsuario() {
-          if (cliente.value) {
-            window.location.href = 'src/cliente/cuentacln.html';
-          } else {
-            mostrarPopup.value = true;
-          }
+              function irLogin() {
+                window.location.href = 'login.html';
+              }
+
+              function irRegistro() {
+                window.location.href = 'src/cliente/registro.html';
+              }
+
+              function cerrarUsuario() {
+                mostrarPopup.value = false;
+              }
+
+              // --- PRODUCTOS Y MARCAS ---
+              const productos = ref([]);
+              const marcas = ref([]);
+
+              // --- POPUP PRODUCTO ---
+              const productoSeleccionado = ref(null);
+              const cantidad = ref(1);
+              // --- CARRITO ---
+              const carrito = ref([]);
+
+              function abrirPopupProducto(p) {
+                productoSeleccionado.value = {
+                  ...p,
+                  info: p.info || ''
+                };
+                cantidad.value = 1;
+              }
+
+              function cerrarPopupProducto() {
+                productoSeleccionado.value = null;
+              }
+
+              function agregarAlCarrito(p, cantidadSeleccionada = 1) {
+
+        const idProducto = p.idProducto || p.id;
+
+        if (!idProducto) {
+          console.error("Producto sin ID:", p);
+          return;
         }
 
-        function irLogin() {
-          window.location.href = 'login.html';
+        let index = carrito.value.findIndex(x => x.idProducto === idProducto);
+        if (index !== -1) {
+          carrito.value[index].cantidad += cantidadSeleccionada;
+        } else {
+          carrito.value.push({ ...p, cantidad: cantidadSeleccionada, idProducto });
         }
 
-        function irRegistro() {
-          window.location.href = 'src/cliente/registro.html';
-        }
+        const soloParaBackend = carrito.value.map(x => ({
+          idProducto: x.idProducto,
+          cantidad: x.cantidad
+        }));
 
-        function cerrarUsuario() {
-          mostrarPopup.value = false;
-        }
+        fetch(`backend/actualizar_carrito.php?ci=${cliente.value.ciCliente}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(soloParaBackend)
+        })
 
-        // --- PRODUCTOS Y MARCAS ---
-        const productos = ref([]);
-        const marcas = ref([]);
+          .then(r => r.json())
+          .then(res => {
+            console.log('Carrito actualizado:', res);
+          })
+          .catch(err => console.error('Error guardando carrito:', err));
 
-        // --- POPUP PRODUCTO ---
-        const productoSeleccionado = ref(null);
-        const cantidad = ref(1);
-        // --- CARRITO ---
-        const carrito = ref([]);
-
-        function abrirPopupProducto(p) {
-          productoSeleccionado.value = {
-            ...p,
-            info: p.info || ''
-          };
-          cantidad.value = 1;
-        }
-
-        function cerrarPopupProducto() {
-          productoSeleccionado.value = null;
-        }
-
-        function agregarAlCarrito(p, cantidadSeleccionada = 1) {
-  // Forzar un ID consistente
-  const idProducto = p.idProducto || p.id;
-
-  if (!idProducto) {
-    console.error("Producto sin ID:", p);
-    return;
-  }
-
-  // Buscar si ya existe en carrito
-  let index = carrito.value.findIndex(x => x.idProducto === idProducto);
-  if (index !== -1) {
-    carrito.value[index].cantidad += cantidadSeleccionada;
-  } else {
-    carrito.value.push({ ...p, cantidad: cantidadSeleccionada, idProducto });
-  }
-
-  // Preparar solo lo que necesita el backend
-  const soloParaBackend = carrito.value.map(x => ({
-    idProducto: x.idProducto,
-    cantidad: x.cantidad
-  }));
-
-  fetch('backend/actualizar_carrito.php', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(soloParaBackend)
-  })
-    .then(r => r.json())
-    .then(res => {
-      console.log('Carrito actualizado:', res);
-    })
-    .catch(err => console.error('Error guardando carrito:', err));
-
-  alert(`¡${cantidadSeleccionada} ${p.nombre} agregado(s) al carrito!`);
-  cerrarPopupProducto();
-}
+        alert(`¡${cantidadSeleccionada} ${p.nombre} agregado(s) al carrito!`);
+        cerrarPopupProducto();
+      }
 
         onMounted(() => {
           fetch('backend/index.php')
