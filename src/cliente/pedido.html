@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mis Pedidos | TopSkin</title>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<style>
+    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f9f9f9; }
+    h1 { text-align:center; margin-top:20px; }
+    .pedido-card { background:white; margin:15px auto; padding:15px; border-radius:8px; max-width:600px; box-shadow:0 2px 6px rgba(0,0,0,0.1);}
+    .pedido-card h3 { margin:0 0 10px; }
+    .pedido-card p { margin:3px 0; font-size:0.9rem; color:#555; }
+    .pedido-card .estado { font-weight:bold; }
+    /* Agrega más estilos según quieras */
+  </style>
+<body>
+<div id="app" v-cloak>
+  <header>
+    <h1>Mis Pedidos</h1>
+  </header>
+
+  <section class="filtros">
+    <label>
+      Desde:
+      <input type="date" v-model="desde">
+    </label>
+    <label>
+      Hasta:
+      <input type="date" v-model="hasta">
+    </label>
+    <button @click="cargarPedidos">Filtrar</button>
+  </section>
+
+  <section class="pedidos">
+    <div v-if="pedidos.length === 0" style="text-align:center; margin-top:20px;">
+      <p>No has realizado pedidos aún.</p>
+      <a href="catalogo.html" class="btn-volver">Ir al catálogo</a>
+    </div>
+
+    <div v-for="p in pedidos" :key="p.nFactura" class="pedido-item">
+      <h3>Factura #{{ p.nFactura }} - {{ p.fechaVenta }}</h3>
+      <p><strong>Estado:</strong> {{ p.estadoEntrega == 1 ? 'Entregado' : 'Pendiente' }}</p>
+      <p><strong>Total:</strong> {{ p.costoTotal }} Bs</p>
+      <details>
+        <summary>Ver detalles</summary>
+        <ul>
+          <li v-for="d in p.detalle" :key="d.idDetalleVenta">
+            {{ d.cantidad }} x {{ d.nombreProducto }} = {{ d.subtotal }} Bs
+          </li>
+        </ul>
+      </details>
+    </div>
+  </section>
+</div>
+
+<script>
+const { createApp } = Vue;
+
+createApp({
+  data() {
+    return {
+      cliente: JSON.parse(localStorage.getItem('cliente')),
+      pedidos: [],
+      desde: '',
+      hasta: ''
+    }
+  },
+  methods: {
+    async cargarPedidos() {
+      if (!this.cliente) return alert("Debes iniciar sesión"), window.location.href = 'login.html';
+
+      try {
+        const res = await fetch('../../backend/pedidos_cliente.php', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            ciCliente: this.cliente.ciCliente,
+            desde: this.desde,
+            hasta: this.hasta
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          this.pedidos = data.pedidos;
+        } else {
+          alert(data.message || 'Error cargando pedidos');
+        }
+      } catch(e) {
+        console.error(e);
+        alert('Error de conexión');
+      }
+    }
+  },
+  mounted() {
+    this.cargarPedidos();
+  }
+}).mount('#app');
+</script>
+</body>
+</html>

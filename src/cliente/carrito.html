@@ -170,10 +170,10 @@
         modalExito: false,
         numeroFactura: null,
         comprando: false,
-        // NUEVO: guardamos los totales reales de la compra
         subtotalGuardado: '0.00',
         ivaGuardado: '0.00',
-        totalGuardado: '0.00'
+        totalGuardado: '0.00',
+        empleadoPorDefecto: { ciEmpleado: '1', nombre1: 'admin' }
       }
     },
     computed: {
@@ -196,79 +196,106 @@
       }
     },
     methods: {
-      cargarCarrito() {
-        const data = localStorage.getItem('topskinCarrito');
-        if (data) {
+      abrirModalEliminar(item) {
+          this.itemAEliminar = item;
+          this.modalAbierto = true;
+      },
+
+      cerrarModal() {
+          this.itemAEliminar = null;
+          this.modalAbierto = false;
+      },
+
+      async cargarCarrito() {
+          const cliente = JSON.parse(localStorage.getItem('cliente'));
+          if (!cliente) return;
+
+          const ci = cliente.ciCliente || cliente.ci;
+
           try {
-            this.carrito = JSON.parse(data);
-            this.seleccionados = this.carrito.map(p => p.idProducto);
-          } catch(e) {
-            console.error("Error al leer el carrito", e);
-            this.carrito = [];
+              const res = await fetch(`../../backend/cargar_carrito.php?ci=${ci}`);
+              const data = await res.json();
+              this.carrito = data;
+          } catch (err) {
+              console.error("Error cargando carrito:", err);
+              this.carrito = [];
           }
-        }
       },
-      guardarCarrito() {
-        localStorage.setItem('topskinCarrito', JSON.stringify(this.carrito));
-      },
-      abrirModalEliminar(item) { this.itemAEliminar = item; this.modalAbierto = true; },
-      cerrarModal() { this.modalAbierto = false; this.itemAEliminar = null; },
-      confirmarEliminar() {
-        if (this.itemAEliminar) {
+
+      async confirmarEliminar() {
+          if (!this.itemAEliminar) return;
+
+          const cliente = JSON.parse(localStorage.getItem('cliente'));
+          const ci = cliente.ciCliente || cliente.ci;
+
+          try {
+              await fetch(`../../backend/eliminar_item_carrito.php?ci=${ci}&id=${this.itemAEliminar.idProducto}`);
+          } catch(e) {
+              console.error("Error eliminando del backend", e);
+          }
+
           this.carrito = this.carrito.filter(p => p.idProducto !== this.itemAEliminar.idProducto);
           this.seleccionados = this.seleccionados.filter(id => id !== this.itemAEliminar.idProducto);
-          this.guardarCarrito();
+
           this.cerrarModal();
-        }
       },
+
       async comprar() {
-        if (this.seleccionados.length === 0) return alert("Selecciona al menos un producto");
+          if (this.seleccionados.length === 0) return alert("Selecciona al menos un producto");
 
-        const clienteData = localStorage.getItem('cliente');
-        if (!clienteData) return alert("Debes iniciar sesión"), window.location.href = 'login.html';
-
-        const cliente = JSON.parse(clienteData);
-        const idCliente = cliente.ciCliente || cliente.ci;
-
-        this.comprando = true;
-
-        const productosEnviar = this.productosSeleccionados.map(p => ({
-          idProducto: p.idProducto,
-          precioUnitario: parseFloat(p.precioUnitario),
-          cantidad: parseInt(p.cantidad)
-        }));
-
-        try {
-          const res = await fetch('../../backend/carrito.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ productos: productosEnviar, idCliente })
-          });
-
-          const result = await res.json();
-
-          if (result.success) {
-            // GUARDAMOS LOS TOTALES REALES ANTES DE LIMPIAR
-            this.subtotalGuardado = result.subtotal;
-            this.ivaGuardado = result.iva;
-            this.totalGuardado = result.total;
-            this.numeroFactura = result.nFactura;
-            this.modalExito = true;
-
-            // Limpiar carrito
-            this.carrito = this.carrito.filter(p => !this.seleccionados.includes(p.idProducto));
-            this.seleccionados = [];
-            this.guardarCarrito();
-          } else {
-            alert("Error: " + result.message);
+          const clienteData = localStorage.getItem('cliente');
+          if (!clienteData) {
+              alert("Debes iniciar sesión");
+              return window.location.href = 'login.html';
           }
-        } catch (err) {
-          console.error(err);
-          alert("Error de conexión");
-        } finally {
-          this.comprando = false;
-        }
+
+          const cliente = JSON.parse(clienteData);
+
+          const productosEnviar = this.productosSeleccionados.map(p => ({
+              idProducto: p.idProducto,
+              precioUnitario: parseFloat(p.precioUnitario),
+              cantidad: parseInt(p.cantidad)
+          }));
+
+          this.comprando = true;
+
+          try {
+              const res = await fetch('../../backend/carrito.php', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                      cliente: cliente,
+                      productos: productosEnviar 
+                  })
+              });
+
+              const result = await res.json();
+
+              if (result.success) {
+                  this.subtotalGuardado = result.subtotal;
+                  this.ivaGuardado = result.iva;
+                  this.totalGuardado = result.total;
+                  this.numeroFactura = result.nFactura;
+                  this.modalExito = true;
+                  this.carrito = [];          // Limpiar completamente el carrito local
+                  this.seleccionados = [];    // Limpiar la selección
+                  localStorage.removeItem('carrito');  // Limpiar carrito en localStorage
+
+
+                  // Limpiar carrito localmente
+                  this.carrito = this.carrito.filter(p => !this.seleccionados.includes(p.idProducto));
+                  this.seleccionados = [];
+              } else {
+                  alert("Error: " + result.message);
+              }
+          } catch (err) {
+              console.error(err);
+              alert("Error de conexión");
+          } finally {
+              this.comprando = false;
+          }
       }
+
     },
     mounted() {
       this.cargarCarrito();
