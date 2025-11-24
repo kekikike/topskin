@@ -30,6 +30,21 @@
       width: 100%;  
       display: block;
     }
+    .user-info {
+      display: flex;
+      flex-direction: column;   
+      align-items: flex-end;    
+      text-align: right;
+      gap: 4px;
+      font-weight: 600;
+    }
+    .user-info p, .user-info span {
+      margin: 0;
+    }
+    .user-info span {
+      font-weight: 700;
+    }
+    
     .navbar a { color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; margin: 0 5px; }
     .navbar a:hover, .navbar a.active { background: rgba(255,255,255,0.2); }
     .user-info img { width: 48px; height: 48px; border-radius: 50%; border: 3px solid #a8e6cf; object-fit: cover; }
@@ -96,9 +111,10 @@
       <a href="compras.html">Registrar Compra</a>
       <a href="cuenta.html">Mi Cuenta</a>
     </nav>
-    <div class="user-info">
-      <span>{{ empleadoNombre }}</span>
-    </div>
+     <div class="user-info">
+        <p>Empleado:</p>
+        <span>{{ empleadoNombre }}</span>
+      </div>
   </div>
 
   <div class="container">

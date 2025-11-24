@@ -55,7 +55,7 @@ try {
                         TIME_FORMAT(fin, '%H:%i') AS fin
                    FROM thorarioPersonal 
                    WHERE idEmpleado = ? 
-                     AND estado = 1
+                     AND estadoSolicitud = 'aprobado'
                    ORDER BY 
                      FIELD(dia, 'Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo'),
                      inicio";

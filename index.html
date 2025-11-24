@@ -562,7 +562,7 @@
   <h2 class="section-title">Nuevos Productos</h2>
 
 <div class="productos-grid">
-  <div v-for="p in productosFiltrados" :key="p.id" class="card" @click="abrirPopupProducto(p)">
+  <div v-for="p in productos" :key="p.id" class="card" @click="abrirPopupProducto(p)">
 
       <img :src="p.foto" :alt="p.nombre">
       <h3>{{ p.nombre }}</h3>
@@ -773,3 +773,4 @@
   </script>
 </body>
 </html>
+

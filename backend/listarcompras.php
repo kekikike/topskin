@@ -15,7 +15,7 @@ try {
     $empleadoNombre = "Usuario";
     if ($ciEmpleado) {
         $stmt = $pdo->prepare("
-            SELECT CONCAT(TRIM(nombre1), ' ', TRIM(apellidoP)) AS nombreCompleto 
+            SELECT CONCAT(nombre1,' ',IFNULL(nombre2,''),' ',apellidoP,' ',IFNULL(apellidoM,'')) AS nombreCompleto 
             FROM templeados 
             WHERE ciEmpleado = ? AND estado = 1
         ");
