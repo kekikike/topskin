@@ -3,180 +3,441 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carrito de Compras - TopSkin</title>
+  <title>Carrito TopSkin</title>
+
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="../css/carrito.css">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Open Sans', sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+
+    [v-cloak] { display: none; }
+
+    .carrito-wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: #fff;
+      min-height: 100vh;
+      box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    }
+
+    /* HEADER */
+    .carrito-header {
+      background-color: #b8e2e8;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .select-all {
+      font-size: 1.1rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+
+    .select-all input {
+      width: 18px;
+      height: 18px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+
+    .logo-text {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #555;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* GRID */
+    .carrito-body {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 30px;
+      padding: 30px;
+    }
+
+    .productos-lista {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .producto-item {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+      position: relative;
+    }
+
+    .check-individual {
+      width: 18px;
+      height: 18px;
+      margin-right: 15px;
+      cursor: pointer;
+    }
+
+    .img-producto {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      border: 1px solid #eee;
+      border-radius: 5px;
+      margin-right: 20px;
+      background: white;
+    }
+
+    .info-producto {
+      flex: 1;
+    }
+
+    .info-producto h3 {
+      font-size: 1rem;
+      margin: 0 0 5px 0;
+      color: #333;
+    }
+
+    .info-producto p {
+      font-size: 0.85rem;
+      color: #777;
+      margin: 0 0 8px 0;
+    }
+
+    .precio {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #333;
+    }
+
+    /* BOTAR */
+    .btn-eliminar {
+      background: none;
+      border: none;
+      color: #aaa;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: color 0.3s;
+      padding: 5px;
+      margin-left: 10px;
+    }
+    .btn-eliminar:hover {
+      color: #e74c3c;
+    }
+
+    .carrito-vacio {
+      text-align: center;
+      grid-column: 1 / -1;
+      padding: 50px;
+      color: #777;
+    }
+    .btn-volver {
+        text-decoration: none;
+        color: white;
+        background: #658C7B;
+        padding: 10px 20px;
+        border-radius: 20px;
+        margin-top: 10px;
+        display: inline-block;
+    }
+
+    .resumen-card {
+      background: #e6eef0;
+      padding: 25px;
+      border-radius: 10px;
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+    }
+
+    .resumen-card h3 {
+      margin-top: 0;
+      color: #555;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+
+    .mini-carrusel {
+      display: flex;
+      gap: 5px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ccc;
+    }
+    
+    .mini-img {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid #fff;
+      background: white;
+      flex-shrink: 0;
+    }
+
+    /* Totales */
+    .fila-total {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 1rem;
+      color: #444;
+    }
+
+    .fila-subtotal {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #ccc;
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .btn-comprar {
+      width: 100%;
+      background-color: #7f9c8f;
+      color: white;
+      border: none;
+      padding: 15px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 25px;
+      transition: background 0.3s;
+    }
+    .btn-comprar:hover {
+      background-color: #658C7B;
+    }
+
+    /* POPUP */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+    }
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      width: 90%; max-width: 350px;
+    }
+    .modal-btns {
+      margin-top: 20px;
+      display: flex; justify-content: center; gap: 15px;
+    }
+    .btn-modal {
+      padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;
+    }
+    .btn-si { background: #e74c3c; color: white; }
+    .btn-no { background: #ccc; color: #333; }
+
+    @media (max-width: 768px) {
+      .carrito-body { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
 
-<div id="app" class="carrito-wrapper">
+<div id="app" v-cloak>
+  
   <header class="carrito-header">
     <label class="select-all">
       <input type="checkbox" v-model="todosSeleccionados">
       <span>Todos los artículos</span>
     </label>
-    <h1>TOPSKIN</h1>
+    <div class="logo-text">TOPSKIN</div>
   </header>
 
   <div class="carrito-body">
-    <div class="productos-lista" v-if="carrito.length > 0">
-      <div v-for="item in carrito" :key="item.idProducto" class="producto-item">
-        <label class="checkbox-producto">
-          <input type="checkbox" 
-                 :checked="seleccionados.includes(item.idProducto)"
-                 @change="toggleSeleccion(item.idProducto)">
-          <span class="checkmark"></span>
-        </label>
+    
+    <div class="productos-lista">
+      
+      <div v-if="carrito.length === 0" class="carrito-vacio">
+        <h2>Tu carrito está vacío 🛒</h2>
+        <p>Parece que aún no has añadido nada.</p>
+        <a href="index.html" class="btn-volver">Ir al catálogo</a>
+      </div>
 
-        <img :src="'img/productos/' + (item.foto || 'placeholder.jpg')" :alt="item.nombre">
+      <div v-for="item in carrito" :key="item.idProducto" class="producto-item">
+        <input type="checkbox" 
+               class="check-individual"
+               :value="item.idProducto" 
+               v-model="seleccionados">
+
+        <img :src="'media/' + (item.foto || 'placeholder.jpg')" 
+             class="img-producto" 
+             :alt="item.nombre"
+             @error="e => e.target.src = 'https://via.placeholder.com/80?text=No+Img'">
 
         <div class="info-producto">
           <h3>{{ item.nombre }}</h3>
-          <p>{{ item.marca || 'Genérico' }}</p>
-          <div class="precio-cantidad">
-            <span class="precio">Bs. {{ (item.precioUnitario * item.cantidad).toFixed(2) }}</span>
-            <div class="cantidad-controls">
-              <button @click="cambiarCantidad(item, -1)" :disabled="item.cantidad <= 1">-</button>
-              <span>{{ item.cantidad }}</span>
-              <button @click="cambiarCantidad(item, 1)">+</button>
-            </div>
+          <p>{{ item.marca }}</p> <div class="precio">
+            <span v-if="item.cantidad > 1" style="font-size: 0.9rem; font-weight: normal;">
+              {{ item.cantidad }} x {{ item.precioUnitario }} Bs. = 
+            </span>
+            {{ (item.precioUnitario * item.cantidad).toFixed(2) }} Bs.
           </div>
         </div>
 
-        <button class="btn-eliminar" @click="eliminar(item.idProducto)">
+        <button class="btn-eliminar" @click="abrirModalEliminar(item)">
           <i class="fas fa-trash-alt"></i>
         </button>
       </div>
     </div>
 
-    <div v-else class="carrito-vacio">
-      <h2>Tu carrito está vacío</h2>
-      <a href="catalogo.html">Ir al catálogo</a>
-    </div>
-
-    <aside class="resumen-compra">
+    <aside class="resumen-card" v-if="carrito.length > 0">
       <h3>Resumen de la compra</h3>
-      <div class="mini-productos">
+
+      <div class="mini-carrusel" v-if="productosSeleccionados.length > 0">
         <img v-for="prod in productosSeleccionados" 
-             :key="prod.idProducto"
-             :src="'img/productos/' + (prod.foto || 'placeholder.jpg')">
+             :key="prod.idProducto" 
+             :src="'media/' + (prod.foto || 'placeholder.jpg')" 
+             class="mini-img"
+             @error="e => e.target.src = 'https://via.placeholder.com/40?text=x'">
+      </div>
+      <div v-else style="font-size: 0.8rem; color: #888; margin-bottom: 15px;">
+        Selecciona productos para ver el resumen.
       </div>
 
-      <div class="linea-total">
+      <div class="fila-total">
         <span>Total:</span>
-        <strong>Bs. {{ totalSeleccionado.toFixed(2) }}</strong>
+        <span>{{ totalCalculado }} Bs</span>
       </div>
-      <div class="linea-descuento">
+      <div class="fila-total">
         <span>Descuento:</span>
-        <strong>0.00 Bs</strong>
+        <span>0.00 Bs</span>
       </div>
-      <div class="linea-subtotal">
+      
+      <div class="fila-subtotal">
         <span>Subtotal:</span>
-        <strong>Bs. {{ totalSeleccionado.toFixed(2) }}</strong>
+        <span>{{ totalCalculado }} Bs</span>
       </div>
 
-      <button class="btn-comprar" @click="irAlPago">
-        Comprar
+      <button class="btn-comprar" @click="comprar">
+        Comprar :D
       </button>
     </aside>
+
   </div>
+
+  <div v-if="modalAbierto" class="modal-overlay" @click.self="cerrarModal">
+    <div class="modal-content">
+      <h3 style="margin-top:0;">Eliminar producto</h3>
+      <p>¿Estás seguro que quieres eliminar <b>{{ itemAEliminar?.nombre }}</b> del carrito?</p>
+      <div class="modal-btns">
+        <button class="btn-no" @click="cerrarModal">No, cancelar</button>
+        <button class="btn-si" @click="confirmarEliminar">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
-<script >
-    const { createApp } = Vue;
+<script>
+  const { createApp } = Vue
 
-createApp({
-  data() {
-    return {
-      carrito: [],
-      seleccionados: []
-    }
-  },
-
-  computed: {
-    todosSeleccionados: {
-      get() {
-        return this.carrito.length > 0 && this.seleccionados.length === this.carrito.length;
+  createApp({
+    data() {
+      return {
+        carrito: [], 
+        seleccionados: [], 
+        modalAbierto: false,
+        itemAEliminar: null
+      }
+    },
+    computed: {
+      todosSeleccionados: {
+        get() {
+          return this.carrito.length > 0 && this.seleccionados.length === this.carrito.length;
+        },
+        set(valor) {
+          if (valor) {
+            this.seleccionados = this.carrito.map(p => p.idProducto);
+          } else {
+            this.seleccionados = [];
+          }
+        }
       },
-      set(value) {
-        this.seleccionados = value ? this.carrito.map(p => p.idProducto) : [];
+      productosSeleccionados() {
+        return this.carrito.filter(item => this.seleccionados.includes(item.idProducto));
+      },
+
+      totalCalculado() {
+        const total = this.productosSeleccionados.reduce((acc, item) => {
+          return acc + (item.precioUnitario * item.cantidad);
+        }, 0);
+        return total.toFixed(2);
       }
     },
+    methods: {
+      cargarCarrito() {
+        const data = localStorage.getItem('topskinCarrito');
+        if (data) {
+          try {
+            this.carrito = JSON.parse(data);
+            this.seleccionados = this.carrito.map(p => p.idProducto);
+          } catch(e) {
+            console.error("Error al leer el carrito", e);
+            this.carrito = [];
+          }
+        }
+      },
+      guardarCarrito() {
+        localStorage.setItem('topskinCarrito', JSON.stringify(this.carrito));
+      },
+      
+      abrirModalEliminar(item) {
+        this.itemAEliminar = item;
+        this.modalAbierto = true;
+      },
+      cerrarModal() {
+        this.modalAbierto = false;
+        this.itemAEliminar = null;
+      },
+      confirmarEliminar() {
+        if (this.itemAEliminar) {
+          this.carrito = this.carrito.filter(p => p.idProducto !== this.itemAEliminar.idProducto);
+          
+          this.seleccionados = this.seleccionados.filter(id => id !== this.itemAEliminar.idProducto);
+          
+          this.guardarCarrito();
+          this.cerrarModal();
+        }
+      },
 
-    productosSeleccionados() {
-      return this.carrito.filter(p => this.seleccionados.includes(p.idProducto));
+      comprar() {
+        if (this.seleccionados.length === 0) {
+          return;
+        }
+        
+      }
     },
-
-    totalSeleccionado() {
-      return this.productosSeleccionados.reduce((sum, p) => {
-        return sum + (p.precioUnitario * p.cantidad);
-      }, 0);
+    mounted() {
+      this.cargarCarrito();
     }
-  },
-
-  methods: {
-    cargarCarrito() {
-      fetch('../../backend/cargar_carrito.php')
-        .then(r => r.json())
-        .then(data => {
-          this.carrito = data;
-          this.seleccionados = data.map(p => p.idProducto);
-        });
-    },
-
-    toggleSeleccion(id) {
-      const idx = this.seleccionados.indexOf(id);
-      if (idx === -1) this.seleccionados.push(id);
-      else this.seleccionados.splice(idx, 1);
-    },
-
-    cambiarCantidad(item, delta) {
-      const nueva = item.cantidad + delta;
-      if (nueva >= 1) {
-        item.cantidad = nueva;
-        this.guardarCarrito();
-      }
-    },
-
-    eliminar(id) {
-      this.carrito = this.carrito.filter(p => p.idProducto !== id);
-      this.seleccionados = this.seleccionados.filter(s => s !== id);
-      this.guardarCarrito();
-    },
-
-    irAlPago() {
-      if (this.seleccionados.length === 0) {
-        alert('Por favor selecciona al menos un producto');
-        return;
-      }
-      alert('Redirigiendo al pago con ' + this.seleccionados.length + ' productos...');
-    },
-
-    guardarCarrito() {
-      const paraBackend = this.carrito.map(p => ({
-        idProducto: p.idProducto,
-        cantidad: p.cantidad
-      }));
-
-      fetch('../../backend/actualizar_carrito.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(paraBackend)
-      })
-      .then(r => r.json())
-      .then(res => {
-        console.log('Carrito guardado:', res);
-      })
-      .catch(err => console.error('Error:', err));
-    }
-  },
-
-  mounted() {
-    this.cargarCarrito();
-  }
-
-}).mount('#app');
+  }).mount('#app')
 </script>
+
 </body>
 </html>
