@@ -7,14 +7,13 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { background:#fdf8f0; font-family:'Segoe UI',Arial,sans-serif; }
+    body { background:#fdf8f0; font-family:'Segoe UI',Arial,sans-serif; position:relative; min-height:100vh; padding-bottom:80px; }
     header { background:linear-gradient(90deg,#0d9488,#14b8a6); padding:1.2rem 2.5rem; color:white; display:flex; align-items:center; justify-content:space-between; box-shadow:0 6px 25px rgba(0,0,0,0.15); position:relative; z-index:100; }
     .header-left { display:flex; align-items:center; gap:1.8rem; }
     .logo-img { height:56px; }
     .profile-link img { width:56px; height:56px; border-radius:50%; object-fit:cover; border:4px solid rgba(255,255,255,0.3); transition:all 0.3s ease; }
     .profile-link:hover img { transform:scale(1.12); border-color:white; box-shadow:0 8px 20px rgba(0,0,0,0.3); }
 
-    /* NUEVOS ESTILOS PARA EL USUARIO LOGUEADO */
     .usuario-info { text-align:left; line-height:1.35; }
     .nombre-usuario { font-weight:600; font-size:1.15rem; color:white; }
     .rol-usuario { font-size:0.95rem; color:rgba(255,255,255,0.92); font-weight:500; }
@@ -22,6 +21,7 @@
     nav { display:flex; gap:1.2rem; }
     nav a { background:rgba(255,255,255,0.25); padding:0.7rem 1.4rem; border-radius:2rem; text-decoration:none; color:white; font-weight:500; transition:0.3s; }
     nav a:hover { background:rgba(255,255,255,0.38); }
+
     .container { max-width:1500px; margin:3rem auto; padding:0 2rem; }
     h1 { font-size:2.4rem; text-align:center; color:#1f2937; margin-bottom:2.5rem; }
     .empleados-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:2.2rem; padding:1rem; }
@@ -57,6 +57,37 @@
     .turno-tag { display:inline-block; margin:0 4px; padding:2px 8px; border-radius:8px; background:#dbeafe; color:#1e40af; font-size:0.9rem; }
     .turno-tag.mediodia { background:#fed7aa; color:#9a3412; }
     .turno-tag.tarde { background:#fbcfe8; color:#831843; }
+
+    /* BOTÓN CERRAR SESIÓN FIJO EN ESQUINA INFERIOR DERECHA */
+    .btn-cerrar-sesion {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #dc2626 !important;
+      color: white;
+      padding: 14px 28px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 50px;
+      box-shadow: 0 10px 25px rgba(220, 38, 38, 0.4);
+      cursor: pointer;
+      z-index: 9999;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-cerrar-sesion:hover {
+      background: #b91c1c !important;
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 15px 35px rgba(220, 38, 38, 0.6);
+    }
+
+    .btn-cerrar-sesion:active {
+      transform: translateY(-2px) scale(1.03);
+    }
   </style>
 </head>
 <body>
@@ -68,7 +99,6 @@
         <img src="../media/perfil.png" alt="Mi perfil">
       </a>
 
-      <!-- NUEVO: Nombre y rol del usuario logueado -->
       <div class="usuario-info" v-if="usuarioLogueado">
         <div class="nombre-usuario">{{ usuarioLogueado.nombreCompleto }}</div>
         <div class="rol-usuario">{{ usuarioLogueado.rol }}</div>
@@ -164,6 +194,11 @@
       {{ mensaje }}
     </div>
   </div>
+
+  <!-- BOTÓN FIJO DE CERRAR SESIÓN -->
+  <button class="btn-cerrar-sesion" @click="cerrarSesion">
+    Cerrar sesión
+  </button>
 </div>
 
 <script>
@@ -179,14 +214,20 @@ createApp({
     const horaApertura = ref('08:00');
     const horaCierre = ref('20:00');
     const idSucursal = localStorage.getItem('idSucursal');
-
-    // NUEVO: Datos del usuario logueado
     const usuarioLogueado = ref(null);
 
     if (!idSucursal || !localStorage.getItem('ciEmpleado')) {
       alert("Sesión expirada");
-      window.location.href = '../login.html';
+      window.location.href = '../login_empleado.html';
     }
+
+    // FUNCIÓN CERRAR SESIÓN
+    const cerrarSesion = () => {
+      if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+        localStorage.clear();
+        window.location.href = '../login_empleado.html';
+      }
+    };
 
     const cargarHorarioSucursal = async () => {
       const res = await fetch(`../backend/editar_horario.php?accion=horario_sucursal&idSucursal=${idSucursal}`);
@@ -203,7 +244,6 @@ createApp({
       if (data.success) empleados.value = data.empleados;
     };
 
-    // NUEVA FUNCIÓN: Cargar datos del usuario logueado
     const cargarDatosUsuario = async () => {
       const ciEmpleado = localStorage.getItem('ciEmpleado');
       if (!ciEmpleado) return;
@@ -348,14 +388,15 @@ createApp({
 
     onMounted(() => {
       cargarEmpleados();
-      cargarDatosUsuario();   // ← Cargamos el nombre y rol al iniciar
+      cargarDatosUsuario();
     });
 
     return {
       empleados, horariosSeleccionados, editando, mensaje,
       cargarHorarios, iniciarEdicion, cancelarEdicion, guardarHorarios,
       resumenGeneralEmpleado, actualizarDia,
-      usuarioLogueado   // ← Exponemos al template
+      usuarioLogueado,
+      cerrarSesion
     };
   }
 }).mount('#app');
