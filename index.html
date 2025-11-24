@@ -371,6 +371,106 @@
     .user-logo{
       font-family: 'Baumans', cursive;
     }
+    /* ===== PANEL DE BÚSQUEDA ===== */
+    .busqueda-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+
+    /* Panel lateral */
+    .busqueda-panel {
+      font-family: 'Baumans', cursive;
+      width: 320px;
+      height: 100%;
+      background: #aababd;
+      padding: 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+      animation: slideIn 0.3s ease forwards;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(-100%); }
+      to   { transform: translateX(0); }
+    }
+
+    .busqueda-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cerrar-btn {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    /* Input */
+    .input-busqueda {
+      font-family: 'Baumans', cursive;
+      width: 90%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin: 15px 0;
+    }
+
+    /* Resultados */
+    .resultados {
+      max-height: calc(100vh - 120px);
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .resultados::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .resultados::-webkit-scrollbar-thumb {
+      background-color: rgba(0,0,0,0.3);
+      border-radius: 3px;
+    }
+
+    .resultados::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .resultado-item {
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+    }
+
+    .resultado-item img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    .resultado-item h4 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .resultado-item p {
+      margin: 0;
+      font-size: 13px;
+      color: #666;
+    }
 
   </style>
 </head>
@@ -388,10 +488,35 @@
 
       <!-- ICONOS DERECHA -->
       <div class="header-icons">
-        <i class="fas fa-search"></i>
+        <i class="fas fa-search" @click="abrirBusqueda" style="cursor:pointer;"></i>
+
         <a href="src/cliente/carrito.html">
           <i class="fas fa-shopping-cart"></i>
         </a>
+
+        <!-- PANEL DE BÚSQUEDA -->
+        <div v-if="mostrarBusqueda" class="busqueda-overlay" @click.self="cerrarBusqueda">
+          <div class="busqueda-panel">
+            <div class="busqueda-header">
+              <h3>Buscar productos</h3>
+              <button class="cerrar-btn" @click="cerrarBusqueda">X</button>
+            </div>
+
+            <input type="text" v-model="busqueda" placeholder="Buscar por nombre o marca..." class="input-busqueda">
+
+            <div class="resultados">
+              <div v-for="p in productosFiltrados" :key="p.id" class="resultado-item" @click="abrirPopupProducto(p)">
+                <img :src="p.foto" alt="">
+                <div>
+                  <h4>{{ p.nombre }}</h4>
+                  <p>{{ p.marca }}</p>
+                </div>
+              </div>
+
+              <p v-if="productosFiltrados.length === 0">No se encontraron productos</p>
+            </div>
+          </div>
+        </div>
 
         <!-- Si NO está logueado -->
         <div v-if="!cliente" class="user-logo" @click="abrirUsuario" style="cursor:pointer">
@@ -420,7 +545,7 @@
   <!-- MENU FLOTANTE -->
   <nav class="nav">
     <a href="#">Menú Principal</a>
-    <a href="src/cliente/catalogo.html">Categorías</a>
+    <a href="src/cliente/catalogo.html">Catalogo</a>
     <a href="#">Sobre Nosotros</a>
     <a href="#">Mis Pedidos</a>
   </nav>
@@ -436,8 +561,9 @@
   <!-- NUEVOS PRODUCTOS -->
   <h2 class="section-title">Nuevos Productos</h2>
 
-  <div class="productos-grid">
-    <div v-for="p in productos" :key="p.id" class="card" @click="abrirPopupProducto(p)">
+<div class="productos-grid">
+  <div v-for="p in productosFiltrados" :key="p.id" class="card" @click="abrirPopupProducto(p)">
+
       <img :src="p.foto" :alt="p.nombre">
       <h3>{{ p.nombre }}</h3>
       <div class="precio">{{ Number(p.precio) }} Bs</div>
@@ -486,6 +612,29 @@
     const { createApp, ref, onMounted, computed } = Vue;
     createApp({
       setup() {
+        const mostrarBusqueda = ref(false);
+        function abrirBusqueda() {
+          mostrarBusqueda.value = true;
+        }
+
+        function cerrarBusqueda() {
+          mostrarBusqueda.value = false;
+          busqueda.value = "";
+        }
+
+        const busqueda = ref("");
+        const productosFiltrados = computed(() => {
+          if (!Array.isArray(productos.value)) return [];
+
+          const texto = busqueda.value.trim().toLowerCase();
+          if (!texto) return productos.value;
+
+          return productos.value.filter(p => {
+            const nombre = (p.nombre || "").toLowerCase();
+            const marca = (p.marca || "").toLowerCase(); 
+            return nombre.includes(texto) || marca.includes(texto);
+          });
+        });
 
         // --- USUARIO ---s
         const cliente = ref(null);
@@ -598,6 +747,11 @@
         });
 
         return {
+          mostrarBusqueda,
+          abrirBusqueda,
+          cerrarBusqueda,
+          busqueda,
+          productosFiltrados,
           cliente,
           nombreMostrar,
           mostrarPopup,
@@ -605,10 +759,8 @@
           cerrarUsuario,
           irLogin,
           irRegistro,
-
           productos,
           marcas,
-
           carrito,
           productoSeleccionado,
           cantidad,
