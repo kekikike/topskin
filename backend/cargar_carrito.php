@@ -3,14 +3,24 @@ session_start();
 require_once 'connection/connection.php';
 header('Content-Type: application/json; charset=utf-8');
 
-$pdo = Conexion::conectar(); 
+$pdo = Conexion::conectar();
 
-if (!isset($_SESSION['carrito']) || empty($_SESSION['carrito'])) {
+// Obtener CI del cliente (por GET)
+$ci = $_GET['ci'] ?? '';
+if (!$ci) {
     echo json_encode([]);
     exit;
 }
 
-$ids = array_keys($_SESSION['carrito']);
+// Verificar si el carrito existe para este cliente
+$sessionCarrito = $_SESSION['carrito'][$ci] ?? [];
+if (empty($sessionCarrito)) {
+    echo json_encode([]);
+    exit;
+}
+
+// Preparar consulta para productos en el carrito
+$ids = array_keys($sessionCarrito);
 $placeholders = rtrim(str_repeat('?,', count($ids)), ',');
 
 $sql = "SELECT idProducto, nombre, precioUnitario, foto 
@@ -22,8 +32,14 @@ $stmt->execute($ids);
 
 $carrito = [];
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    $row['cantidad'] = $_SESSION['carrito'][$row['idProducto']];
+    $row['cantidad'] = $sessionCarrito[$row['idProducto']];
     $row['precioUnitario'] = (float)$row['precioUnitario'];
+
+    // Normalizar URL de imagen
+    if (!empty($row['foto']) && !preg_match('/^https?:\/\//', $row['foto'])) {
+        $row['foto'] = '../../media/' . $row['foto'];
+    }
+
     $carrito[] = $row;
 }
 
