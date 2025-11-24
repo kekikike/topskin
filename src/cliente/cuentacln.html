@@ -10,328 +10,470 @@
 <link href="https://fonts.googleapis.com/css2?family=Baumans&display=swap" rel="stylesheet">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  
-  body {
-    font-family: 'Baumans', cursive;
-    background: url('../../media/fondo5.jpg') no-repeat center 90% / cover ;
-    min-height: 100vh;
+  body { 
+    font-family: 'Baumans', cursive; 
+    background: url('https://i.pinimg.com/1200x/88/53/de/8853def388bb78e8d971113fdbc34e27.jpg') center 100% / cover; 
+    min-height:100vh; 
+    padding-bottom: 50px;
+  }
+  .header { 
+    height:250px; 
+    background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6)), url('../../media/image7.jpg') center 100% / cover; 
+    display:flex; 
+    align-items:flex-start; 
+    justify-content:flex-end; 
+    padding:20px; 
+  }
+  .perfil-header {
     position: relative;
-  }
-
-  .header {
-    height: 250px;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6)), url('../../media/image7.jpg') center 100% / cover;
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-end;
-    padding: 20px;
-  }
-
-  .header-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-top: -60px; 
-    padding: 0 20px;
+    height: 100px; 
+    pointer-events: none; 
     z-index: 10;
+    margin-bottom: -100px; 
   }
-
-  .btn-editar {
-    background: #a8dadc;
-    color: #1d3557;
-    border: none;
-    padding: 12px 28px;
-    border-radius: 30px;
-    font-family: 'Baumans', cursive;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 6px 15px rgba(168,218,220,0.5);
-    transition: all 0.3s;
-  }
-
-  .btn-editar:hover {
-    background: #90c7c9;
-    transform: translateY(-2px);
-  }
-
-  .volver {
-    background: rgba(255,255,255,0.25);
-    backdrop-filter: blur(8px);
-    color: white;
-    padding: 10px 22px;
-    border-radius: 25px;
-    font-size: 0.95rem;
-    text-decoration: none;
-    transition: 0.3s;
+  .volver { 
+    background: rgba(255,255,255,0.25); 
+    backdrop-filter: blur(8px); 
+    color:white; 
+    padding:10px 22px; 
+    border-radius:25px; 
+    font-size:0.95rem; 
+    text-decoration:none; 
+    transition:0.3s; 
   }
   .volver:hover { background: rgba(255,255,255,0.4); }
 
   .avatar {
-    width: 130px;
-    height: 130px;
+    width: 140px;
+    height: 140px;
     border-radius: 50%;
-    border: 1px solid white;
+    border: 5px solid white;
     overflow: hidden;
-    margin: -70px auto 0 30px;
     background: #666;
-    flex-shrink: 0;
-    z-index: 10;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    position: absolute;
+    left: 30px;
+    top: -70px;
+    z-index: 20;
+    transition: all 0.3s ease;
   }
-  .avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    
-  }
+  .avatar img { width:100%; height:100%; object-fit:cover; z-index: 10; }
 
   .btn-editar {
-    position: absolute;
-    top: 190px;
-    right: 40px;
     background: #a8dadc;
     color: #1d3557;
     border: none;
-    padding: 12px 28px;
+    padding: 14px 32px;
     border-radius: 30px;
     font-family: 'Baumans', cursive;
-    font-size: 1rem;
     font-weight: bold;
+    font-size: 1.1rem;
     cursor: pointer;
-    box-shadow: 0 6px 15px rgba(168,218,220,0.5);
-    transition: all 0.3s;
-  }
-  .btn-editar:hover {
-    background: #90c7c9;
-    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(168,218,220,0.6);
+    transition: all 0.3s ease;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    z-index: 30; 
+    pointer-events: auto;
   }
 
+  .btn-editar:hover {
+    background: #90c7c9;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 25px rgba(168,218,220,0.7);
+  }
   .info {
+    font-family: 'Baumans', cursive; 
     background: rgba(245, 240, 225, 0.96);
     backdrop-filter: blur(10px);
     padding: 50px 35px 30px;
     border-radius: 0 0 28px 28px;
-    margin-top: -20px;
     color: #2d3436;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   }
-  .info h3 {
-    text-align: center;
-    margin-bottom: 25px;
-    color: #1d3557;
-    font-size: 1.6rem;
-    letter-spacing: 1px;
+  .info h3 { text-align:center; margin-bottom:25px; color:#1d3557; font-size:1.7rem; }
+  .info p { margin:18px 0; font-size:1.15rem; display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  .info strong { color:#1d3557; min-width:110px; font-weight:bold; }
+  .info input { 
+    flex:1; max-width:65%; padding:10px 14px; border:1px solid #ccc; border-radius:12px; 
+    font-family:'Baumans',cursive; font-size:1rem;
   }
-  .info p {
-    margin: 18px 0;
-    font-size: 1.15rem;
+
+  /* === NUEVO: Pestañas para cambiar entre Historial y Carrito === */
+  .pestanas {
     display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    line-height: 1.4;
+    justify-content: center;
+    gap: 20px;
+    margin: 50px auto 20px;
+    max-width: 900px;
   }
-  .info strong {
-    color: #1d3557;
-    min-width: 110px;
-    font-weight: bold;
-  }
-  .info input {
-    width: 65%;
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    font-family: 'Baumans', cursive;
-    font-size: 1rem;
-  }
-
-  /* Historial de compras */
-  .historial {
-    margin: 35px 0;
-    background: rgba(180, 210, 190, 0.90);
-    backdrop-filter: blur(8px);
-    border-radius: 24px;
-    padding: 25px;
-    color: #0f4c5c;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
-  }
-  .historial h3 {
-    margin-bottom: 20px;
-    font-size: 1.4rem;
-    color: #0f4c5c;
-  }
-  .pedido {
-    background: rgba(255,255,255,0.75);
-    border-radius: 16px;
-    padding: 18px;
-    margin-bottom: 16px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  }
-  .pedido p { margin: 8px 0; font-size: 1.05rem; }
-
-  /* Botón cerrar sesión */
-  .btn-cerrar {
-    width: 100%;
-    padding: 16px;
-    background: #e76f51;
+  .btn-pestana {
+    background: rgba(255,255,255,0.3);
     color: white;
     border: none;
-    border-radius: 20px;
+    padding: 14px 36px;
+    border-radius: 30px;
     font-family: 'Baumans', cursive;
     font-size: 1.2rem;
     font-weight: bold;
     cursor: pointer;
-    margin-top: 10px;
-    box-shadow: 0 6px 20px rgba(231,111,81,0.4);
-    transition: 0.3s;
+    backdrop-filter: blur(8px);
+    transition: all 0.4s ease;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
   }
-  .btn-cerrar:hover { background: #d65c42; transform: translateY(-2px); }
+  .btn-pestana.activo {
+    background: #a8dadc;
+    color: #1d3557;
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(168,218,220,0.7);
+  }
+  .btn-pestana:hover:not(.activo) {
+    background: rgba(255,255,255,0.5);
+  }
 
-  /* Responsive */
-  @media (max-width: 480px) {
-    .avatar { width: 110px; height: 110px; margin-left: 20px; }
-    .btn-editar { right: 20px; top: 180px; padding: 10px 20px; }
-    .info p { font-size: 1rem; }
+  .contenedor-unico {
+    max-width: 900px;
+    margin: 0 auto 40px;
+    background: rgba(180, 210, 190, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 30px;
+    padding: 30px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    max-height: 70vh;
+    overflow-y: auto;
+    animation: fadeIn 0.5s ease;
   }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .contenedor-unico h3 {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+    color: #0f4c5c;
+  }
+
+  .pedido {
+    background: rgba(255,255,255,0.92);
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    transition: transform 0.3s;
+  }
+  .pedido:hover {
+    transform: translateY(-4px);
+  }
+  .pedido img {
+    width: 90px; height: 90px; object-fit: cover; float: left; margin-right: 18px; border-radius: 12px;
+  }
+  .pedido p { margin: 10px 0; font-size: 1.1rem; }
+  .pedido ul { margin-left: 25px; font-size: 1rem; }
+
+  .empty {
+    text-align: center;
+    font-style: italic;
+    color: #666;
+    padding: 50px 20px;
+    font-size: 1.3rem;
+  }
+
+  .btn-cerrar {
+    font-family: 'Baumans', cursive; 
+    display: block;
+    width: 40%;
+    max-width: 420px;
+    margin: 20px auto;
+    padding: 18px;
+    background: #e76f51;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 1.4rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(231,111,81,0.5);
+    transition: all 0.3s;
+  }
+  .btn-cerrar:hover {
+    background: #d62828;
+    transform: translateY(-4px);
+  }
+
+  @media (max-width: 768px) {
+    .pestanas { gap: 10px; flex-wrap: wrap; }
+    .btn-pestana { padding: 12px 24px; font-size: 1rem; }
+    .avatar { width: 120px; height: 120px; left: 15px; top: -60px; }
+    .btn-editar { top: 10px; right: 10px; padding: 10px 20px; font-size: 1rem; }
+    .info { padding: 60px 20px 30px; }
+  }
+
+  /* Reportes bien hechos */
+  /* === ARREGLO DEFINITIVO PARA IMÁGENES Y DISEÑO === */
+.pedido {
+  background: rgba(255,255,255,0.94);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.pedido:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.18);
+}
+
+.pedido-img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 3px solid #a8dadc;
+  flex-shrink: 0;
+}
+
+.pedido-info {
+  flex: 1;
+  min-width: 280px;
+}
+.pedido-info p {
+  margin: 8px 0;
+  font-size: 1.1rem;
+  color: #2d3436;
+}
+.pedido-info strong {
+  color: #1d3557;
+}
+
+/* Para el historial: lista bonita de productos */
+.productos-lista {
+  margin-top: 15px;
+  padding-left: 20px;
+  border-left: 3px solid #a8dadc;
+  width: 100%;
+}
+.producto-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+  font-size: 1.05rem;
+}
+.producto-item img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 2px solid #ddd;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pedido {
+    flex-direction: column;
+    text-align: center;
+  }
+  .pedido-img {
+    width: 120px;
+    height: 120px;
+  }
+  .producto-item {
+    justify-content: center;
+  }
+}
 </style>
 </head>
 <body>
 <div id="app">
-    <!-- header -->
-    <div class="header">
-      <a href="../../index.html" class="volver">Volver al Menú</a>
-    </div>
-
-    <div style="display:flex; justify-content:space-between; align-items:flex-end; position:relative;">
-      <div class="avatar">
-        <img src="../../media/icon.png" alt="Foto de perfil">
-      </div>
-    </div>
-
-    <!-- debajo del header -->
-    <div class="header-row">
-      <button v-if="!editando" @click="editando = true" class="btn-editar">Editar Datos</button>
-    </div>
-
-    <!-- Información del usuario -->
-    <div class="info">
-      <h3>Mis Datos</h3>
-
-      <p><strong>Nombre:</strong>
-        <span v-if="!editando">{{ usuario.nombre1 }} {{ usuario.apellidoP }} {{ usuario.apellidoM || '' }}</span>
-        <span v-else style="display:flex; flex-direction:column; gap:6px; width:65%;">
-          <input type="text" v-model="form.nombre1" placeholder="Nombre">
-          <input type="text" v-model="form.apellidoP" placeholder="Apellido Paterno">
-          <input type="text" v-model="form.apellidoM" placeholder="Apellido Materno (opcional)">
-        </span>
-      </p>
-
-      <p><strong>Teléfono:</strong>
-        <span v-if="!editando">{{ usuario.telefono || 'No registrado' }}</span>
-        <input v-else type="text" v-model="form.telefono" placeholder="Teléfono">
-      </p>
-
-      <p><strong>Email:</strong>
-        <span v-if="!editando">{{ usuario.correo }}</span>
-        <input v-else type="email" v-model="form.correo" placeholder="Email">
-      </p>
-
-      <p><strong>Dirección:</strong>
-        <span v-if="!editando">{{ usuario.direccion || 'No registrada' }}</span>
-        <input v-else type="text" v-model="form.direccion" placeholder="Dirección">
-      </p>
-
-      <div v-if="editando" style="text-align:center; margin-top:20px;">
-        <button @click="guardarDatos"
-          style="background:#457b9d;color:white;padding:12px 30px;border-radius:30px;font-size:1rem;">
-          Guardar Cambios
-        </button>
-      </div>
-    </div>
-
-    <!-- Historial de compras -->
-    <div class="historial">
-      <h3>Historial de Compras</h3>
-      <div v-for="c in compras" :key="c.idCompra" class="pedido">
-        <p><strong>Compra ID:</strong> {{ c.idCompra }}</p>
-        <p><strong>Fecha:</strong> {{ c.fechaA }}</p>
-        <p><strong>Proveedor:</strong> {{ c.idProveedor || 'N/A' }}</p>
-      </div>
-      <div v-if="compras.length === 0" style="text-align:center; color:#0f4c5c; font-style:italic;">
-        No hay compras aún
-      </div>
-    </div>
-
-    <!-- Cerrar sesión -->
-    <button @click="logout" class="btn-cerrar">Cerrar sesión</button>
-
+  <div class="header">
+    <a href="../../index.html" class="volver">Volver al Menú</a>
   </div>
-  <script>
-  const { createApp, ref, onMounted } = Vue;
 
-  createApp({
-    setup() {
-      const usuario = ref(JSON.parse(localStorage.getItem('cliente')) || null);
-      const compras = ref([]);
-      const editando = ref(false);  
-      const mensaje = ref('');
+  <div class="perfil-header">
+    <div class="avatar">
+      <img src="../../media/icon.png" alt="Foto de perfil">
+    </div>
+    <button v-if="!editando" @click="editando=true" class="btn-editar">
+      Editar Datos
+    </button>
+  </div>
 
-      const form = ref({});
+  <!-- Información del usuario -->
+  <div class="info">
+    <h3>Mis Datos</h3>
+    <p><strong>Nombre:</strong>
+      <span v-if="!editando">{{ usuario.nombre1 }} {{ usuario.apellidoP }} {{ usuario.apellidoM || '' }}</span>
+      <span v-else style="display:flex; flex-direction:column; gap:8px; flex:1;">
+        <input type="text" v-model="form.nombre1" placeholder="Nombre">
+        <input type="text" v-model="form.apellidoP" placeholder="Apellido Paterno">
+        <input type="text" v-model="form.apellidoM" placeholder="Apellido Materno">
+      </span>
+    </p>
+    <p><strong>Teléfono:</strong> <span v-if="!editando">{{ usuario.telefono || 'No registrado' }}</span><input v-else type="text" v-model="form.telefono" placeholder="Teléfono"></p>
+    <p><strong>Email:</strong> <span v-if="!editando">{{ usuario.correo }}</span><input v-else type="email" v-model="form.correo" placeholder="Email"></p>
+    <p><strong>Dirección:</strong> <span v-if="!editando">{{ usuario.direccion || 'No registrada' }}</span><input v-else type="text" v-model="form.direccion" placeholder="Dirección"></p>
+    
+    <div v-if="editando" style="text-align:center; margin-top:30px;">
+      <button @click="guardarDatos" style="background:#457b9d; color:white; padding:16px 40px; border-radius:30px; font-size:1.2rem; border:none; cursor:pointer;">
+        Guardar Cambios
+      </button>
+    </div>
+  </div>
 
-      onMounted(() => {
-        if(!usuario.value) {
-          window.location.href = '../../index.html';
-          return;
-        }
+  <!-- Pestañas para cambiar -->
+  <div class="pestanas">
+    <button 
+      @click="vista = 'historial'" 
+      :class="['btn-pestana', { activo: vista === 'historial' }]"
+    >
+      Historial de Compras
+    </button>
+    <button 
+      @click="vista = 'carrito'" 
+      :class="['btn-pestana', { activo: vista === 'carrito' }]"
+    >
+      Carrito Actual
+    </button>
+  </div>
 
-        fetch(`../../backend/cuentacln.php?ci=${usuario.value.ciCliente}`)
-          .then(res => res.json())
-          .then(data => {
-            if(data.success){
-              usuario.value = data.usuario;
-              form.value = { ...data.usuario };
-              compras.value = data.compras;
-            } else {
-              mensaje.value = data.message;
-            }
-          }).catch(e => {
-            mensaje.value = 'Error de conexión';
-            console.error(e);
-          });
-      });
+  <div class="contenedor-unico">
+    <!-- Historial de Compras -->
+    <div v-if="vista === 'historial'">
+      <h3>Historial de Compras</h3>
+      <div v-if="compras.length === 0" class="empty">Aún no has realizado compras</div>
+      <div v-for="v in compras" :key="v.idVenta" class="pedido">
+        <p><strong>Factura:</strong> {{ v.idVenta }}</p>
+        <p><strong>Fecha:</strong> {{ v.fecha }}</p>
+        <p><strong>Total pagado:</strong> Bs {{ v.total.toFixed(2) }}</p>
 
-      const guardar = async () => {
-        try {
-          const res = await fetch('../backend/cuentacln.php', {
-            method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify(form.value)
-          });
-          const data = await res.json();
-          if(data.success){
-            usuario.value = { ...form.value }; 
-            editando.value = false;
-            localStorage.setItem('usuario', JSON.stringify(usuario.value));
-          } else {
-            console.log(data.message);
-          }
-        } catch(e) {
-          console.error('Error de conexión:', e);
-        }
-      }
+        <li v-for="d in v.detalle" :key="d.idDetalleVenta">
+            <img :src="d.foto" alt="" style="width:40px; margin-right:6px;">
+            {{ d.nombreProducto }} — {{ d.cantidad }} und. — Bs {{ d.subtotal.toFixed(2) }}
+        </li>
+        </ul>
+      </div>
+    </div>
 
-      const cancelar = () => {
-        form.value = { ...usuario.value };
-        editando.value = false;
-      }
+    <!-- Carrito Actual -->
+    <div v-if="vista === 'carrito'">
+      <h3>Carrito Actual</h3>
+      <div v-if="carrito.length === 0" class="empty">Tu carrito está vacío</div>
+      <div v-for="item in carrito" :key="item.idProducto" class="pedido">
+          <img :src="item.foto" :alt="item.nombre">
+          <p><strong>Producto:</strong> {{ item.nombre }}</p>
+          <p><strong>Cantidad:</strong> {{ item.cantidad }}</p>
+          <p><strong>Precio unitario:</strong> Bs {{ item.precioUnitario.toFixed(2) }}</p>
+          <p><strong>Subtotal:</strong> Bs {{ (item.precioUnitario * item.cantidad).toFixed(2) }}</p>
+      </div>
+    </div>
+  </div>
 
-      const logout = () => {
-        localStorage.clear();
+  <button @click="logout" class="btn-cerrar">Cerrar Sesión</button>
+</div>
+
+<script>
+const { createApp, ref, onMounted } = Vue;
+
+createApp({
+  setup() {
+    const usuario = ref(JSON.parse(localStorage.getItem('cliente')) || null);
+    const compras = ref([]);
+    const carrito = ref([]);
+    const editando = ref(false);
+    const form = ref({});
+    const vista = ref('historial');
+
+    onMounted(() => {
+      if (!usuario.value) {
         window.location.href = '../../index.html';
+        return;
       }
 
-      return { usuario, compras, editando, form, mensaje, guardarDatos: guardar, cancelar, logout };
-    }
-  }).mount('#app');
-  </script>
+      // Cargar datos del usuario y compras
+      fetch(`../../backend/cuentacln.php?ci=${usuario.value.ciCliente}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            usuario.value = data.usuario;
+            form.value = { ...data.usuario };
+            compras.value = data.compras;
+          }
+        })
+        .catch(e => console.error(e));
+
+      // Cargar carrito separado
+      fetch(`../../backend/cargar_carrito.php?ci=${usuario.value.ciCliente}`)
+        .then(res => res.json())
+        .then(data => {
+          carrito.value = data.map(item => ({
+            ...item,
+            precioUnitario: parseFloat(item.precioUnitario),
+            cantidad: parseInt(item.cantidad),
+            subtotal: parseFloat(item.precioUnitario) * parseInt(item.cantidad),
+            foto: !/^https?:\/\//.test(item.foto) ? '../../media/' + item.foto : item.foto
+          }));
+        })
+        .catch(e => console.error(e));
+    });
+
+    const actualizarCarrito = async () => {
+      try {
+        const res = await fetch(`../../backend/actualizar_carrito.php?ci=${usuario.value.ciCliente}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(carrito.value.map(item => ({
+            idProducto: item.idProducto,
+            cantidad: item.cantidad
+          })))
+        });
+        const data = await res.json();
+        if (data.success) {
+          // recalcular subtotal
+          carrito.value = carrito.value.map(item => ({
+            ...item,
+            subtotal: item.cantidad * item.precioUnitario
+          }));
+          console.log('Carrito actualizado', data.debug);
+        }
+      } catch(e) {
+        console.error(e);
+      }
+    };
+
+
+    const guardarDatos = async () => {
+      try {
+        const res = await fetch('../../backend/cuentacln.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(form.value)
+        });
+        const data = await res.json();
+        if (data.success) {
+          usuario.value = { ...form.value };
+          localStorage.setItem('cliente', JSON.stringify(usuario.value));
+          editando.value = false;
+        }
+      } catch (e) { console.error(e); }
+    };
+
+    const logout = () => {
+      localStorage.clear();
+      window.location.href = '../../index.html';
+    };
+
+    return { usuario, compras, carrito, editando, form, guardarDatos, logout, vista };
+  }
+}).mount('#app');
+</script>
+
 </body>
 </html>
