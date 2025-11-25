@@ -231,13 +231,13 @@ createApp({
 
     if (!idSucursal || !localStorage.getItem('ciEmpleado')) {
       alert("Sesión expirada");
-      location.href = '../login_empleado.html';
+      location.href = '../login.html';
     }
 
     const cerrarSesion = () => {
       if (confirm('¿Cerrar sesión?')) {
         localStorage.clear();
-        location.href = '../login_empleado.html';
+        location.href = '../login.html';
       }
     };
 
