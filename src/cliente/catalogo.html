@@ -1,267 +1,409 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo - TopSkin</title>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Baumans&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
-    
-    <style>
-        body { margin: 0; font-family: 'Open Sans', sans-serif; background: #f0f0f0; }
-        .banner {
-            background: linear-gradient(to bottom, #6BC5D2, #a0d8e0);
-            height: 150px; display: flex; align-items: center; justify-content: center;
-            color: white; font-family: 'Baumans', cursive; font-size: 2.5rem;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2); margin-bottom: 20px;
-        }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; gap: 30px; }
-        .filters {
-            width: 250px; background: #658C7B; border-radius: 10px; padding: 20px;
-            color: white; height: 520px; overflow-y: auto; position: sticky; top: 20px;
-        }
-        .filters::-webkit-scrollbar { width: 8px; }
-        .filters::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
-        .filter-group { margin-bottom: 20px; }
-        .filter-group label { display: block; margin-bottom: 8px; cursor: pointer; }
-        .filter-group input[type="checkbox"] { margin-right: 10px; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo - TopSkin</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Baumans&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Baumans', cursive;
+      background: url('https://i.pinimg.com/736x/d6/96/c9/d696c981d220227be2daa882950d02ca.jpg') center 10% / cover fixed;
+      color: #333;
+      min-height: 100vh;
+    }
+    [v-cloak] { display: none; }
 
-        .products-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 20px; flex: 1;
-        }
-        .product-card {
-            background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            text-align: center; padding: 10px; cursor: pointer; transition: transform 0.3s;
-        }
-        .product-card:hover { transform: scale(1.05); }
-        .product-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; }
-        .product-card h4 { font-size: 1rem; margin: 5px 0; color: #333; }
-        .product-card p { font-weight: bold; color: #658C7B; font-size: 1.1rem; }
+    .header {
+      position: sticky; top: 0; z-index: 1000;
+      background: #a7ccd4; padding: 12px 30px; height: 120px;
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 20px solid #768c8f; margin-bottom: 30px;
+    }
+    .header::before {
+      content: ""; position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+      width: 160px; height: 100px;
+      background: url('../../media/logo_2.png') center/contain no-repeat;
+      pointer-events: none;
+    }
+    .volver {
+      background: #5699a1; color: #d9f0eb; text-decoration: none;
+      font-size: 1rem; font-weight: 600; padding: 14px 24px; border-radius: 25px;
+      box-shadow: 0 8px 20px rgba(41,49,49,0.6); transition: all 0.3s;
+    }
+    .volver:hover { background: #39485e; transform: translateY(-3px); }
 
-        .popup-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center;
-            z-index: 9999; padding: 20px;
-        }
-        .popup-content {
-            background: #fff; border-radius: 20px; width: 100%; max-width: 900px;
-            position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.3); overflow: hidden;
-        }
-        .cerrar-popup {
-            position: absolute; top: 15px; right: 20px; background: #333; color: white;
-            padding: 8px 20px; border-radius: 30px; font-size: 14px; cursor: pointer; z-index: 10;
-        }
-        .popup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; padding: 40px; }
-        .popup-img img {
-            width: 100%; height: 420px; object-fit: contain; border-radius: 15px;
-            background: white; padding: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        .popup-info h2 { margin: 18px 0 8px; color: #444; font-size: 1rem; font-weight: bold; }
-        .nombre-producto { font-size: 1.5rem; font-weight: bold; color: #333; margin-bottom: 15px; }
-        .marca { font-size: 1.3rem; color: #658C7B; margin-bottom: 15px; }
-        .precio { font-size: 1.8rem; font-weight: bold; color: #658C7B; margin: 20px 0; }
-        .categorias { color: #555; font-style: italic; margin-bottom: 15px; }
-        .descripcion { line-height: 1.6; color: #555; margin-bottom: 25px; }
-        .cantidad-contenedor { margin: 20px 0; text-align: center; }
-        .cantidad-controls {
-            display: inline-flex; align-items: center; background: #f0f0f0;
-            border-radius: 30px; padding: 5px; margin-left: 15px;
-        }
-        .cantidad-controls button {
-            width: 40px; height: 40px; border: none; background: #658C7B; color: white;
-            font-size: 1.4rem; cursor: pointer; border-radius: 50%; transition: 0.3s;
-        }
-        .cantidad-controls button:disabled { background: #aaa !important; cursor: not-allowed; }
-        .cantidad-controls span { margin: 0 20px; font-size: 1.4rem; font-weight: bold; min-width: 30px; }
-        .btn-agregar {
-            width: 100%; padding: 16px; background: #a8d5c8; color: #333;
-            font-size: 1.3rem; font-weight: bold; border: none; border-radius: 50px;
-            cursor: pointer; margin-top: 20px; transition: 0.3s;
-        }
-        .btn-agregar:hover { background: #90c7b8; }
-        .btn-agregar:disabled { background: #ccc; cursor: not-allowed; }
+    .container {
+      max-width: 1350px; margin: 0 auto; padding: 0 25px 50px; display: flex; gap: 35px;
+    }
 
-        .loading, .error { text-align: center; padding: 60px; font-size: 1.5rem; }
-        .error { color: #d32f2f; background: #ffebee; border-radius: 15px; margin: 20px; }
-    </style>
+    /* FILTROS CON SCROLL BONITO */
+    .filters {
+      width: 290px; background: rgba(101,140,123,0.97); backdrop-filter: blur(12px);
+      border-radius: 22px; padding: 28px; color: white; position: sticky; top: 140px;
+      height: 70vh; overflow-y: auto; box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+      border: 3px solid rgba(255,255,255,0.2);
+    }
+    .filters::-webkit-scrollbar { width: 10px; }
+    .filters::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    .filters::-webkit-scrollbar-thumb { background: #5699a1; border-radius: 10px; }
+    .filters h3 { text-align: center; font-size: 1.8rem; margin-bottom: 25px; }
+    .filter-group h4 { font-size: 1.25rem; margin: 22px 0 14px; color: #d9f0eb; }
+    .filter-group label {
+      display: block; margin: 14px 0; cursor: pointer; font-size: 1.1rem;
+    }
+    .filter-group input[type="checkbox"] {
+      margin-right: 12px; transform: scale(1.4); accent-color: #a7e6d7;
+    }
+
+    /* PRODUCTOS MÁS COMPACTOS */
+    .products-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 22px;
+    }
+    .product-card {
+      background: white; border-radius: 18px; overflow: hidden;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.14); text-align: center;
+      transition: all 0.35s ease; cursor: pointer;
+    }
+    .product-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 18px 35px rgba(0,0,0,0.22);
+    }
+    .product-card img {
+      width: 100%; height: 200px; object-fit: cover;
+      border-bottom: 4px solid #5699a1;
+    }
+    .product-card h4 {
+      padding: 12px 10px 4px; font-size: 1.05rem; color: #2c4a52; line-height: 1.3;
+    }
+    .product-card p {
+      font-weight: bold; color: #5699a1; font-size: 1.35rem; padding-bottom: 10px;
+    }
+    .stock-bajo { color: #e74c3c; font-size: 0.9rem; font-weight: bold; }
+
+    .no-results {
+      grid-column: 1/-1; text-align: center; padding: 90px 20px;
+      color: #5699a1; font-size: 1.6rem;
+    }
+
+    /* POPUP  */
+    .popup-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999; padding: 20px;
+    backdrop-filter: blur(6px);
+    }
+
+    .popup-content {
+    background: #f8fdff;
+    border-radius: 18px;
+    max-width: 720px;
+    width: 94%;
+    overflow: hidden;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    border: 3px solid #a7ccd4;
+    }
+
+    .cerrar-popup {
+    position: absolute;
+    top: 12px; right: 16px;
+    background: #5699a1;
+    color: white;
+    padding: 8px 18px;
+    border-radius: 25px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 10;
+    transition: 0.3s;
+    }
+    .cerrar-popup:hover { background: #39485e; }
+
+    .popup-body {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 32px;
+    padding: 40px;
+    background: linear-gradient(to bottom, #e8f4f8, #f8fdff);
+    }
+
+    .popup-img img {
+    width: 100%;
+    height: 320px;
+    object-fit: contain;
+    background: white;
+    border-radius: 14px;
+    padding: 16px;
+    border: 2px solid #ddd;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+
+    .popup-info h3 {
+    color: #2c4a52;
+    font-size: 1.05rem;
+    margin: 18px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+    }
+
+    .nombre { font-size: 1.7rem; color: #333; font-weight: bold; margin-bottom: 8px; }
+    .marca { font-size: 1.5rem; color: #5699a1; }
+    .precio { font-size: 2.6rem; color: #2c4a52; font-weight: bold; margin: 16px 0; }
+
+    .descripcion {
+    font-size: 1.08rem;
+    color: #444;
+    line-height: 1.7;
+    margin: 20px 0 28px;
+    font-family: 'Open Sans', sans-serif;
+    }
+
+    .cantidad-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 25px 0;
+    flex-wrap: wrap;
+    }
+
+    .label-cantidad {
+    font-size: 1.35rem;
+    color: #2c4a52;
+    font-weight: bold;
+    }
+
+    .cantidad-controls {
+    display: inline-flex;
+    align-items: center;
+    background: #e8f4f8;
+    border: 2px solid #5699a1;
+    border-radius: 50px;
+    padding: 8px 12px;
+    }
+
+    .cantidad-controls button {
+    width: 44px; height: 44px;
+    background: #5699a1;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.6rem;
+    cursor: pointer;
+    }
+
+    .cantidad-controls button:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+    }
+
+    .numero {
+    margin: 0 20px;
+    font-size: 1.7rem;
+    font-weight: bold;
+    min-width: 40px;
+    text-align: center;
+    color: #2c4a52;
+    }
+
+    .btn-agregar-carrito {
+    width: 100%;
+    padding: 18px;
+    background: #7fb6c0;
+    color: #1e353a;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 10px 25px rgba(127,182,192,0.4);
+    }
+
+    .btn-agregar-carrito:hover:not(:disabled) {
+    background: #a7e6d7;
+    transform: translateY(-4px);
+    }
+
+    .stock-alert {
+    color: #e74c3c;
+    font-weight: bold;
+    font-size: 1rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+    .popup-body {
+        grid-template-columns: 1fr;
+        padding: 30px;
+        text-align: center;
+    }
+    .popup-img img { height: 280px; }
+    .cantidad-section { justify-content: center; }
+    }
+  </style>
 </head>
 <body>
 
-<div id="app">
-    <div class="banner">Catálogo TopSkin</div>
+<div id="app" v-cloak>
+  <header class="header">
+    <a href="../../index.html" class="volver">
+      Volver al Menú
+    </a>
+  </header>
 
-    <!-- ESTADO DE CARGA / ERROR -->
-    <div v-if="loading" class="loading">
-        <i class="fas fa-spinner fa-spin"></i> Cargando productos...
+  <div class="container">
+    <aside class="filters">
+      <h3>Filtros</h3>
+      <div class="filter-group">
+        <h4>Marcas</h4>
+        <label v-for="marca in availableMarcas" :key="marca">
+          <input type="checkbox" v-model="selectedMarcas" :value="marca"> {{ marca }}
+        </label>
+      </div>
+      <div class="filter-group">
+        <h4>Categorías</h4>
+        <label v-for="cat in availableCategorias" :key="cat">
+          <input type="checkbox" v-model="selectedCategorias" :value="cat"> {{ cat }}
+        </label>
+      </div>
+    </aside>
+
+    <div class="products-grid">
+      <div v-for="p in filteredProducts" :key="p.idProducto" class="product-card" @click="abrirPopup(p)">
+        <img :src="p.foto" :alt="p.nombre" loading="lazy"
+             onerror="this.src='https://via.placeholder.com/300x300.png?text=Sin+Foto'">
+        <h4>{{ p.nombre }}</h4>
+        <p>{{ p.precioUnitario.toFixed(2) }} Bs.</p>
+        <small v-if="p.stock < 5" class="stock-bajo">¡Solo {{ p.stock }} en stock!</small>
+      </div>
+
+      <div v-if="filteredProducts.length === 0" class="no-results">
+        No se encontraron productos con los filtros seleccionados.
+      </div>
     </div>
-    <div v-else-if="error" class="error">
-        <i class="fas fa-exclamation-triangle"></i> {{ error }}
-    </div>
+  </div>
 
-    <!-- CATÁLOGO -->
-    <div v-else class="container">
-        <!-- FILTROS -->
-        <div class="filters">
-            <h3><i class="fas fa-filter"></i> Filtros</h3>
-            
-            <div class="filter-group">
-                <h4><i class="fas fa-tags"></i> Marcas</h4>
-                <label v-for="marca in availableMarcas" :key="marca">
-                    <input type="checkbox" v-model="selectedMarcas" :value="marca"> {{ marca }}
-                </label>
-            </div>
-
-            <hr>
-
-            <div class="filter-group">
-                <h4><i class="fas fa-box"></i> Categorías</h4>
-                <label v-for="cat in availableCategorias" :key="cat">
-                    <input type="checkbox" v-model="selectedCategorias" :value="cat"> {{ cat }}
-                </label>
-            </div>
+  <!-- POPUP -->
+  <div v-if="productoSeleccionado" class="popup-overlay" @click.self="cerrarPopup">
+    <div class="popup-content">
+      <div class="cerrar-popup" @click="cerrarPopup">Cerrar</div>
+      <div class="popup-body">
+        <div class="popup-img">
+          <img :src="productoSeleccionado.foto" :alt="productoSeleccionado.nombre">
         </div>
-
-        <!-- PRODUCTOS -->
-        <div class="products-grid">
-            <div v-for="p in filteredProducts" :key="p.idProducto" class="product-card" @click="abrirPopup(p)">
-                <img :src="p.foto" :alt="p.nombre" loading="lazy" 
-                     onerror="this.src='https://via.placeholder.com/300x300.png?text=Sin+Foto'">
-                <h4>{{ p.nombre }}</h4>
-                <p>{{ p.precioUnitario.toFixed(2) }} Bs.</p>
-                <small v-if="p.stock < 5" style="color: red;">¡Solo {{ p.stock }} en stock!</small>
+        <div class="popup-info">
+          <div class="info-item">
+            <span class="label">PRODUCTO:</span>
+            <p class="valor nombre">{{ productoSeleccionado.nombre }}</p>
+          </div>
+          <div class="info-item">
+            <span class="label">MARCA:</span>
+            <p class="valor marca">{{ productoSeleccionado.marca }}</p>
+          </div>
+          <div class="info-item">
+            <span class="label">PRECIO:</span>
+            <p class="valor precio">{{ productoSeleccionado.precioUnitario.toFixed(0) }} Bs</p>
+          </div>
+          <div class="info-item">
+            <span class="label">DESCRIPCIÓN:</span>
+            <p class="valor descripcion">
+              {{ productoSeleccionado.descripcion || 'Producto de alta calidad formulado para el cuidado y protección de tu piel.' }}
+            </p>
+          </div>
+          <div class="cantidad-section">
+            <span class="label-cantidad">Cantidad:</span>
+            <div class="cantidad-controls">
+              <button @click="cantidad = Math.max(1, cantidad - 1)">−</button>
+              <span class="numero">{{ cantidad }}</span>
+              <button @click="cantidad < productoSeleccionado.stock ? cantidad++ : null"
+                      :disabled="cantidad >= productoSeleccionado.stock">+</button>
             </div>
-
-            <div v-if="filteredProducts.length === 0" style="grid-column: 1/-1; text-align:center; padding:40px; color:#658C7B;">
-                <i class="fas fa-search" style="font-size:3rem;"></i><br><br>
-                No se encontraron productos con los filtros seleccionados.
-            </div>
+            <small v-if="productoSeleccionado.stock < 10" style="color:#e74c3c;">
+              ¡Solo {{ productoSeleccionado.stock }} disponibles!
+            </small>
+          </div>
+          <button class="btn-agregar-carrito" @click="agregarAlCarrito"
+                  :disabled="cantidad > productoSeleccionado.stock">
+            Agregar al Carrito
+          </button>
         </div>
+      </div>
     </div>
-
-    <!-- POPUP DETALLE -->
-    <div v-if="productoSeleccionado" class="popup-overlay" @click.self="cerrarPopup">
-        <div class="popup-content">
-            <div class="cerrar-popup" @click="cerrarPopup">Cerrar</div>
-            <div class="popup-grid">
-                <div class="popup-img">
-                    <img :src="productoSeleccionado.foto" :alt="productoSeleccionado.nombre"
-                         onerror="this.src='https://via.placeholder.com/500x500.png?text=Sin+Imagen'">
-                </div>
-                <div class="popup-info">
-                    <h2>PRODUCTO:</h2>
-                    <p class="nombre-producto">{{ productoSeleccionado.nombre }}</p>
-
-                    <h2>MARCA:</h2>
-                    <p class="marca">{{ productoSeleccionado.marca }}</p>
-
-                    <h2>CATEGORÍAS:</h2>
-                    <p class="categorias">{{ productoSeleccionado.categorias }}</p>
-
-                    <h2>PRECIO:</h2>
-                    <p class="precio">{{ productoSeleccionado.precioUnitario.toFixed(2) }} Bs.</p>
-
-                    <div class="cantidad-contenedor">
-                        <label>Cantidad (Stock: {{ productoSeleccionado.stock }}):</label>
-                        <div class="cantidad-controls">
-                            <button @click="cantidad = Math.max(1, cantidad - 1)">−</button>
-                            <span>{{ cantidad }}</span>
-                            <button @click="cantidad < Math.min(20, productoSeleccionado.stock) ? cantidad++ : null"
-                                    :disabled="cantidad >= Math.min(20, productoSeleccionado.stock)">+</button>
-                        </div>
-                    </div>
-
-                    <button class="btn-agregar" @click="agregarAlCarrito"
-                            :disabled="cantidad > productoSeleccionado.stock">
-                        <i class="fas fa-cart-plus"></i> Agregar al Carrito
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+  </div>
 </div>
 
 <script>
 const { createApp } = Vue;
 
 createApp({
-    data() {
-        return {
-            products: [],
-            selectedMarcas: [],
-            selectedCategorias: [],
-            productoSeleccionado: null,
-            cantidad: 1,
-            loading: true,
-            error: null
-        }
-    },
-    computed: {
-        availableMarcas() {
-            return [...new Set(this.products.map(p => p.marca))].sort();
-        },
-        availableCategorias() {
-            const todas = this.products.flatMap(p => p.categorias_array || []);
-            return [...new Set(todas)].sort();
-        },
-        filteredProducts() {
-            return this.products.filter(p => {
-                const marcaOk = this.selectedMarcas.length === 0 || this.selectedMarcas.includes(p.marca);
-                const catOk = this.selectedCategorias.length === 0 ||
-                    this.selectedCategorias.some(cat => (p.categorias_array || []).includes(cat));
-                return marcaOk && catOk;
-            });
-        }
-    },
-    methods: {
-        async cargarProductos() {
-            try {
-                const res = await fetch('../../backend/catalogo.php');
-                if (!res.ok) throw new Error(`Error ${res.status}`);
-                const data = await res.json();
-                this.products = data;
-            } catch (err) {
-                this.error = "Error al cargar productos: " + err.message;
-                console.error(err);
-            } finally {
-                this.loading = false;
-            }
-        },
-        abrirPopup(p) {
-            this.productoSeleccionado = p;
-            this.cantidad = 1;
-        },
-        cerrarPopup() {
-            this.productoSeleccionado = null;
-        },
-        async agregarAlCarrito() {
-            const cliente = JSON.parse(localStorage.getItem('cliente'));
-            if (!cliente) return alert("Debes iniciar sesión");
-
-            const ci = cliente.ciCliente || cliente.ci;
-
-            await fetch(`../../backend/actualizar_carrito.php?ci=${ci}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify([
-                    {
-                        idProducto: this.productoSeleccionado.idProducto,
-                        cantidad: this.cantidad
-                    }
-                ])
-            });
-
-            alert("Producto agregado al carrito");
-            this.cerrarPopup();
-        }
-
-    },
-    mounted() {
-        this.cargarProductos();
+  data() {
+    return {
+      products: [],
+      selectedMarcas: [],
+      selectedCategorias: [],
+      productoSeleccionado: null,
+      cantidad: 1,
+      loading: true,
+      error: null
     }
+  },
+  computed: {
+    availableMarcas() { return [...new Set(this.products.map(p => p.marca))].sort(); },
+    availableCategorias() {
+      const todas = this.products.flatMap(p => p.categorias_array || []);
+      return [...new Set(todas)].sort();
+    },
+    filteredProducts() {
+      return this.products.filter(p => {
+        const marcaOk = this.selectedMarcas.length === 0 || this.selectedMarcas.includes(p.marca);
+        const catOk = this.selectedCategorias.length === 0 ||
+          this.selectedCategorias.some(cat => (p.categorias_array || []).includes(cat));
+        return marcaOk && catOk;
+      });
+    }
+  },
+  methods: {
+    async cargarProductos() {
+      try {
+        this.loading = true;
+        const res = await fetch('../../backend/catalogo.php');
+        if (!res.ok) throw new Error(`Error ${res.status}`);
+        const data = await res.json();
+        this.products = data;
+      } catch (err) {
+        this.error = "Error al cargar productos: " + err.message;
+      } finally {
+        this.loading = false;
+      }
+    },
+    abrirPopup(p) { this.productoSeleccionado = p; this.cantidad = 1; },
+    cerrarPopup() { this.productoSeleccionado = null; },
+    async agregarAlCarrito() {
+      const cliente = JSON.parse(localStorage.getItem('cliente'));
+      if (!cliente) return alert("Debes iniciar sesión");
+      const ci = cliente.ciCliente || cliente.ci;
+      await fetch(`../../backend/actualizar_carrito.php?ci=${ci}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify([{
+          idProducto: this.productoSeleccionado.idProducto,
+          cantidad: this.cantidad
+        }])
+      });
+      alert("¡Producto agregado al carrito!");
+      this.cerrarPopup();
+    }
+  },
+  mounted() { this.cargarProductos(); }
 }).mount('#app');
 </script>
-
 </body>
 </html>

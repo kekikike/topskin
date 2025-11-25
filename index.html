@@ -636,16 +636,16 @@
           });
         });
 
-        // --- USUARIO ---s
+        // --- USUARIO ---
         const cliente = ref(null);
-      try {
-          const data = localStorage.getItem('cliente');
-          if (data) cliente.value = JSON.parse(data);
-      } catch(e) {
-          console.warn('Datos corruptos en localStorage cliente → se limpiaron');
-          localStorage.removeItem('cliente');
-      }
-
+          try {
+              const data = localStorage.getItem('cliente');
+              if (data) cliente.value = JSON.parse(data);
+          } catch(e) {
+              console.warn('Datos corruptos en localStorage cliente → se limpiaron');
+              localStorage.removeItem('cliente');
+          }
+      
               const mostrarPopup = ref(false);
 
               // Computed para mostrar el nombre completo

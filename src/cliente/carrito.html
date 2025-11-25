@@ -7,124 +7,366 @@
 
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baumans&display=swap" rel="stylesheet">
 
   <style>
-    body { margin: 0; padding: 0; font-family: 'Open Sans', sans-serif; background-color: #f4f4f4; color: #333; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Baumans', cursive;
+      background: url('https://i.pinimg.com/736x/d6/96/c9/d696c981d220227be2daa882950d02ca.jpg') center 10% / cover fixed;
+      color: #333;
+      min-height: 100vh;
+    }
     [v-cloak] { display: none; }
 
-    .carrito-wrapper { max-width: 1100px; margin: 0 auto; background: #fff; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
-
-    .carrito-header {
-      background-color: #b8e2e8; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd;
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: #a7ccd4;
+      padding: 12px 30px;
+      height: 120px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 20px solid #768c8f;
+      margin-bottom: 20px;
     }
-    .select-all { font-size: 1.1rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; }
-    .select-all input { width: 18px; height: 18px; margin-right: 10px; cursor: pointer; }
-    .logo-text { font-size: 1.5rem; font-weight: bold; color: #555; letter-spacing: 2px; text-transform: uppercase; }
+    .header::before {
+      content: "";
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 160px;
+      height: 100px;
+      background: url('../../media/logo_2.png') center/contain no-repeat;
+      pointer-events: none;
+    }
+    .volver {
+      background-color: #5699a1;
+      color: #d9f0eb;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 15px 22px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(41, 49, 49, 0.6);
+      transition: all 0.3s;
+    }
+    .volver:hover {
+      background-color: #39485e;
+      color: #d2e1e4;
+      transform: translateY(-2px);
+    }
 
-    .carrito-body { display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; padding: 30px; }
-    .productos-lista { display: flex; flex-direction: column; gap: 20px; }
+    .carrito-wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: #f4fffe8f;
+      min-height: calc(100vh - 140px);
+      box-shadow: 0 0 20px rgba(0,0,0,0.07);
+      border-radius: 0 0 12px 12px;
+      overflow: hidden;
+    }
+    .carrito-body {
+      display: grid;
+      grid-template-columns: 1.7fr 1fr;
+      gap: 30px;
+      padding: 30px;
+    }
+
+    .seleccionar-todos-bar {
+      grid-column: 1 / -1;
+      margin-bottom: 20px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.97);
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-weight: bold;
+      color: #2c4a52;
+      backdrop-filter: blur(12px);
+      border: 2px solid rgba(86, 153, 161, 0.25);
+    }
+    .seleccionar-todos-bar input[type="checkbox"] {
+      width: 26px;
+      height: 26px;
+      cursor: pointer;
+    }
+    .seleccionar-todos-bar label {
+      cursor: pointer;
+      margin: 0;
+      font-size: 1.25rem;
+    }
+    .seleccionar-todos-bar .contador {
+      margin-left: auto;
+      color: #5699a1;
+      font-weight: normal;
+      font-size: 1.1rem;
+    }
 
     .producto-item {
-      display: flex; align-items: center; padding: 15px; background: #fff; border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative;
+      display: flex;
+      align-items: center;
+      padding: 20px;
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      margin-bottom: 18px;
+      transition: transform 0.2s;
     }
-    .check-individual { width: 18px; height: 18px; margin-right: 15px; cursor: pointer; }
-    .img-producto { width: 80px; height: 80px; object-fit: contain; border: 1px solid #eee; border-radius: 5px; margin-right: 20px; background: white; }
-    .info-producto h3 { font-size: 1rem; margin: 0 0 5px 0; color: #333; }
-    .info-producto p { font-size: 0.85rem; color: #777; margin: 0 0 8px 0; }
-    .precio { font-size: 1.2rem; font-weight: bold; color: #333; }
-
-    .btn-eliminar { background: none; border: none; color: #aaa; font-size: 1.2rem; cursor: pointer; transition: color 0.3s; padding: 5px; margin-left: 10px; }
+    .producto-item:hover { transform: translateY(-2px); }
+    .check-individual { width: 22px; height: 22px; margin-right: 20px; cursor: pointer; }
+    .img-producto {
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-right: 20px;
+      background: #fff;
+      padding: 6px;
+    }
+    .info-producto h3 { margin: 0 0 6px; font-size: 1.1rem; color: #333; }
+    .info-producto p { margin: 0 0 10px; font-size: 0.9rem; color: #666; }
+    .precio { font-size: 1.4rem; font-weight: bold; color: #333; }
+    .btn-eliminar {
+      margin-left: auto;
+      background: none;
+      border: none;
+      color: #ccc;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
     .btn-eliminar:hover { color: #e74c3c; }
 
-    .carrito-vacio { text-align: center; grid-column: 1 / -1; padding: 50px; color: #777; }
-    .btn-volver { text-decoration: none; color: white; background: #658C7B; padding: 10px 20px; border-radius: 20px; margin-top: 10px; display: inline-block; }
-
-    .resumen-card { background: #e6eef0; padding: 25px; border-radius: 10px; height: fit-content; position: sticky; top: 20px; }
-    .resumen-card h3 { margin-top: 0; color: #555; font-size: 1.1rem; margin-bottom: 20px; }
-
-    .mini-carrusel { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; border-bottom: 1px solid #ccc; }
-    .mini-img { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #fff; background: white; flex-shrink: 0; }
-
-    .fila-total { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1rem; color: #444; }
-    .fila-subtotal { display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 1px solid #ccc; font-size: 1.3rem; font-weight: bold; color: #333; }
+    .resumen-card {
+      background: #e8f4f8;
+      padding: 28px;
+      border-radius: 16px;
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+    .resumen-card h3 {
+      margin: 0 0 22px;
+      font-size: 1.35rem;
+      color: #3a6f7a;
+      text-align: center;
+      font-weight: bold;
+    }
+    .mini-carrusel {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+    }
+    .mini-img {
+      width: 56px;
+      height: 56px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 3px solid #fff;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+      flex-shrink: 0;
+    }
+    .resumen-linea {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      font-size: 1.05rem;
+      color: #444;
+    }
+    .resumen-linea.descuento { color: #27ae60; font-weight: bold; }
+    .resumen-linea.total {
+      font-size: 1.5rem;
+      font-weight: bold;
+      padding-top: 18px;
+      border-top: 3px solid #b0d9de;
+      color: #2c4a52;
+    }
 
     .btn-comprar {
-      width: 100%; background-color: #7f9c8f; color: white; border: none; padding: 15px;
-      font-size: 1.2rem; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 25px; transition: background 0.3s;
+      width: 100%;
+      background: #7f9c8f;
+      color: white;
+      border: none;
+      padding: 18px;
+      font-size: 1.4rem;
+      font-weight: bold;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-top: 28px;
+      transition: all 0.3s;
     }
-    .btn-comprar:hover:not(:disabled) { background-color: #658C7B; }
-    .btn-comprar:disabled { background-color: #aaa; cursor: not-allowed; }
+    .btn-comprar:hover:not(:disabled) {
+      background: #658c7b;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(101, 140, 123, 0.4);
+    }
+    .btn-comprar:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
 
+    .carrito-vacio {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 100px 20px;
+      color: #555;
+    }
+    .carrito-vacio h2 {
+      font-size: 2.8rem;
+      margin-bottom: 20px;
+    }
+    .btn-volver-catalogo {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 18px 20px;
+      background: linear-gradient( #39485e);
+      color: white;
+      text-decoration: none;
+      font-size: 20px;
+      font-weight: bold;
+      border-radius: 50px;
+      box-shadow: 0 12px 20px rgba(86, 153, 161, 0.4);
+      transition: all 0.3s;
+    }
+    .btn-volver-catalogo:hover {
+      transform: scale(1.05);
+      box-shadow: 0 20px 40px rgba(86, 153, 161, 0.5);
+    }
     .modal-overlay {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5);
-      display: flex; align-items: center; justify-content: center; z-index: 9999;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      backdrop-filter: blur(8px);
     }
     .modal-content {
-      background: white; padding: 30px; border-radius: 10px; text-align: center;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2); width: 90%; max-width: 400px;
+      background: white;
+      padding: 35px;
+      border-radius: 18px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      max-width: 90%;
+      width: 440px;
+      text-align: center;
+      animation: modalAparicion 0.35s ease-out;
+    }
+    @keyframes modalAparicion {
+      from { transform: scale(0.85); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-content button {
+      padding: 14px 28px !important;
+      margin: 8px;
+      font-size: 1.05rem !important;
+      border-radius: 12px !important;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .modal-content button:first-of-type {
+      background: #ddd !important;
+      color: #333;
+    }
+    .modal-content button:last-of-type {
+      background: #e74c3c !important;
+      color: white;
+    }
+    .modal-content button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
     }
 
-    @media (max-width: 768px) { .carrito-body { grid-template-columns: 1fr; } }
+    @media (max-width: 868px) {
+      .carrito-body { grid-template-columns: 1fr; }
+      .header::before { width: 120px; height: 80px; top: 20px; }
+      .seleccionar-todos-bar { padding: 16px; font-size: 1rem; }
+      .seleccionar-todos-bar label { font-size: 1.1rem; }
+    }
   </style>
 </head>
 <body>
 
 <div id="app" v-cloak>
-  <header class="carrito-header">
-    <label class="select-all">
-      <input type="checkbox" v-model="todosSeleccionados">
-      <span>Todos los artículos</span>
-    </label>
-    <div class="logo-text">TOPSKIN</div>
+
+  <!-- HEADER CON LOGO Y BOTÓN VOLVER -->
+  <header class="header">
+    <div></div> <!-- espaciador izquierdo -->
+    <a href="../../index.html" class="volver">← Volver al menú principal</a>
   </header>
 
-  <div class="carrito-body">
-    <div class="productos-lista">
-      <div v-if="carrito.length === 0" class="carrito-vacio">
-        <h2>Tu carrito está vacío</h2>
-        <p>Parece que aún no has añadido nada.</p>
-        <a href="catalogo.html" class="btn-volver">Ir al catálogo</a>
+  <div class="carrito-wrapper">
+    <div class="carrito-body">
+      <!-- SELECTOR DE TODOS LOS PRODUCTOS (lo tenías antes y es súper útil) -->
+      <div v-if="carrito.length > 0" class="seleccionar-todos-bar">
+        <input type="checkbox" id="todos" v-model="todosSeleccionados">
+        <label for="todos">Seleccionar todos los productos</label>
+        <span class="contador">({{ seleccionados.length }} de {{ carrito.length }})</span>
       </div>
-
-      <div v-for="item in carrito" :key="item.idProducto" class="producto-item">
-        <input type="checkbox" class="check-individual" :value="item.idProducto" v-model="seleccionados">
-        <img :src="item.foto || 'https://via.placeholder.com/80?text=Sin+Img'" class="img-producto" :alt="item.nombre">
-        <div class="info-producto">
-          <h3>{{ item.nombre }}</h3>
-          <p>{{ item.marca || 'Sin marca' }}</p>
-          <div class="precio">
-            <span v-if="item.cantidad > 1" style="font-size: 0.9rem; font-weight: normal;">
-              {{ item.cantidad }} x {{ item.precioUnitario }} Bs. = 
-            </span>
-            {{ (item.precioUnitario * item.cantidad).toFixed(2) }} Bs.
-          </div>
+      <!-- LISTA DE PRODUCTOS -->
+      <div>
+        <div v-if="carrito.length === 0" class="carrito-vacio">
+          <h2>Tu carrito está vacío</h2>
+          <p>Parece que aún no has añadido nada.</p>
+          <a href="catalogo.html" class="btn-volver-catalogo">Ir al catálogo</a>
         </div>
-        <button class="btn-eliminar" @click="abrirModalEliminar(item)">
-          <i class="fas fa-trash-alt"></i>
+
+        <div v-for="item in carrito" :key="item.idProducto" class="producto-item">
+          <input type="checkbox" class="check-individual" :value="item.idProducto" v-model="seleccionados">
+          <img :src="item.foto || 'https://via.placeholder.com/90'" class="img-producto" :alt="item.nombre">
+          <div class="info-producto">
+            <h3>{{ item.nombre }}</h3>
+            <p>{{ item.descripcion || 'Descripción no disponible' }}</p>
+            <div class="precio">{{item.cantidad}} u x {{item.precioUnitario}} Bs = {{ (item.precioUnitario * item.cantidad).toFixed(2) }} Bs.</div>
+          </div>
+          <button class="btn-eliminar" @click="abrirModalEliminar(item)">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- RESUMEN DE COMPRA -->
+      <aside class="resumen-card" v-if="carrito.length > 0">
+        <h3>Resumen de la compra</h3>
+
+        <div class="mini-carrusel" v-if="productosSeleccionados.length > 0">
+          <img v-for="prod in productosSeleccionados" :key="prod.idProducto"
+               :src="prod.foto || 'https://via.placeholder.com/50'" class="mini-img">
+        </div>
+
+        <div class="resumen-linea">
+          <span>Subtotal:</span>
+          <span>{{ subtotalSinIVA }} Bs</span>
+        </div>
+        <div class="resumen-linea descuento">
+          <span>IVA:</span>
+          <span>{{ivaCalculado}}</span>
+        </div>
+        <div class="resumen-linea total">
+          <span>Total:</span>
+          <span>{{ totalConIVA }} Bs</span>
+        </div>
+
+        <button class="btn-comprar" @click="comprar" :disabled="seleccionados.length === 0 || comprando">
+          {{ comprando ? 'Procesando...' : 'Comprar' }}
         </button>
-      </div>
-    </div>
-
-    <aside class="resumen-card" v-if="carrito.length > 0">
-      <h3>Resumen de la compra</h3>
-      <div class="mini-carrusel" v-if="productosSeleccionados.length > 0">
-        <img v-for="prod in productosSeleccionados" :key="prod.idProducto" :src="prod.foto || 'https://via.placeholder.com/40?text=x'" class="mini-img">
-      </div>
-      <div v-else style="font-size: 0.8rem; color: #888; margin-bottom: 15px;">
-        Selecciona productos para ver el resumen.
-      </div>
-
-      <div class="fila-total"><span>Subtotal:</span><span>{{ subtotalSinIVA }} Bs</span></div>
-      <div class="fila-total"><span>IVA (13%):</span><span>{{ ivaCalculado }} Bs</span></div>
-      <div class="fila-subtotal"><span>Total a pagar:</span><span>{{ totalConIVA }} Bs</span></div>
-
-      <button class="btn-comprar" @click="comprar" :disabled="seleccionados.length === 0 || comprando">
-        <span v-if="!comprando">Comprar</span>
-        <span v-else>Procesando compra...</span>
-      </button>
-    </aside>
+      </aside>
   </div>
 
   <!-- Modal éxito -->
@@ -215,7 +457,12 @@
           try {
               const res = await fetch(`../../backend/cargar_carrito.php?ci=${ci}`);
               const data = await res.json();
-              this.carrito = data;
+              this.carrito = data.map(item => ({
+                ...item,
+                cantidad: parseInt(item.cantidad) || 1,
+                precioUnitario: parseFloat(item.precioUnitario)
+              }));
+
           } catch (err) {
               console.error("Error cargando carrito:", err);
               this.carrito = [];
@@ -277,12 +524,10 @@
                   this.totalGuardado = result.total;
                   this.numeroFactura = result.nFactura;
                   this.modalExito = true;
-                  this.carrito = [];          // Limpiar completamente el carrito local
-                  this.seleccionados = [];    // Limpiar la selección
-                  localStorage.removeItem('carrito');  // Limpiar carrito en localStorage
+                  this.carrito = [];          
+                  this.seleccionados = [];    
+                  localStorage.removeItem('carrito');  
 
-
-                  // Limpiar carrito localmente
                   this.carrito = this.carrito.filter(p => !this.seleccionados.includes(p.idProducto));
                   this.seleccionados = [];
               } else {

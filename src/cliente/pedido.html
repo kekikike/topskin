@@ -1,59 +1,303 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mis Pedidos | TopSkin</title>
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<link rel="stylesheet" href="styles.css">
-</head>
-<style>
-    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f9f9f9; }
-    h1 { text-align:center; margin-top:20px; }
-    .pedido-card { background:white; margin:15px auto; padding:15px; border-radius:8px; max-width:600px; box-shadow:0 2px 6px rgba(0,0,0,0.1);}
-    .pedido-card h3 { margin:0 0 10px; }
-    .pedido-card p { margin:3px 0; font-size:0.9rem; color:#555; }
-    .pedido-card .estado { font-weight:bold; }
-    /* Agrega más estilos según quieras */
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Pedidos | TopSkin</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Baumans&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Baumans', cursive;
+      background: url('https://i.pinimg.com/736x/d6/96/c9/d696c981d220227be2daa882950d02ca.jpg') center 10% / cover fixed;
+      color: #333;
+      min-height: 100vh;
+    }
+    [v-cloak] { display: none; }
+
+    /* HEADER EXACTAMENTE COMO TU REFERENCIA */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: #a7ccd4;
+      padding: 12px 30px;
+      height: 120px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 20px solid #768c8f;
+      margin-bottom: 20px;
+    }
+    .header::before {
+      content: "";
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 160px;
+      height: 100px;
+      background: url('../../media/logo_2.png') center/contain no-repeat;
+      pointer-events: none;
+    }
+
+    .volver {
+      background-color: #5699a1;
+      color: #d9f0eb;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 15px 22px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(41, 49, 49, 0.6);
+      transition: all 0.3s;
+    }
+    .volver:hover {
+      background-color: #39485e;
+      color: #d2e1e4;
+      transform: translateY(-2px);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: #f4fffe8f;
+      min-height: calc(100vh - 140px);
+      box-shadow: 0 0 20px rgba(0,0,0,0.07);
+      border-radius: 0 0 12px 12px;
+      overflow: hidden;
+      padding: 30px;
+    }
+
+    /* Filtros estilo tu diseño */
+    .filtros {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.97);
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      border: 2px solid rgba(86, 153, 161, 0.25);
+    }
+    .filtros label {
+      font-weight: bold;
+      color: #2c4a52;
+    }
+    .filtros input[type="date"] {
+      padding: 12px;
+      border: 2px solid #5699a1;
+      border-radius: 12px;
+      font-family: 'Baumans', cursive;
+      font-size: 1rem;
+    }
+    .filtros button {
+      background: #5699a1;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(41,49,49,0.5);
+      transition: all 0.3s;
+    }
+    .filtros button:hover {
+      background: #39485e;
+      transform: translateY(-3px);
+    }
+
+    /* Cards de pedidos estilo tu carrito */
+    .pedido-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+      margin-bottom: 25px;
+      transition: transform 0.3s;
+    }
+    .pedido-card:hover {
+      transform: translateY(-6px);
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #5699a1, #7fb6c0);
+      color: white;
+      padding: 18px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .card-header h3 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+    .estado {
+      padding: 8px 18px;
+      border-radius: 30px;
+      font-weight: bold;
+      font-size: 0.95rem;
+    }
+    .entregado { background: rgba(76, 175, 80, 0.4); color: #2e7d32; }
+    .pendiente { background: rgba(255, 152, 0, 0.4); color: #e65100; }
+
+    .card-body {
+      padding: 25px;
+    }
+    .fecha {
+      color: #5699a1;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+    }
+    .total {
+      font-size: 1.9rem;
+      font-weight: bold;
+      color: #2c4a52;
+      text-align: right;
+      margin: 15px 0;
+    }
+
+        details {
+      margin-top: 20px;
+      background: #f8fdff;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid #d0e8ec;
+    }
+    summary {
+      padding: 18px 25px;
+      background: #e8f4f8;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1.15rem;
+      color: #2c4a52;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    summary::after {
+      content: "\f078";
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      font-size: 1.1rem;
+      color: #5699a1;
+    }
+    details[open] summary::after {
+      content: "\f077";
+    }
+
+    details ul {
+      padding: 20px 25px;
+      list-style: none;
+    }
+    details li {
+      padding: 12px 0;
+      border-bottom: 1px dashed #ccc;
+      display: flex;
+      justify-content: space-between;
+    }
+    details li:last-child { border-bottom: none; }
+
+    /* Estado vacío */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: #555;
+    }
+    .empty-state i {
+      font-size: 5rem;
+      color: #ccc;
+      margin-bottom: 20px;
+    }
+    .btn-volver-catalogo {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 18px 40px;
+      background: #5699a1;
+      color: white;
+      text-decoration: none;
+      font-size: 1.4rem;
+      font-weight: bold;
+      border-radius: 50px;
+      box-shadow: 0 12px 30px rgba(86, 153, 161, 0.5);
+      transition: all 0.3s;
+    }
+    .btn-volver-catalogo:hover {
+      background: #39485e;
+      transform: scale(1.08);
+    }
+
+    @media (max-width: 768px) {
+      .header { padding: 12px 15px; height: 100px; }
+      .header::before { width: 120px; height: 80px; top: 15px; }
+      .volver { padding: 12px 18px; font-size: 0.9rem; }
+      .filtros { flex-direction: column; }
+    }
   </style>
+</head>
 <body>
+
 <div id="app" v-cloak>
-  <header>
-    <h1>Mis Pedidos</h1>
+
+  <header class="header">
+    <a href="../../index.html" class="volver">
+      <i class="fas fa-arrow-left"></i> Volver al Menú
+    </a>
+    <div></div>
   </header>
 
-  <section class="filtros">
-    <label>
-      Desde:
-      <input type="date" v-model="desde">
-    </label>
-    <label>
-      Hasta:
-      <input type="date" v-model="hasta">
-    </label>
-    <button @click="cargarPedidos">Filtrar</button>
-  </section>
+  <div class="container">
 
-  <section class="pedidos">
-    <div v-if="pedidos.length === 0" style="text-align:center; margin-top:20px;">
-      <p>No has realizado pedidos aún.</p>
-      <a href="catalogo.html" class="btn-volver">Ir al catálogo</a>
+    <!-- Filtros -->
+    <div class="filtros">
+      <label>Desde: <input type="date" v-model="desde"></label>
+      <label>Hasta: <input type="date" v-model="hasta"></label>
+      <button @click="cargarPedidos"><i class="fas fa-search"></i> Filtrar</button>
     </div>
 
-    <div v-for="p in pedidos" :key="p.nFactura" class="pedido-item">
-      <h3>Factura #{{ p.nFactura }} - {{ p.fechaVenta }}</h3>
-      <p><strong>Estado:</strong> {{ p.estadoEntrega == 1 ? 'Entregado' : 'Pendiente' }}</p>
-      <p><strong>Total:</strong> {{ p.costoTotal }} Bs</p>
-      <details>
-        <summary>Ver detalles</summary>
-        <ul>
-          <li v-for="d in p.detalle" :key="d.idDetalleVenta">
-            {{ d.cantidad }} x {{ d.nombreProducto }} = {{ d.subtotal }} Bs
-          </li>
-        </ul>
-      </details>
+    <!-- Pedidos -->
+    <div v-if="pedidos.length === 0" class="empty-state">
+      <i class="fas fa-box-open"></i>
+      <h2>No has realizado pedidos aún</h2>
+      <a href="catalogo.html" class="btn-volver-catalogo">Ir al catálogo</a>
     </div>
-  </section>
+
+    <div v-else v-for="p in pedidos" :key="p.nFactura" class="pedido-card">
+      <div class="card-header">
+        <h3>Factura #{{ p.nFactura }}</h3>
+        <span class="estado" :class="p.estadoEntrega == 1 ? 'entregado' : 'pendiente'">
+          {{ p.estadoEntrega == 1 ? 'Entregado' : 'Pendiente' }}
+        </span>
+      </div>
+
+      <div class="card-body">
+        <div class="fecha"><i class="fas fa-calendar-alt"></i> {{ p.fechaVenta }}</div>
+        <div class="total">{{ p.costoTotal }} Bs</div>
+
+        <details>
+          <summary>Ver detalles del pedido</summary>
+          <ul>
+            <li v-for="d in p.detalle" :key="d.idDetalleVenta">
+              <div class="detalle-linea">
+                <span>{{ d.cantidad }} × {{ d.nombreProducto }}</span>
+                <span class="subtotal">= {{ d.subtotal }} Bs</span>
+              </div>
+            </li>
+          </ul>
+        </details>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <script>
@@ -68,7 +312,7 @@ createApp({
       hasta: ''
     }
   },
-  methods: {
+  methods: { 
     async cargarPedidos() {
       if (!this.cliente) return alert("Debes iniciar sesión"), window.location.href = 'login.html';
 
