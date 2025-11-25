@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Cliente | TopSkin</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    /* (Mismo CSS bonito que te pasé antes, solo lo copio limpio) */
+    body {font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #e0f7fa, #b2ebf2); margin:0; padding:40px 20px; min-height:100vh; display:flex; justify-content:center;}
+    .contenedor {background:white; max-width:460px; width:100%; padding:40px; border-radius:20px; box-shadow:0 15px 40px rgba(0,0,0,0.15);}
+    h2 {text-align:center; color:#0e5066; margin-bottom:30px; font-size:28px;}
+    label {display:block; margin-top:18px; font-weight:600; color:#333;}
+    input {width:100%; padding:14px; margin-top:8px; border:1px solid #ccc; border-radius:10px; font-size:16px;}
+    input:focus {outline:none; border-color:#0e5066; box-shadow:0 0 0 3px rgba(14,80,102,0.1);}
+    .radio-box {display:flex; gap:30px; margin-top:12px;}
+    button {width:100%; padding:16px; margin-top:30px; background:#0e5066; color:white; font-size:18px; font-weight:bold; border:none; border-radius:12px; cursor:pointer;}
+    button:hover {background:#0b3d4f;}
+    button:disabled {background:#888; cursor:not-allowed;}
+    .error {color:#e74c3c; text-align:center; margin-top:15px;}
+    .success-card {position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#d4edda; color:#155724; padding:20px 40px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.2); font-size:18px; font-weight:bold; z-index:1000; display:flex; align-items:center; gap:12px; animation:slideDown .5s ease;}
+    @keyframes slideDown {from{transform:translate(-50%,-100px);opacity:0} to{transform:translate(-50%,0);opacity:1}}
+  </style>
+</head>
+<body>
+
+<div id="app" class="contenedor">
+  <h2>Registro de Cliente</h2>
+
+  <form @submit.prevent="registrar">
+    <label>CI Cliente</label>
+    <input v-model="ciCliente" placeholder="Ej: 12345678" maxlength="10" required>
+
+    <label>Primer Nombre</label>
+    <input v-model="nombre1" required>
+
+    <label>Segundo Nombre (opcional)</label>
+    <input v-model="nombre2">
+
+    <label>Apellido Paterno</label>
+    <input v-model="apellidoP" required>
+
+    <label>Apellido Materno (opcional)</label>
+    <input v-model="apellidoM">
+
+    <label>Dirección</label>
+    <input v-model="direccion" required>
+
+    <label>Correo</label>
+    <input type="email" v-model="correo" placeholder="ejemplo@gmail.com" required>
+
+    <label>Sexo</label>
+    <div class="radio-box">
+      <label><input type="radio" value="1" v-model="sexo"> Masculino</label>
+      <label><input type="radio" value="0" v-model="sexo"> Femenino</label>
+    </div>
+
+    <label>Teléfono (7-8 dígitos)</label>
+    <input v-model="telefono" @input="soloNumeros" maxlength="8" placeholder="76543210" required>
+
+    <label>Contraseña</label>
+    <input type="password" v-model="contrasena" required>
+
+    <label>Confirmar Contraseña</label>
+    <input type="password" v-model="confirmar" required>
+
+    <p class="error" v-if="error">{{ error }}</p>
+
+    <button type="submit" :disabled="cargando">
+      <span v-if="cargando">Registrando...</span>
+      <span v-else>Registrar Cliente</span>
+    </button>
+  </form>
+</div>
+
+<div v-if="mostrarExito" class="success-card">
+  ¡Cliente registrado exitosamente!
+</div>
+
+<script>
+const { createApp, ref } = Vue
+createApp({
+  setup() {
+    const ciCliente = ref("")
+    const nombre1 = ref("")
+    const nombre2 = ref("")
+    const apellidoP = ref("")
+    const apellidoM = ref("")
+    const direccion = ref("")
+    const correo = ref("")
+    const sexo = ref("1")
+    const telefono = ref("")
+    const contrasena = ref("")
+    const confirmar = ref("")
+    const error = ref("")
+    const cargando = ref(false)
+    const mostrarExito = ref(false)
+
+    const soloNumeros = (e) => {
+      e.target.value = e.target.value.replace(/[^0-9]/g, '')
+      telefono.value = e.target.value
+    }
+
+    const registrar = async () => {
+      error.value = ""
+      if (contrasena.value !== confirmar.value) {
+        error.value = "Las contraseñas no coinciden"
+        return
+      }
+      if (!/^\d{7,8}$/.test(telefono.value)) {
+        error.value = "Teléfono debe tener 7 u 8 dígitos"
+        return
+      }
+
+      cargando.value = true
+
+      try {
+        const resp = await fetch("../../backend/registro.php", { // Ruta correcta a tu PHP
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ciCliente: ciCliente.value,
+            nombre1: nombre1.value,
+            nombre2: nombre2.value,
+            apellidoP: apellidoP.value,
+            apellidoM: apellidoM.value,
+            direccion: direccion.value,
+            correo: correo.value,
+            sexo: sexo.value,
+            telefono: telefono.value,
+            contrasena: contrasena.value,
+            usuarioA: "1" // o el ID del que registra
+          })
+        })
+
+        const data = await resp.json()
+
+        if (data.success) {
+          mostrarExito.value = true
+          setTimeout(() => location.reload(), 2500)
+        } else {
+          error.value = data.message
+        }
+      } catch (e) {
+        error.value = "Error de conexión"
+      } finally {
+        cargando.value = false
+      }
+    }
+
+    return { ciCliente, nombre1, nombre2, apellidoP, apellidoM, direccion, correo, sexo, telefono, contrasena, confirmar, error, cargando, mostrarExito, registrar, soloNumeros }
+  }
+}).mount("#app")
+</script>
+</body>
+</html>
