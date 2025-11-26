@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TopSkin.com</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baumans&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Baumans', cursive;
+      background: url('https://i.pinimg.com/736x/d6/96/c9/d696c981d220227be2daa882950d02ca.jpg') center 10% / cover fixed;
+      color: #333;
+      min-height: 100vh;
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: #a7ccd4;
+      padding: 12px 30px;
+      height: 120px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 20px solid #768c8f;
+      margin-bottom: 30px;
+    }
+    .header::before {
+      content: "";
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 160px;
+      height: 100px;
+      background: url('../media/logo_2.png') center/contain no-repeat;
+      pointer-events: none;
+    }
+    .volver {
+      background-color: #5699a1;
+      color: #d9f0eb;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 15px 22px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(41, 49, 49, 0.6);
+      transition: all 0.3s;
+    }
+    .volver:hover {
+      background-color: #39485e;
+      color: #d2e1e4;
+      transform: translateY(-2px);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto 40px;
+      background: rgba(244, 255, 254, 0.92);
+      padding: 40px 50px;
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+      backdrop-filter: blur(5px);
+    }
+
+    h1 {
+      font-size: 3.2rem;
+      color: #2c4a52;
+      text-align: center;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+    h2 {
+      font-size: 2.2rem;
+      color: #5699a1;
+      margin: 40px 0 20ps 0;
+      text-align: center;
+    }
+    p {
+      font-size: 1.35rem;
+      line-height: 1.8;
+      margin-bottom: 20px;
+      text-align: justify;
+      color: #2c4a52;
+    }
+    .destacado {
+      background: linear-gradient(135deg, #5699a1, #7fb6c0);
+      color: white;
+      padding: 30px;
+      border-radius: 18px;
+      text-align: center;
+      font-size: 1.6rem;
+      margin: 40px 0;
+      box-shadow: 0 10px 30px rgba(86,153,161,0.4);
+    }
+    .valores {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 25px;
+      justify-content: center;
+      margin: 50px 0;
+    }
+    .valor {
+      background: white;
+      padding: 25px;
+      border-radius: 16px;
+      width: 280px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+    }
+    .valor:hover { transform: translateY(-10px); }
+    .valor i {
+      font-size: 3.5rem;
+      color: #5699a1;
+      margin-bottom: 15px;
+    }
+    .valor h3 {
+      font-size: 1.6rem;
+      color: #2c4a52;
+      margin-bottom: 10px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px;
+      background: rgba(167, 204, 212, 0.95);
+      color: #2c4a52;
+      font-size: 1.2rem;
+      margin-top: 50px;
+    }
+
+    @media (max-width: 768px) {
+      .header { height: 100px; padding: 12px 15px; }
+      .header::before { width: 120px; height: 80px; }
+      .container { padding: 30px 20px; }
+      h1 { font-size: 2.5rem; }
+      p { font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <a href="../../index.html" class="volver">
+      Volver al Menú
+    </a>
+    <div></div>
+  </header>
+
+  <div class="container">
+
+    <h1>Sobre Nosotros</h1>
+
+    <p>
+      ¡Bienvenidos a <strong>TopSkin</strong>! Somos una tienda apasionada por el cuidado de la piel y la belleza, 
+      dedicada a ofrecerte los mejores productos dermatológicos y cosméticos de Bolivia y el mundo.
+    </p>
+
+    <div class="destacado">
+      En TopSkin no vendemos solo productos...<br>
+      <strong>¡Vendemos confianza y amor propio!</strong>
+    </div>
+
+    <h2>Nuestra Misión</h2>
+    <p>
+      Ayudarte a lucir y sentirte increíble todos los días, con productos de calidad comprobada, 
+      precios honestos y un servicio cercano que te haga sentir como en casa.
+    </p>
+
+    <h2>Nuestros Valores</h2>
+    <div class="valores">
+      <div class="valor">
+        <i class="fas fa-heart"></i>
+        <h3>Pasión</h3>
+        <p>Amamos lo que hacemos y se nota en cada detalle.</p>
+      </div>
+      <div class="valor">
+        <i class="fas fa-shield-alt"></i>
+        <h3>Calidad</h3>
+        <p>Solo trabajamos con marcas reconocidas y productos originales.</p>
+      </div>
+      <div class="valor">
+        <i class="fas fa-smile"></i>
+        <h3>Cercanía</h3>
+        <p>Te atendemos como familia, siempre con una sonrisa.</p>
+      </div>
+    </div>
+
+    <p style="text-align:center; font-size:1.5rem; color:#5699a1;">
+      ¡Gracias por confiar en nosotros!<br>
+      Tu piel y tu felicidad son nuestra mayor motivación
+    </p>
+
+  </div>
+
+  <footer>
+    TopSkin © 2025 • Hecho con mucho cariño en Bolivia
+  </footer>
+
+</body>
+</html>

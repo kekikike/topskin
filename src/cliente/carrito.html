@@ -892,31 +892,31 @@
       },
 
       generarQRPrevio() {
-    const container = document.getElementById('qrCanvas');
-    container.innerHTML = ''; // limpiar si hay QR previo
+        const container = document.getElementById('qrCanvas');
+        container.innerHTML = ''; 
 
-    const datosQR = {
-        total: this.totalConIVA,
-        productos: this.productosSeleccionados.map(p => ({
-            nombre: p.nombre,
-            cantidad: p.cantidad,
-            precio: p.precioUnitario
-        })),
-        subtotal: this.subtotalSinIVA,
-        iva: this.ivaCalculado,
-        fecha: new Date().toLocaleString(),
-        metodo: "Pago con QR"
-    };
+        const datosQR = {
+            total: this.totalConIVA,
+            productos: this.productosSeleccionados.map(p => ({
+                nombre: p.nombre,
+                cantidad: p.cantidad,
+                precio: p.precioUnitario
+            })),
+            subtotal: this.subtotalSinIVA,
+            iva: this.ivaCalculado,
+            fecha: new Date().toLocaleString(),
+            metodo: "Pago con QR"
+        };
 
-    new QRCode(container, {
-        text: JSON.stringify(datosQR),
-        width: 256,
-        height: 256,
-        colorDark: "#0c4a5c",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
-    });
-},
+        new QRCode(container, {
+            text: JSON.stringify(datosQR, null, 2),
+            width: 256,
+            height: 256,
+            colorDark: "#0c4a5c",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    },
 
       async cargarCarrito() {
           const cliente = JSON.parse(localStorage.getItem('cliente'));
