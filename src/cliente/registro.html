@@ -3,93 +3,246 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TopSkin.com</title>
+  <title>Registro | TopSkin</title>
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body {font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #e0f7fa, #b2ebf2); margin:0; padding:40px 20px; min-height:100vh; display:flex; justify-content:center;}
-    .contenedor {background:white; max-width:460px; width:100%; padding:40px; border-radius:20px; box-shadow:0 15px 40px rgba(0,0,0,0.15);}
-    h2 {text-align:center; color:#0e5066; margin-bottom:30px; font-size:28px;}
-    label {display:block; margin-top:18px; font-weight:600; color:#333;}
-    input {width:100%; padding:14px; margin-top:8px; border:1px solid #ccc; border-radius:10px; font-size:16px;}
-    input:focus {outline:none; border-color:#0e5066; box-shadow:0 0 0 3px rgba(14,80,102,0.1);}
-    .radio-box {display:flex; gap:30px; margin-top:12px;}
-    button {width:100%; padding:16px; margin-top:30px; background:#0e5066; color:white; font-size:18px; font-weight:bold; border:none; border-radius:12px; cursor:pointer;}
-    button:hover {background:#0b3d4f;}
-    button:disabled {background:#888; cursor:not-allowed;}
-    .error {color:#e74c3c; text-align:center; margin-top:15px;}
-    .success-card {position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#d4edda; color:#155724; padding:20px 40px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.2); font-size:18px; font-weight:bold; z-index:1000; display:flex; align-items:center; gap:12px; animation:slideDown .5s ease;}
-    @keyframes slideDown {from{transform:translate(-50%,-100px);opacity:0} to{transform:translate(-50%,0);opacity:1}}
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: url('https://i.pinimg.com/1200x/ec/ca/a5/eccaa5b697fd5aa393afbb7245e76709.jpg') center 10% / cover fixed;
+      background-repeat: no-repeat;
+      background-position: 90%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px;
+      padding: 40px 35px;
+      position: relative;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .header img {
+      width: 150px;
+      margin-bottom: 10px;
+    }
+    .header h1 {
+      color: #0e5066;
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    h2 {
+      color: #0e5066;
+      font-size: 22px;
+      margin: 25px 0 15px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .form-full { grid-column: 1 / -1; }
+
+    label {
+      display: block;
+      color: #0e5066;
+      font-weight: 500;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="tel"] {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: white;
+      font-size: 15px;
+      transition: all 0.3s;
+      border-radius: 100px;
+    }
+    input:focus {
+      outline: none;
+      border-color: #0e5066;
+      box-shadow: 0 0 0 3px rgba(14, 80, 102, 0.15);
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin: 10px 0;
+    }
+    .radio-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      
+    }
+
+    .btn {
+      background: #0e5066;
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 20px;
+      transition: all 0.3s;
+    }
+    .btn:hover {
+      background: #0b3d4f;
+      transform: translateY(-2px);
+    }
+    .btn-secundario {
+      background: #6c757d;
+      margin-top: 10px;
+    }
+    .btn-secundario:hover { background: #5a6268; }
+
+    .error {
+      color: #e74c3c;
+      text-align: center;
+      margin: 15px 0;
+      font-size: 14px;
+    }
+
+    .success-toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #d4edda;
+      color: #155724;
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-weight: bold;
+      z-index: 9999;
+      animation: slideDown 0.5s ease;
+    }
+    @keyframes slideDown {
+      from { transform: translate(-50%, -100px); opacity: 0; }
+      to { transform: translateX(-50%); opacity: 1; }
+    }
   </style>
 </head>
 <body>
 
-<div id="app" class="contenedor">
-  <h2>Registro de Cliente</h2>
-
-  <form @submit.prevent="registrar">
-    <label>CI Cliente</label>
-    <input v-model="ciCliente" placeholder="Ej: 12345678" maxlength="10" required>
-
-    <label>Primer Nombre</label>
-    <input v-model="nombre1" required>
-
-    <label>Segundo Nombre (opcional)</label>
-    <input v-model="nombre2">
-
-    <label>Apellido Paterno</label>
-    <input v-model="apellidoP" required>
-
-    <label>Apellido Materno (opcional)</label>
-    <input v-model="apellidoM">
-
-    <label>Dirección</label>
-    <input v-model="direccion" required>
-
-    <label>Correo</label>
-    <input type="email" v-model="correo" placeholder="ejemplo@gmail.com" required>
-
-    <label>Sexo</label>
-    <div class="radio-box">
-      <label><input type="radio" value="1" v-model="sexo"> Masculino</label>
-      <label><input type="radio" value="0" v-model="sexo"> Femenino</label>
+<div id="app">
+  <div class="container">
+    <div class="header">
+      <img src="../../media/logo_1.png" alt="TopSkin">
     </div>
 
-    <label>Teléfono (7-8 dígitos)</label>
-    <input v-model="telefono" @input="soloNumeros" maxlength="8" placeholder="76543210" required>
+    <h2>Bienvenid@ ingrese sus datos</h2>
 
-    <label>Contraseña</label>
-    <input type="password" v-model="contrasena" required>
+    <form @submit.prevent="registrar" class="form-grid">
+      <div>
+        <label>Primer Nombre</label>
+        <input v-model="nombre1" required style="width: 100%; padding: 12px 15px;border: 1px solid #ccc;border-radius: 8px;background: white;font-size: 15px;transition: all 0.3s;border-radius: 100px;">
+      </div>
+      <div>
+        <label>Segundo Nombre</label>
+        <input v-model="nombre2" style="width: 100%; padding: 12px 15px;border: 1px solid #ccc;border-radius: 8px;background: white;font-size: 15px;transition: all 0.3s;border-radius: 100px;">
+      </div>
+      <div>
+        <label>Primer Apellido</label>
+        <input v-model="apellidoP" required style="width: 100%; padding: 12px 15px;border: 1px solid #ccc;border-radius: 8px;background: white;font-size: 15px;transition: all 0.3s;border-radius: 100px;">
+      </div>
+      <div>
+        <label>Segundo Apellido</label>
+        <input v-model="apellidoM" style="width: 100%; padding: 12px 15px;border: 1px solid #ccc;border-radius: 8px;background: white;font-size: 15px;transition: all 0.3s;border-radius: 100px;">
+      </div>
+      <div>
+        <label>Teléfono/Celular</label>
+        <input v-model="telefono" @input="soloNumeros" maxlength="8" required style="width: 100%; padding: 12px 15px;border: 1px solid #ccc;border-radius: 8px;background: white;font-size: 15px;transition: all 0.3s;border-radius: 100px;">
+      </div>
+      <div>
+        <label>Sexo</label>
+        <div class="radio-group">
+          <label><input type="radio" value="1" v-model="sexo"> Masculino</label>
+          <label><input type="radio" value="0" v-model="sexo"> Femenino</label>
+        </div>
+      </div>
 
-    <label>Confirmar Contraseña</label>
-    <input type="password" v-model="confirmar" required>
+      <div class="form-full">
+        <label>Dirección</label>
+        <input v-model="direccion" placeholder="Escribe tu dirección completa" required style="width: 100%; padding: 12px 15px;border: 1px solid #ccc;border-radius: 8px;background: white;font-size: 15px;transition: all 0.3s;border-radius: 100px;">
+      </div>
 
-    <p class="error" v-if="error">{{ error }}</p>
+      <h2>Crea tu cuenta</h2>
 
-    <button type="submit" :disabled="cargando">
-      <span v-if="cargando">Registrando...</span>
-      <span v-else>Registrar Cliente</span>
-    </button>
-  </form>
-</div>
+      <div class="form-full">
+        <label>Correo</label>
+        <input type="email" v-model="correo" required>
+      </div>
+      <div class="form-full">
+        <label>Contraseña</label>
+        <input type="password" v-model="contrasena" required>
+      </div>
+      <div class="form-full">
+        <label>Confirmar Contraseña</label>
+        <input type="password" v-model="confirmar" required>
+      </div>
 
-<div v-if="mostrarExito" class="success-card">
-  ¡Cliente registrado exitosamente!
+      <p class="error" v-if="error">{{ error }}</p>
+
+      <button type="submit" class="btn" :disabled="cargando">
+        {{ cargando ? 'Registrando...' : 'Registrarse' }}
+      </button>
+
+      <button type="button" class="btn btn-secundario" @click="volver">
+        Regresar al Menú
+      </button>
+    </form>
+  </div>
+
+  <div v-if="mostrarExito" class="success-toast">
+    ¡Registro exitoso! Redirigiendo al menú...
+  </div>
 </div>
 
 <script>
 const { createApp, ref } = Vue
+
 createApp({
   setup() {
-    const ciCliente = ref("")
     const nombre1 = ref("")
     const nombre2 = ref("")
     const apellidoP = ref("")
     const apellidoM = ref("")
+    const telefono = ref("")
     const direccion = ref("")
     const correo = ref("")
     const sexo = ref("1")
-    const telefono = ref("")
     const contrasena = ref("")
     const confirmar = ref("")
     const error = ref("")
@@ -101,8 +254,13 @@ createApp({
       telefono.value = e.target.value
     }
 
+    const volver = () => {
+      window.location.href = "../../index.html"
+    }
+
     const registrar = async () => {
       error.value = ""
+
       if (contrasena.value !== confirmar.value) {
         error.value = "Las contraseñas no coinciden"
         return
@@ -115,11 +273,11 @@ createApp({
       cargando.value = true
 
       try {
-        const resp = await fetch("../../backend/registro.php", { // Ruta correcta a tu PHP
+        const resp = await fetch("../../backend/registro.php", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            ciCliente: ciCliente.value,
+            ciCliente: "00000000", 
             nombre1: nombre1.value,
             nombre2: nombre2.value,
             apellidoP: apellidoP.value,
@@ -129,17 +287,26 @@ createApp({
             sexo: sexo.value,
             telefono: telefono.value,
             contrasena: contrasena.value,
-            usuarioA: "1" // o el ID del que registra
+            usuarioA: "1"
           })
         })
 
         const data = await resp.json()
 
         if (data.success) {
+          // Guardar sesión del cliente
+          localStorage.setItem("cliente", JSON.stringify({
+            nombre1: nombre1.value,
+            apellidoP: apellidoP.value,
+            correo: correo.value
+          }))
+
           mostrarExito.value = true
-          setTimeout(() => location.reload(), 2500)
+          setTimeout(() => {
+            window.location.href = "../../index.html"
+          }, 2000)
         } else {
-          error.value = data.message
+          error.value = data.message || "Error al registrar"
         }
       } catch (e) {
         error.value = "Error de conexión"
@@ -148,7 +315,11 @@ createApp({
       }
     }
 
-    return { ciCliente, nombre1, nombre2, apellidoP, apellidoM, direccion, correo, sexo, telefono, contrasena, confirmar, error, cargando, mostrarExito, registrar, soloNumeros }
+    return {
+      nombre1, nombre2, apellidoP, apellidoM, telefono, direccion, correo,
+      sexo, contrasena, confirmar, error, cargando, mostrarExito,
+      registrar, soloNumeros, volver
+    }
   }
 }).mount("#app")
 </script>

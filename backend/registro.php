@@ -32,10 +32,10 @@ try {
     $apellidoM  = trim($input['apellidoM'] ?? '');
     $direccion  = trim($input['direccion']);
     $correo     = trim($input['correo']);
-    $sexo       = $input['sexo'] ?? '1'; // 1 = masculino, 0 = femenino
+    $sexo       = $input['sexo'] ?? '1';
     $telefono   = trim($input['telefono']);
-    $contrasena = password_hash($input['contrasena'], PASSWORD_DEFAULT); // ¡Contraseña encriptada!
-    $usuarioA   = $input['usuarioA'] ?? '1'; // quien registra (puedes poner el ID del admin o empleado)
+    $contrasena = $input['contrasena'];  
+    $usuarioA   = $input['usuarioA'] ?? '1'; 
 
     // Validaciones extra
     if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
