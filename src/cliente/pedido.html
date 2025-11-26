@@ -7,11 +7,13 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Baumans&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Baumans', cursive;
-      background: url('https://i.pinimg.com/736x/d6/96/c9/d696c981d220227be2daa882950d02ca.jpg') center 10% / cover fixed;
+      background: url('../../media/image2.png') center 10% / cover fixed;
       color: #333;
       min-height: 100vh;
     }
@@ -241,6 +243,34 @@
       .header::before { width: 120px; height: 80px; top: 15px; }
       .volver { padding: 12px 18px; font-size: 0.9rem; }
       .filtros { flex-direction: column; }
+    }.btn-pdf {
+      background: #e91e63;
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 50px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(233,30,99,0.4);
+      transition: all 0.3s;
+      margin-left: 15px;
+    }
+    .btn-pdf:hover { background: #c2185b; transform: translateY(-3px); }
+    .btn-pdf:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+
+    .pagos {
+      margin-top: 20px;
+      padding: 16px;
+      background: #f8fdff;
+      border-radius: 12px;
+      border-left: 5px solid #5699a1;
+    }
+    .pago-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-weight: 500;
     }
   </style>
 </head>
@@ -250,27 +280,30 @@
 
   <header class="header">
     <a href="../../index.html" class="volver">
-      <i class="fas fa-arrow-left"></i> Volver al Menú
+      Volver al Menú
     </a>
     <div></div>
   </header>
 
   <div class="container">
 
-    <!-- Filtros -->
+    <!-- FILTROS + BOTÓN PDF -->
     <div class="filtros">
       <label>Desde: <input type="date" v-model="desde"></label>
       <label>Hasta: <input type="date" v-model="hasta"></label>
-      <button @click="cargarPedidos"><i class="fas fa-search"></i> Filtrar</button>
+      <button @click="cargarPedidos">Filtrar</button>
+      <button class="btn-pdf" @click="generarPDF" :disabled="pedidos.length===0">
+        Generar PDF
+      </button>
     </div>
 
-    <!-- Pedidos -->
-    <div v-if="pedidos.length === 0" class="empty-state">
-      <i class="fas fa-box-open"></i>
-      <h2>No has realizado pedidos aún</h2>
-      <a href="catalogo.html" class="btn-volver-catalogo">Ir al catálogo</a>
+    <!-- SIN PEDIDOS -->
+    <div  v-if="pedidos.length === 0" class="empty-state">
+      <h2>No has realizado pedidos en este rango</h2>
+      <a href="../catalogo.html" class="btn-volver-catalogo">Ir al catálogo</a>
     </div>
 
+    <!-- LISTA DE PEDIDOS -->
     <div v-else v-for="p in pedidos" :key="p.nFactura" class="pedido-card">
       <div class="card-header">
         <h3>Factura #{{ p.nFactura }}</h3>
@@ -280,20 +313,27 @@
       </div>
 
       <div class="card-body">
-        <div class="fecha"><i class="fas fa-calendar-alt"></i> {{ p.fechaVenta }}</div>
-        <div class="total">{{ p.costoTotal }} Bs</div>
+        <div class="fecha">Fecha: {{ formatearFecha(p.fechaVenta) }}</div>
+        <div class="total">{{ Number(p.costoTotal).toFixed(2) }} Bs</div>
 
         <details>
-          <summary>Ver detalles del pedido</summary>
+          <summary>Ver productos</summary>
           <ul>
             <li v-for="d in p.detalle" :key="d.idDetalleVenta">
-              <div class="detalle-linea">
-                <span>{{ d.cantidad }} × {{ d.nombreProducto }}</span>
-                <span class="subtotal">= {{ d.subtotal }} Bs</span>
-              </div>
+              <span>{{ d.cantidad }} × {{ d.nombreProducto || 'Producto sin nombre' }}</span>
+              <span>= {{ Number(d.subtotal).toFixed(2) }} Bs</span>
             </li>
           </ul>
         </details>
+
+        <!-- MÉTODOS DE PAGO -->
+        <div class="pagos" v-if="p.pagos && p.pagos.length > 0">
+          <strong>Método(s) de pago:</strong>
+          <div v-for="pg in p.pagos" :key="pg.tipoPago" class="pago-item">
+            <span>{{ pg.tipoPago }}</span>
+            <strong>{{ Number(pg.monto).toFixed(2) }} Bs</strong>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -302,42 +342,151 @@
 
 <script>
 const { createApp } = Vue;
+const { jsPDF } = window.jspdf;
 
 createApp({
   data() {
     return {
-      cliente: JSON.parse(localStorage.getItem('cliente')),
+      cliente: JSON.parse(localStorage.getItem('cliente') || 'null'),
       pedidos: [],
       desde: '',
       hasta: ''
     }
   },
-  methods: { 
+
+  methods: {
     async cargarPedidos() {
-      if (!this.cliente) return alert("Debes iniciar sesión"), window.location.href = 'login.html';
+      if (!this.cliente?.ciCliente) {
+        alert('Debes iniciar sesión');
+        location.href = '../login.html';
+        return;
+      }
 
       try {
         const res = await fetch('../../backend/pedidos_cliente.php', {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             ciCliente: this.cliente.ciCliente,
-            desde: this.desde,
-            hasta: this.hasta
+            desde: this.desde || null,
+            hasta: this.hasta || null
           })
         });
+
         const data = await res.json();
-        if (data.success) {
+
+        if (data.success && Array.isArray(data.pedidos)) {
+          // === AQUÍ AGREGAMOS LOS PAGOS ===
+          for (let pedido of data.pedidos) {
+            const pagosRes = await fetch('../../backend/obtener_pagos.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ idVenta: pedido.nFactura })
+            });
+            const pagosData = await pagosRes.json();
+            pedido.pagos = pagosData.success ? pagosData.pagos : [];
+          }
           this.pedidos = data.pedidos;
         } else {
-          alert(data.message || 'Error cargando pedidos');
+          this.pedidos = [];
+          alert(data.message || 'No se encontraron pedidos');
         }
-      } catch(e) {
+      } catch (e) {
         console.error(e);
+        this.pedidos = [];
         alert('Error de conexión');
       }
+    },
+
+    formatearFecha(fecha) {
+      return new Date(fecha).toLocaleDateString('es-BO', {
+        day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+    },
+
+    generarPDF() {
+      if (this.pedidos.length === 0) return alert('No hay datos para generar el PDF');
+
+      const doc = new jsPDF('p', 'mm', 'a4');
+      const logo = '../../media/logo_1.png';
+
+      const img = new Image();
+      img.onload = () => {
+        doc.addImage(img, 'PNG', 15, 10, 45, 45);
+
+        doc.setFontSize(20);
+        doc.setFont('baumans', 'italic');
+        doc.text('REPORTE DE COMPRAS', 105, 30, { align: 'center' });
+
+        doc.setFontSize(12);
+        doc.text(`Cliente: ${this.cliente.nombre1} ${this.cliente.apellidoP || ''}`, 15, 65);
+        doc.text(`Período: ${this.desde ? this.formatearFecha(this.desde + 'T00:00') : 'Inicio'} al ${this.hasta ? this.formatearFecha(this.hasta + 'T00:00') : 'Hoy'}`, 15, 72);
+        doc.text(`Generado: ${new Date().toLocaleString('es-BO')}`, 15, 79);
+
+        let y = 90;
+        let totalGeneral = 0;
+
+        this.pedidos.forEach(p => {
+          if (y > 250) { doc.addPage(); y = 20; }
+
+          totalGeneral += parseFloat(p.costoTotal);
+
+          doc.setFontSize(14);
+          doc.setFont('baumans', 'italic');
+          doc.text(`Factura #${p.nFactura} • ${this.formatearFecha(p.fechaVenta)}`, 15, y);
+          y += 10;
+
+          // Tabla productos
+          const filasProd = p.detalle.map(d => [
+            d.cantidad,
+            d.nombreProducto || 'Sin nombre',
+            `${parseFloat(d.subtotal).toFixed(2)} Bs`
+          ]);
+          doc.autoTable({
+            startY: y,
+            head: [['Cant.', 'Producto', 'Subtotal']],
+            body: filasProd,
+            theme: 'striped',
+            headStyles: { fillColor: [86, 153, 161] },
+            styles: { fontSize: 10 }
+          });
+          y = doc.lastAutoTable.finalY + 8;
+
+          // Tabla pagos
+          if (p.pagos?.length > 0) {
+            const filasPag = p.pagos.map(pg => [pg.tipoPago, `${parseFloat(pg.monto).toFixed(2)} Bs`]);
+            doc.autoTable({
+              startY: y,
+              head: [['Método de Pago', 'Monto']],
+              body: filasPag,
+              theme: 'grid',
+              headStyles: { fillColor: [233, 30, 99] }
+            });
+            y = doc.lastAutoTable.finalY + 10;
+          }
+
+          doc.setFontSize(13);
+          doc.setFont('baumans', 'italic');
+          doc.text(`Total Factura: ${parseFloat(p.costoTotal).toFixed(2)} Bs`, 140, y);
+          y += 20;
+        });
+
+        doc.setFontSize(18);
+        doc.setFont('baumans', 'italic');
+        doc.text(`TOTAL GENERAL: ${totalGeneral.toFixed(2)} Bs`, 105, y + 10, { align: 'center' });
+
+        doc.setFontSize(10);
+        doc.text('Gracias por tu preferencia • TopSkin', 105, y + 25, { align: 'center' });
+
+        const nombre = `Reporte_Compras_${this.desde || 'inicio'}_al_${this.hasta || 'hoy'}.pdf`;
+        doc.save(nombre);
+      };
+
+      img.onerror = () => this.generarPDF(); 
+      img.src = logo + '?t=' + Date.now();
     }
   },
+
   mounted() {
     this.cargarPedidos();
   }

@@ -14,6 +14,7 @@
     font-family: 'Baumans', cursive; 
     background: url('https://i.pinimg.com/1200x/88/53/de/8853def388bb78e8d971113fdbc34e27.jpg') center 100% / cover; 
     min-height:100vh; 
+    backdrop-filter: blur(5px);
     padding-bottom: 50px;
   }
   .header { 
@@ -32,16 +33,17 @@
     margin-bottom: -100px; 
   }
   .volver { 
-    background: rgba(255,255,255,0.25); 
-    backdrop-filter: blur(8px); 
+    background: rgb(99, 124, 148);
     color:white; 
     padding:10px 22px; 
     border-radius:25px; 
     font-size:0.95rem; 
     text-decoration:none; 
+    justify-content: center;
     transition:0.3s; 
+    height: 50px;
   }
-  .volver:hover { background: rgba(255,255,255,0.4); }
+  .volver:hover { background: rgb(99, 108, 156); color: #151a1b; }
 
   .avatar {
     width: 140px;
@@ -100,7 +102,6 @@
     font-family:'Baumans',cursive; font-size:1rem;
   }
 
-  /* === NUEVO: Pestañas para cambiar entre Historial y Carrito === */
   .pestanas {
     display: flex;
     justify-content: center;
@@ -212,8 +213,6 @@
     .info { padding: 60px 20px 30px; }
   }
 
-  /* Reportes bien hechos */
-  /* === ARREGLO DEFINITIVO PARA IMÁGENES Y DISEÑO === */
 .pedido {
   background: rgba(255,255,255,0.94);
   border-radius: 20px;
@@ -253,7 +252,6 @@
   color: #1d3557;
 }
 
-/* Para el historial: lista bonita de productos */
 .productos-lista {
   margin-top: 15px;
   padding-left: 20px;

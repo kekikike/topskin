@@ -3,13 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carrito TopSkin</title>
+  <title>TopSkin.com</title>
 
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baumans&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  
 
   <style>
     * { box-sizing: border-box; }
@@ -247,57 +250,359 @@
       transform: scale(1.05);
       box-shadow: 0 20px 40px rgba(86, 153, 161, 0.5);
     }
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.65);
+    .modal-overlay { 
+      position:fixed; inset:0; background:rgba(8, 8, 8, 0.158); 
+      display:flex; align-items:center; justify-content:center; 
+      z-index:9999; backdrop-filter:blur(12px);
+    }
+
+    .modal-pago-header-new {
+      height: 210px;
+      background: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.4)), 
+                  url('../../media/image1.png') center/cover;
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 9999;
-      backdrop-filter: blur(8px);
-    }
-    .modal-content {
-      background: white;
-      padding: 35px;
-      border-radius: 18px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-      max-width: 90%;
-      width: 440px;
-      text-align: center;
-      animation: modalAparicion 0.35s ease-out;
-    }
-    @keyframes modalAparicion {
-      from { transform: scale(0.85); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-    .modal-content button {
-      padding: 14px 28px !important;
-      margin: 8px;
-      font-size: 1.05rem !important;
-      border-radius: 12px !important;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.25s;
-    }
-    .modal-content button:first-of-type {
-      background: #ddd !important;
-      color: #333;
-    }
-    .modal-content button:last-of-type {
-      background: #e74c3c !important;
-      color: white;
-    }
-    .modal-content button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
     }
 
-    @media (max-width: 868px) {
-      .carrito-body { grid-template-columns: 1fr; }
-      .header::before { width: 120px; height: 80px; top: 20px; }
-      .seleccionar-todos-bar { padding: 16px; font-size: 1rem; }
-      .seleccionar-todos-bar label { font-size: 1.1rem; }
+    .modal-pago-header-new h2 {
+      color: white;
+      font-size: 32px;
+      font-weight: 700;
+      text-shadow: 0 3px 10px rgba(0,0,0,0.6);
+      margin: 0;
+    }
+
+    .modal-pago-body-new {
+      padding: 32px 28px;
+      background: #f8fffe;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #0c5c5a;
+      margin: 24px 0 16px 0;
+      text-align: left;
+    }
+
+    .payment-options {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .payment-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 17px;
+      color: #0c5c5a;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .payment-item input {
+      opacity: 0;
+      position: absolute;
+    }
+
+    .checkmark {
+      width: 28px;
+      height: 28px;
+      border: 4px solid #0c5c5a;
+      border-radius: 50%;
+      position: relative;
+      transition: all 0.3s;
+    }
+
+    .payment-item input:checked + .checkmark {
+      background: #0c5c5a;
+    }
+
+    .payment-item input:checked + .checkmark::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 14px;
+      height: 14px;
+      background: white;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+    /* Inputs */
+    .input-full,
+    .tarjeta-form input {
+      width: 100%;
+      padding: 16px 18px;
+      margin: 10px 0;
+      border: 2px solid #b2d8d8;
+      border-radius: 16px;
+      background: white;
+      font-size: 16px;
+      color: #333;
+      transition: all 0.3s;
+    }
+
+    .input-full:focus,
+    .tarjeta-form input:focus {
+      outline: none;
+      border-color: #0c5c5a;
+      box-shadow: 0 0 0 4px rgba(12, 92, 90, 0.15);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+      /* QR */
+    .qr-section-new {
+      text-align: center;
+      padding: 24px 0;
+      margin: 10px 0;             
+    }
+
+    .qr-canvas {
+      /* Tamaño fijo perfecto para móvil y escritorio */
+      width: 240px !important;
+      height: 240px !important;
+      margin: 20px auto;
+      padding: 14px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+      display: inline-block;
+      
+      /* Esto es lo MÁS IMPORTANTE: evita que el canvas crezca más */
+      max-width: 240px;
+      max-height: 240px;
+    }
+
+    /* Forzamos que el contenedor del QR no sea más grande */
+    #qrCanvas {
+      width: 240px !important;
+      height: 240px !important;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .modal-pago-card-new {
+      width: 92%;
+      max-width: 480px;
+      max-height: 90vh;       
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+      background: white;
+      animation: modalAparicion 0.5s ease-out;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-pago-body-new {
+      padding: 32px 28px;
+      background: #f8fffe;
+      overflow-y: auto;      
+      flex: 1;
+    }
+
+    .qr-canvas {
+      margin: 20px auto;
+      padding: 16px;
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+      display: inline-block;
+    }
+
+    .total-qr-new {
+      font-size: 20px;
+      color: #0c5c5a;
+      font-weight: bold;
+      margin: 16px 0 0;
+    }
+
+    /* Botón confirmar */
+    .btn-confirmar-new {
+      width: 100%;
+      margin-top: 28px;
+      padding: 18px;
+      background: #0c5c5a;
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-size: 19px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 8px 20px rgba(12, 92, 90, 0.3);
+    }
+
+    .btn-confirmar-new:hover {
+      background: #094a48;
+      transform: translateY(-3px);
+      box-shadow: 0 15px 30px rgba(12, 92, 90, 0.4);
+    }
+
+    .error-msg {
+      color: #e74c3c;
+      text-align: center;
+      margin: 12px 0;
+      font-weight: 600;
+    }
+
+    .modal-exito-card {
+      width: 92%;
+      max-width: 480px;
+      border-radius: 28px;
+      overflow: hidden;
+      background: white;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+      animation: modalAparicion 0.5s ease-out;
+    }
+
+    .exito-header {
+      background: linear-gradient(135deg, #0c5c5a, #094a48);
+      color: white;
+      text-align: center;
+      padding: 32px 20px;
+    }
+
+    .exito-header i {
+      font-size: 64px;
+      margin-bottom: 16px;
+      color: #a8e6cf;
+    }
+
+    .exito-header h2 {
+      margin: 0 0 8px;
+      font-size: 28px;
+    }
+
+    .exito-header p {
+      margin: 0;
+      opacity: 0.9;
+      font-size: 16px;
+    }
+
+    .exito-body {
+      padding: 28px;
+      background: #f8fffe;
+    }
+
+    .factura-numero {
+      text-align: center;
+      font-size: 20px;
+      color: #0c5c5a;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    .productos-exito {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 20px;
+      border: 2px solid #e0f2f1;
+    }
+
+    .item-exito {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .item-exito:last-child { border-bottom: none; }
+
+    .img-exito {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 2px solid #e0f2f1;
+    }
+
+    .info-exito strong {
+      display: block;
+      font-size: 15px;
+      color: #0c5c5a;
+    }
+
+    .info-exito small {
+      color: #666;
+      font-size: 13px;
+    }
+
+    .precio-exito {
+      margin-left: auto;
+      font-weight: bold;
+      color: #0c5c5a;
+    }
+
+    .resumen-exito {
+      background: #e8f5f4;
+      padding: 18px;
+      border-radius: 16px;
+      margin-bottom: 24px;
+    }
+
+    .linea-exito {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 16px;
+    }
+
+    .linea-exito.total-exito {
+      padding-top: 14px;
+      border-top: 3px solid #0c5c5a;
+      font-size: 20px;
+      color: #0c5c5a;
+    }
+
+    .linea-exito.total-exito strong {
+      font-size: 24px;
+    }
+
+    .btn-exito {
+      width: 100%;
+      padding: 18px;
+      background: #0c5c5a;
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-exito:hover {
+      background: #094a48;
+      transform: translateY(-3px);
+      box-shadow: 0 15px 30px rgba(12,92,90,0.4);
+    }
+
+    @keyframes modalAparicion {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .delivery-options,
+      .payment-options {
+        gap: 20px;
+      }
+
     }
   </style>
 </head>
@@ -363,29 +668,57 @@
           <span>{{ totalConIVA }} Bs</span>
         </div>
 
-        <button class="btn-comprar" @click="comprar" :disabled="seleccionados.length === 0 || comprando">
+        <button class="btn-comprar" @click="modalPago = true" :disabled="seleccionados.length === 0 || comprando">
           {{ comprando ? 'Procesando...' : 'Comprar' }}
         </button>
       </aside>
   </div>
+<!-- Modal ÉXITO - FACTURA BONITA -->
+<div v-if="modalExito" class="modal-overlay" @click.self="modalExito = false">
+  <div class="modal-exito-card">
+    <div class="exito-header">
+      <i class="fas fa-check-circle"></i>
+      <h2>¡Compra Exitosa!</h2>
+      <p>Tu pedido ha sido procesado correctamente</p>
+    </div>
 
-  <!-- Modal éxito -->
-  <div v-if="modalExito" class="modal-overlay" @click.self="modalExito = false">
-    <div class="modal-content">
-      <h3 style="color:#658C7B; margin-top:0;">¡Compra Exitosa!</h3>
-      <p>Tu pedido ha sido registrado correctamente.</p>
-      <h2 style="color:#658C7B; margin:15px 0;">Factura #{{ numeroFactura }}</h2>
-      
-      <div style="background:#f9f9f9; padding:15px; border-radius:8px; text-align:left; margin:20px 0;">
-        <p><strong>Subtotal:</strong> {{ subtotalGuardado }} Bs</p>
-        <p><strong>IVA (13%):</strong> {{ ivaGuardado }} Bs</p>
-        <p><strong>Total pagado:</strong> {{ totalGuardado }} Bs</p>
+    <div class="exito-body">
+      <div class="factura-numero">
+        Factura <strong>#{{ numeroFactura }}</strong>
       </div>
 
-      <button class="btn-comprar" @click="modalExito = false">Aceptar y continuar</button>
+      <div class="productos-exito">
+        <div v-for="prod in productosSeleccionados" :key="prod.idProducto" class="item-exito">
+          <img :src="prod.foto || 'https://via.placeholder.com/60'" class="img-exito">
+          <div class="info-exito">
+            <strong>{{ prod.nombre }}</strong>
+            <small>{{ prod.cantidad }} × {{ prod.precioUnitario }} Bs</small>
+          </div>
+          <span class="precio-exito">{{ (prod.precioUnitario * prod.cantidad).toFixed(2) }} Bs</span>
+        </div>
+      </div>
+
+      <div class="resumen-exito">
+        <div class="linea-exito">
+          <span>Subtotal</span>
+          <span>{{ subtotalGuardado }} Bs</span>
+        </div>
+        <div class="linea-exito">
+          <span>IVA (13%)</span>
+          <span>{{ ivaGuardado }} Bs</span>
+        </div>
+        <div class="linea-exito total-exito">
+          <span>Total pagado</span>
+          <strong>{{ totalGuardado }} Bs</strong>
+        </div>
+      </div>
+
+      <button class="btn-exito" @click="modalExito = false">
+        Aceptar y continuar
+      </button>
     </div>
   </div>
-
+</div>
   <!-- Modal eliminar -->
   <div v-if="modalAbierto" class="modal-overlay" @click.self="cerrarModal">
     <div class="modal-content">
@@ -397,11 +730,66 @@
       </div>
     </div>
   </div>
-</div>
+  </div>
 
+  <!-- Modal PAGO -->
+  <div v-if="modalPago" class="modal-overlay" @click.self="modalPago = false">
+    <div class="modal-pago-card-new">
+      
+      <div class="modal-pago-header-new">
+        <h2>Realiza tu Pedido</h2>
+      </div>
+
+      <div class="modal-pago-body-new">
+
+        <!-- Dirección (solo si es delivery) -->
+        <div v-if="formaEntrega === 'delivery'" class="input-group">
+          <input type="text" placeholder="Ingresa tu dirección" class="input-full">
+        </div>
+
+        <!-- Método de Pago -->
+        <div class="section-title">Método de Pago</div>
+        <div class="payment-options">
+          <label class="payment-item">
+            <input type="radio" value="tarjeta" v-model="metodoPago">
+            <span class="checkmark"></span>
+            Pago con tarjeta
+          </label>
+          <label class="payment-item">
+            <input type="radio" value="qr" v-model="metodoPago">
+            <span class="checkmark"></span>
+            Pago con QR
+          </label>
+        </div>
+
+        <!-- Formulario Tarjeta -->
+        <div v-if="metodoPago === 'tarjeta'" class="tarjeta-form">
+          <input type="text" v-model="tarjeta.numero" @input="formatearTarjeta" placeholder="Número de tarjeta" class="input-full">
+          <input type="text" v-model="tarjeta.nombre" placeholder="Nombre tal como aparece en la tarjeta" class="input-full">
+          <div class="grid-2">
+            <input type="text" v-model="tarjeta.fecha" @input="formatearFecha" placeholder="Fecha de Expiración" maxlength="5">
+            <input type="text" v-model="tarjeta.cvc" @input="formatearCVC" placeholder="CVC">
+          </div>
+          <div class="error-msg" v-if="errorTarjeta">{{ errorTarjeta }}</div>
+        </div>
+
+        <!-- QR -->
+        <div v-if="metodoPago === 'qr'" class="qr-section-new">
+          <p><strong>Escanea para pagar</strong></p>
+          <div id="qrCanvas" class="qr-canvas"></div>
+          <p class="total-qr-new">Total a pagar: <strong>{{ totalConIVA }} Bs</strong></p>
+        </div>
+
+        <!-- Botón Confirmar -->
+        <button class="btn-confirmar-new" @click="confirmarPago">
+          Confirmar compra
+        </button>
+      </div>
+    </div>
+  </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script> 
 <script>
   const { createApp } = Vue
-
   createApp({
     data() {
       return {
@@ -415,7 +803,18 @@
         subtotalGuardado: '0.00',
         ivaGuardado: '0.00',
         totalGuardado: '0.00',
-        empleadoPorDefecto: { ciEmpleado: '1', nombre1: 'admin' }
+        empleadoPorDefecto: { ciEmpleado: '1', nombre1: 'admin' },
+        modalPago: false,
+        metodoPago: "",
+        errorTarjeta: '',
+        formaEntrega: 'retiro',
+        tarjeta: {
+          numero: "",
+          nombre: "",
+          fecha: "",
+          cvc: ""
+        }
+
       }
     },
     computed: {
@@ -447,6 +846,77 @@
           this.itemAEliminar = null;
           this.modalAbierto = false;
       },
+      
+      async confirmarPago() {
+        this.errorTarjeta = '';
+
+        if (!this.metodoPago) return alert("Selecciona un método");
+
+        if (this.metodoPago === 'tarjeta') {
+          const num = this.tarjeta.numero.replace(/\s/g,'');
+          if (num.length < 13 || !this.formatearTarjeta) return this.errorTarjeta = "Tarjeta inválida";
+          if (!this.tarjeta.nombre) return this.errorTarjeta = "Falta nombre";
+          if (!/^\d{2}\/\d{2}$/.test(this.tarjeta.fecha)) return this.errorTarjeta = "Fecha inválida";
+          if (!/^\d{3}$/.test(this.tarjeta.cvc)) return this.errorTarjeta = "CVC inválido";
+        }
+
+        if (this.metodoPago === 'qr') {
+          await this.$nextTick();
+          
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
+          this.generarQRPrevio();  
+        }
+
+        this.modalPago = false;
+        await this.comprar();
+        
+      },
+      //Si
+      formatearTarjeta(e) {
+        let v = e.target.value.replace(/\D/g, '').substring(0,16);
+        v = v.match(/.{1,4}/g)?.join(' ') || v;
+        this.tarjeta.numero = v;
+      },
+
+      formatearFecha(e) {
+        let v = e.target.value.replace(/\D/g, '').substring(0,4);
+        if (v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
+        this.tarjeta.fecha = v;
+      },
+
+      // Limitar CVC a 3 dígitos
+      formatearCVC(e) {
+        let v = e.target.value.replace(/\D/g, '').substring(0,3);
+        this.tarjeta.cvc = v;
+      },
+
+      generarQRPrevio() {
+    const container = document.getElementById('qrCanvas');
+    container.innerHTML = ''; // limpiar si hay QR previo
+
+    const datosQR = {
+        total: this.totalConIVA,
+        productos: this.productosSeleccionados.map(p => ({
+            nombre: p.nombre,
+            cantidad: p.cantidad,
+            precio: p.precioUnitario
+        })),
+        subtotal: this.subtotalSinIVA,
+        iva: this.ivaCalculado,
+        fecha: new Date().toLocaleString(),
+        metodo: "Pago con QR"
+    };
+
+    new QRCode(container, {
+        text: JSON.stringify(datosQR),
+        width: 256,
+        height: 256,
+        colorDark: "#0c4a5c",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+},
 
       async cargarCarrito() {
           const cliente = JSON.parse(localStorage.getItem('cliente'));
@@ -511,9 +981,13 @@
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
-                      cliente: cliente,
-                      productos: productosEnviar 
-                  })
+                  cliente: cliente,
+                  productos: productosEnviar,
+                  pago: {
+                      metodo: this.metodoPago,  
+                      tarjeta: this.tarjeta     
+                  }
+                })
               });
 
               const result = await res.json();
@@ -541,6 +1015,22 @@
           }
       }
 
+    },
+    watch: {
+      metodoPago(newVal) {
+        if (newVal === 'qr' && this.modalPago) {
+          this.$nextTick(() => {
+            setTimeout(() => this.generarQRPrevio(), 50); 
+          });
+        }
+      },
+      modalPago(newVal) {
+        if (newVal && this.metodoPago === 'qr') {
+          this.$nextTick(() => {
+            setTimeout(() => this.generarQRPrevio(), 50);
+          });
+        }
+      }
     },
     mounted() {
       this.cargarCarrito();

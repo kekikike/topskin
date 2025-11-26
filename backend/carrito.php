@@ -12,6 +12,8 @@ $empleadoPorDefecto = ['ciEmpleado' => '1'];
 $datos = json_decode(file_get_contents('php://input'), true);
 $cliente = $datos['cliente'] ?? null;
 $productos = $datos['productos'] ?? $_SESSION['carrito'] ?? [];
+$pagoMetodo = $datos['pago']['metodo'] ?? null;
+$tarjeta = $datos['pago']['tarjeta'] ?? [];
 
 // Validaciones
 if (empty($productos)) {
@@ -37,7 +39,9 @@ try {
     $iva = $subtotal * $ivaPorcentaje;
     $total = $subtotal + $iva;
 
+    // --------------------------
     // Insertar venta
+    // --------------------------
     $stmtVenta = $pdo->prepare(
         "INSERT INTO tventas (fechaVenta, idPersonal, idCliente, costoTotal, IVA, usuarioA) 
          VALUES (NOW(), ?, ?, ?, ?, ?)"
@@ -49,9 +53,26 @@ try {
         $iva,
         $empleadoPorDefecto['ciEmpleado']
     ]);
+
+    // Obtener el ID de la venta recién creada
     $nFactura = $pdo->lastInsertId();
 
-    // Preparar detalle venta y stock
+    // --------------------------
+    // Insertar detalle de pago
+    // --------------------------
+    $stmtPago = $pdo->prepare(
+        "INSERT INTO tdetallepagos (idVenta, tipoPago, monto, usuarioA) VALUES (?, ?, ?, ?)"
+    );
+    $stmtPago->execute([
+        $nFactura,
+        $pagoMetodo,  // "tarjeta" o "qr"
+        $total,
+        $empleadoPorDefecto['ciEmpleado']
+    ]);
+
+    // --------------------------
+    // Insertar detalle venta y actualizar stock
+    // --------------------------
     $stmtDetalle = $pdo->prepare(
         "INSERT INTO tdetalleVenta (idVenta, idProducto, cantidad, subtotal, usuarioA) 
          VALUES (?, ?, ?, ?, ?)"
